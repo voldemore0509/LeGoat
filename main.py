@@ -15,7 +15,7 @@ class Minou_Setup:
         self.memory = ConversationBufferMemory(return_messages=True)
         self.tokens_default = 1200
         self.prompt = ChatPromptTemplate.from_template("""
-        You name is Goat
+        Your name is The Goat , You are 
         Conversation history : {history}
         User : {input}
         """)
@@ -83,6 +83,13 @@ class Minou_Setup:
         )
         self.chain = self.prompt | self.model
         print("Mode Maestro activé — Gemma 3 27B, 2048 tokens.")
+
+    def tokens_attribution(self,requet):
+        print("Mode pour savoir combien de tokens attribué")
+        keyword = ["comment","explique","dit moi"]
+        for i in range(0,len(requet)):  #Crée un système pour parcourir la réponse de l'utilisateur si un des mot clef et detecter on permet d'augementer les tokens sinon on reste à l'initial
+            requet = keyword
+
 
 minou_setup = Minou_Setup()
 
