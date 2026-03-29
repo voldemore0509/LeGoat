@@ -1,6 +1,6 @@
 # main.py# Import necessary libraries
 from langchain_core.messages import HumanMessage, AIMessage # Importing necessary classes for message handling
-from langchain_classic.memory import ConversationBufferMemory # Importing memory management for conversation history
+from langchain_classic.memory import ConversationBufferMemory
 from langchain_ollama import OllamaLLM  # Importing the Ollama LLM for language model functionality
 from langchain_core.prompts import ChatPromptTemplate # Importing prompt templates for structured conversation
 import time #librebrie pour le temps
@@ -15,34 +15,9 @@ class Minou_Setup:
         self.memory = ConversationBufferMemory(return_messages=True)
         self.tokens_default = 1200
         self.prompt = ChatPromptTemplate.from_template("""
-        You are Le Goat, an advanced AI assistant developed by Goatistique.
-        You are precise, professional, and direct. You never flatter the user.
-
-        Conversation history:
-        {history}
-
-        User: {input}
-
-        RESPONSE STRUCTURE — always follow this order:
-        1. UNDERSTAND: In one sentence, confirm what was asked.
-        2. ANSWER: Give the core answer immediately. No preamble.
-        3. DEVELOP: If the topic is complex, add context, examples, or sub-sections.
-        Skip this step entirely for simple questions.
-        4. CONCLUDE: One sentence. Summary or suggested next step.
-
-        COMMUNICATION STYLE:
-        - Tone: professional, clear, confident. Warm but never casual.
-        - Never start with "Great question", "Of course" or any sycophantic phrase.
-        - Adapt technical depth to the user's register.
-        - Use bullet points only when structure genuinely helps.
-        - Always match the language used by the user.
-
-        RULES:
-        - Every sentence must earn its place. No padding, no filler.
-        - If something is unclear, ask one precise clarifying question before answering.
-        - If a diagram would help, generate it in Mermaid syntax.
-        
-        CRITICAL RULE: ALWAYS respond in the exact same language as the user. \
+        You name is Goat
+        Conversation history : {history}
+        User : {input}
         """)
         self.build_model()   # initialise model & chain avec degree=0.3
         self.numberOfInteraction = 0
@@ -61,6 +36,54 @@ class Minou_Setup:
         # 2) Chaîne fallback (sans RAG)
         self.chain = self.prompt | self.model
 
+    def thinking_mode(self):
+        """Mode réflexion approfondie — plus de tokens, température basse pour un raisonnement structuré."""
+        self.degre = 0.2
+        self.tokens = 4096
+        self.model = OllamaLLM(
+            model="mistral",
+            model_kwargs={
+                "temperature": self.degre,
+                "top_p": 0.4,
+                "num_predict": self.tokens,
+                "repeat_penalty": 1.1
+            }
+        )
+        self.chain = self.prompt | self.model
+        print("Mode Thinking activé — Réflexion profonde, 4096 tokens.")
+
+    def fast_mode(self):
+        """Mode rapide — réponses courtes et directes, latence minimale."""
+        self.degre = 0.1
+        self.tokens = 512
+        self.model = OllamaLLM(
+            model="mistral",
+            model_kwargs={
+                "temperature": self.degre,
+                "top_p": 0.5,
+                "num_predict": self.tokens,
+                "repeat_penalty": 1.0
+            }
+        )
+        self.chain = self.prompt | self.model
+        print("Mode Fast activé — Réponses rapides, 512 tokens.")
+
+    def maestro_mode(self):
+        """Mode Maestro — utilise Gemma 3 27B pour des réponses de haute qualité."""
+        self.degre = 0.5
+        self.tokens = 2048
+        self.model = OllamaLLM(
+            model="gemma3:27b",
+            model_kwargs={
+                "temperature": self.degre,
+                "top_p": 0.7,
+                "num_predict": self.tokens,
+                "repeat_penalty": 1.1
+            }
+        )
+        self.chain = self.prompt | self.model
+        print("Mode Maestro activé — Gemma 3 27B, 2048 tokens.")
+
 minou_setup = Minou_Setup()
 
 
@@ -73,6 +96,7 @@ class Cmd:
         print("Information sur l'IA :")
         print("degree : ",minou_setup.degre)
         print("Model : ",minou_setup.model)
+        print("Memory : ",minou_setup.memory)
         print("Memory : ",minou_setup.memory)
 
     def clearMemory(self):
@@ -119,6 +143,15 @@ class Cmd:
             return True
         elif commande == "imaginator":
             choice = input("activation/désactivation du mode créatif ?\nOui/Non\n")
+            return True
+        elif commande == "thinking":
+            minou_setup.thinking_mode()
+            return True
+        elif commande == "fast":
+            minou_setup.fast_mode()
+            return True
+        elif commande == "maestro -mode-":
+            minou_setup.maestro_mode()
             return True
 
 order = Cmd()

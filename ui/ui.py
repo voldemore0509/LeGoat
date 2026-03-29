@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# UI Web locale — Le Goat (Goatistique)
-# Refactorisé par Claude — v2 avec dropdown modèle, styles d'écriture, chat privé
+# UI Desktop native — Le Goat (Goatistique)
+# Refactorisé par Claude — v3 fenêtre native pywebview (fallback navigateur)
 
 from __future__ import annotations
 
@@ -10,12 +10,14 @@ import html
 import json
 import threading
 import unittest
-import webbrowser
+try:
+    import webview
+except ImportError:
+    webview = None
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import ClassVar, Dict, Iterable, List, Optional, Sequence, Tuple
-from main import generate_reply
 
 
 # ============================================================
@@ -45,11 +47,11 @@ class AppConfig:
         {"id": "fast", "icon": "\u26a1"},
         {"id": "research_in_data", "icon": "\u25a3"},
         {"id": "research_in_memory", "icon": "\u25cd"},
-        {"id": "creativity", "icon": "\u2726"},
+        # {"id": "creativity", "icon": "\u2726"},  # Désactivé
         {"id": "deep_research", "icon": "\u2b23"},
     ]
     DEFAULT_MODE_ID = ""
-    DISABLED_MODES_OPTIMIZED: ClassVar[set] = {"creativity", "reflection", "research_in_memory", "deep_research"}
+    DISABLED_MODES_OPTIMIZED: ClassVar[set] = {"reflection", "research_in_memory", "deep_research"}
     MODELS: ClassVar[list] = [
         {"id": "goat", "label_key": "model_goat", "desc_key": "model_goat_desc"},
         {"id": "maestro", "label_key": "model_maestro", "desc_key": "model_maestro_desc"},
@@ -62,10 +64,12 @@ class AppConfig:
         "goat_code": 6 * 1024,   # 6 Ko par feuille
         "maestro": 350 * 1024,   # 350 Ko par feuille
     }
-    WRITING_STYLES: ClassVar[list] = [
-        {"id": "explicatif", "icon": "\U0001f4d6"},
-        {"id": "educatif", "icon": "\U0001f393"},
-    ]
+    # Writing styles désactivés
+    WRITING_STYLES: ClassVar[list] = []
+    # WRITING_STYLES: ClassVar[list] = [
+    #     {"id": "explicatif", "icon": "\U0001f4d6"},
+    #     {"id": "educatif", "icon": "\U0001f393"},
+    # ]
     DEFAULT_WRITING_STYLE = ""
     GADGETS: ClassVar[list] = [
         {"id": "schema", "icon": "\U0001f4ca"},
@@ -563,13 +567,24 @@ body[data-effects="off"] .composer,body[data-effects="off"] .settings-backdrop{b
 *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"JetBrains Mono","Segoe UI",Arial,sans-serif;font-size:calc(16px * var(--text-scale));background:var(--bg);color:var(--text-primary)}
 button,input,textarea,select{font:inherit}
 
-/* ── Model dropdown (style ChatGPT) ── */
-.model-dropdown{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:50}
+/* ── Top Tab Bar (Chat / Goat Coworking) ── */
+.top-tab-bar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:center;z-index:55;background:var(--bg);border-bottom:1px solid var(--line);padding:0 16px}
+.top-tab-bar-inner{display:flex;align-items:center;background:var(--surface-soft);border-radius:12px;padding:3px;gap:2px}
+.top-tab-btn{padding:8px 20px;border:none;border-radius:10px;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.875rem;font-weight:600;font-family:"JetBrains Mono","Segoe UI",sans-serif;transition:background .16s,color .16s;display:flex;align-items:center;gap:6px}
+.top-tab-btn:hover{color:var(--text-primary)}
+.top-tab-btn.active{background:var(--bubble-user);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.top-tab-btn .chevron{font-size:.65rem;opacity:.5;transition:transform .2s}
+.top-tab-btn[aria-expanded="true"] .chevron{transform:rotate(180deg)}
+.tab-chat-wrap{position:relative}
+
+/* ── Model dropdown (intégré dans onglet Chat) ── */
+.model-dropdown{display:none}
+.model-trigger-btn{display:none}
 .model-trigger-btn{display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--text-primary);cursor:pointer;font-size:1rem;font-weight:700;padding:8px 12px;border-radius:12px;transition:background .14s}
 .model-trigger-btn:hover{background:var(--surface-soft)}
 .model-trigger-btn .chevron{font-size:.7rem;opacity:.6;transition:transform .2s}
 .model-trigger-btn[aria-expanded="true"] .chevron{transform:rotate(180deg)}
-.model-dd-menu{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);min-width:280px;padding:10px;border-radius:16px;background:var(--menu-bg);border:1px solid var(--menu-border);box-shadow:0 20px 50px rgba(0,0,0,.32);display:flex;flex-direction:column;gap:2px;z-index:60;opacity:0;pointer-events:none;transition:opacity .16s,transform .16s;transform:translateX(-50%) translateY(-4px)}
+.model-dd-menu{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:280px;padding:10px;border-radius:16px;background:var(--menu-bg);border:1px solid var(--menu-border);box-shadow:0 20px 50px rgba(0,0,0,.32);display:flex;flex-direction:column;gap:2px;z-index:60;opacity:0;pointer-events:none;transition:opacity .16s,transform .16s;transform:translateX(-50%) translateY(-4px)}
 .model-dd-menu.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
 .model-dd-header{padding:8px 12px;font-size:.75rem;color:var(--text-muted);font-weight:500}
 .model-dd-item{width:100%;border:none;border-radius:12px;background:transparent;color:var(--menu-text);display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer;text-align:left;transition:background .14s}
@@ -591,8 +606,8 @@ button,input,textarea,select{font:inherit}
 .private-chat-btn:hover .pc-tooltip{display:block}
 .private-chat-btn.active{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.3);color:#3b82f6}
 
-.shell{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:60px 16px 40px}
-.shell.has-messages{justify-content:flex-start;padding-top:70px}
+.shell{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:72px 16px 40px}
+.shell.has-messages{justify-content:flex-start;padding-top:82px}
 .brand-stack{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:1;transform:translateY(0) scale(1);max-height:260px;overflow:hidden;transition:opacity .26s,transform .26s,max-height .32s,margin .26s}
 .shell.has-messages .brand-stack{opacity:0;transform:translateY(-14px) scale(.92);max-height:0;margin:0;pointer-events:none}
 .logo-card{width:auto;height:auto;background:none;display:grid;place-items:center;box-shadow:none;border:none;overflow:visible}
@@ -680,7 +695,7 @@ button,input,textarea,select{font:inherit}
 .mode-announcement{font-size:.8125rem;color:var(--text-secondary);padding-left:8px;min-height:18px}
 .status{width:min(760px,calc(100vw - 32px));min-height:18px;text-align:center;font-size:.8125rem;color:var(--status-color);line-height:1.35}
 .settings-anchor,.newchat-anchor{position:fixed;left:18px;z-index:40;display:flex;align-items:center;gap:10px}
-.settings-anchor{bottom:18px}.newchat-anchor{top:18px}
+.settings-anchor{bottom:18px}.newchat-anchor{top:64px}
 .settings-button,.newchat-button{width:52px;height:52px;border-radius:16px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);box-shadow:var(--shadow-soft);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.375rem;transition:transform .14s}
 .settings-button:hover,.newchat-button:hover{transform:translateY(-1px)}
 .settings-button-label,.newchat-button-label{padding:0 12px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-secondary);display:inline-flex;align-items:center;font-size:.8125rem;box-shadow:var(--shadow-soft);opacity:0;transform:translateX(-4px);pointer-events:none;transition:opacity .14s,transform .14s}
@@ -721,7 +736,7 @@ button,input,textarea,select{font:inherit}
 .thanks-text{text-align:center;font-size:1rem;font-weight:600;padding:18px 0 6px;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899,#3b82f6);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:300% 50%}}
 @media(max-width:900px){.settings-modal{width:min(980px,calc(100vw - 24px));grid-template-columns:1fr}.settings-sidebar{border-right:none;border-bottom:1px solid var(--settings-panel-border)}.settings-header{cursor:default}.settings-hint{display:none}}
-@media(max-width:640px){.composer{padding:14px;border-radius:22px}.bubble{max-width:92%}.controls-row{flex-wrap:wrap}.mode-announcement{padding-left:0}.dropdown-menu{min-width:min(280px,calc(100vw - 32px))}.settings-anchor{left:12px;bottom:12px}.newchat-anchor{left:12px;top:12px}.settings-modal{min-height:auto;max-height:calc(100vh - 24px)}.settings-header h2{font-size:1.25rem}.settings-row{flex-direction:column;align-items:flex-start}.settings-choice-group{justify-content:flex-start}}
+@media(max-width:640px){.composer{padding:14px;border-radius:22px}.bubble{max-width:92%}.controls-row{flex-wrap:wrap}.mode-announcement{padding-left:0}.dropdown-menu{min-width:min(280px,calc(100vw - 32px))}.settings-anchor{left:12px;bottom:12px}.newchat-anchor{left:12px;top:58px}.settings-modal{min-height:auto;max-height:calc(100vh - 24px)}.settings-header h2{font-size:1.25rem}.settings-row{flex-direction:column;align-items:flex-start}.settings-choice-group{justify-content:flex-start}}
 
 /* ── Character counter ── */
 .char-counter{display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-secondary);font-family:"JetBrains Mono",monospace;cursor:default;padding:2px 0;margin-top:2px;user-select:none;transition:color .2s}
@@ -769,26 +784,43 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
 </head>
 <body data-theme="light" data-effects="on" data-textsize="default">
 
-<!-- Model dropdown (ChatGPT style) -->
-<div class="model-dropdown" id="model-dropdown">
-  <button type="button" class="model-trigger-btn" id="model-trigger-btn" aria-expanded="false"><span id="model-current-label"></span><span class="chevron">▾</span></button>
-  <div class="model-dd-menu" id="model-dd-menu" role="menu"></div>
+<!-- Top Tab Bar -->
+<div class="top-tab-bar">
+  <div class="top-tab-bar-inner">
+    <div class="tab-chat-wrap">
+      <button type="button" class="top-tab-btn active" id="tab-chat" aria-expanded="false"><span id="model-current-label">Chat</span><span class="chevron">▾</span></button>
+      <div class="model-dd-menu" id="model-dd-menu" role="menu"></div>
+    </div>
+    <button type="button" class="top-tab-btn" id="tab-coworking" data-tab="coworking">Goat Coworking</button>
+  </div>
 </div>
 
-<!-- Private Chat button -->
+<!-- Model dropdown ancien (caché, dummy pour JS) -->
+<div class="model-dropdown" id="model-dropdown" hidden>
+  <button type="button" class="model-trigger-btn" id="model-trigger-btn" aria-expanded="false"></button>
+</div>
+
+<!-- Private Chat button (désactivé)
 <button type="button" class="private-chat-btn" id="private-chat-btn">🔍<div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
+-->
 
 <main class="shell" id="shell">
   <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div></section>
   <section class="messages" id="messages" aria-live="polite"></section>
   <section class="composer-wrap">
+    <!-- Sheets system désactivé
     <div class="sheets-row" id="sheets-row"></div>
+    -->
     <form class="composer" id="chat-form">
+      <!-- Plus button désactivé
       <button type="button" class="composer-plus" id="composer-plus" data-tooltip-key="tooltip_plus_btn">+</button>
+      -->
       <textarea id="message-input" rows="1"></textarea>
       <button type="submit" class="send-button" id="send-button" data-tooltip-key="tooltip_send">↑</button>
       <button type="button" class="stop-button" id="stop-button" hidden>■</button>
+      <!-- Plus menu désactivé
       <div class="plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div>
+      -->
     </form>
     <div style="display:flex;justify-content:flex-end;width:100%;padding:0 4px;position:relative">
       <div class="char-counter" id="char-counter"><span id="char-counter-text">0 / 10 000</span><div class="char-counter-tip" id="char-counter-tip"></div></div>
@@ -796,8 +828,9 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
     <div class="controls-row">
       <!-- Modes -->
       <div class="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
-      <!-- Writing Styles -->
+      <!-- Writing Styles désactivé
       <div class="style-panel"><button type="button" class="style-trigger" id="style-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_style_trigger"><span class="trigger-icon" id="style-icon">✎</span><span id="selected-style-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="style-menu" role="menu"></div></div>
+      -->
       <!-- Gadgets (desactive pour le moment)
       <div class="style-panel"><button type="button" class="style-trigger" id="gadget-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_gadget_trigger"><span class="trigger-icon" id="gadget-icon">⚙</span><span id="selected-gadget-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="gadget-menu" role="menu"></div></div>
       -->
@@ -866,6 +899,12 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
 <div class="goatistique-badge" id="goatistique-badge"><img id="goatistique-logo" src="%%GOATISTIQUE_LIGHT_URI%%" data-light="%%GOATISTIQUE_LIGHT_URI%%" data-dark="%%GOATISTIQUE_DARK_URI%%" alt="Goatistique"></div>
 <div class="overclock-backdrop" id="overclock-backdrop"><div class="overclock-modal"><h3>⚠ Overclocking IA</h3><div class="oc-warning-text" id="oc-warning-text"></div><div class="oc-actions"><button type="button" class="oc-btn-cancel" id="oc-cancel-btn"></button><button type="button" class="oc-btn-confirm" id="oc-confirm-btn"></button></div></div></div>
 <div class="tooltip" id="tooltip" hidden></div>
+<!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
+<div hidden>
+  <button id="private-chat-btn"></button><span id="pc-title"></span><span id="pc-desc"></span>
+  <button id="composer-plus"></button><div id="plus-menu"></div><button id="plus-add-sheet"></button><div id="sheets-row"></div>
+  <button id="style-trigger"></button><div id="style-menu"></div><span id="selected-style-label"></span><span id="style-icon"></span>
+</div>
 <script>
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
@@ -941,8 +980,8 @@ function renderModelDD(){
   modelDDMenu.innerHTML='<div class="model-dd-header">'+esc(t('model_recent'))+'</div>'+models.map(m=>'<button type="button" class="model-dd-item'+(m.id===S.model?' selected':'')+'" data-model="'+esc(m.id)+'" role="menuitemradio"><div class="m-info"><span class="m-name">'+esc(t(m.label_key))+'</span><span class="m-desc">'+esc(t(m.desc_key))+'</span></div><span class="m-check">✓</span></button>').join('')+'<div class="model-dd-sep"></div>';
   modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{playClick();S.model=b.dataset.model;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD()}));
 }
-function openModelDD(){modelDDMenu.classList.add('open');modelTriggerBtn.setAttribute('aria-expanded','true')}
-function closeModelDD(){modelDDMenu.classList.remove('open');modelTriggerBtn.setAttribute('aria-expanded','false')}
+function openModelDD(){modelDDMenu.classList.add('open');modelTriggerBtn.setAttribute('aria-expanded','true');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','true')}
+function closeModelDD(){modelDDMenu.classList.remove('open');modelTriggerBtn.setAttribute('aria-expanded','false');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','false')}
 modelTriggerBtn.addEventListener('click',()=>{playClick();modelDDMenu.classList.contains('open')?closeModelDD():openModelDD()});
 
 // ── Private Chat (mode incognito) ──
@@ -1083,6 +1122,18 @@ applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.cl
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
 applyAiFont(S.aifont,false);updateOverclockUI();updateCharCounter();
 statusEl.textContent=ST[S.lang]||ST[defs.lang];ta.focus();
+
+// ── Top Tab Bar (Chat = model dropdown, Goat Coworking = en dev) ──
+const tabChat=$('tab-chat'),tabCoworking=$('tab-coworking');
+if(tabChat){
+  tabChat.addEventListener('click',()=>{playClick();const menu=modelDDMenu;if(menu.classList.contains('open')){menu.classList.remove('open');tabChat.setAttribute('aria-expanded','false')}else{menu.classList.add('open');tabChat.setAttribute('aria-expanded','true')}});
+}
+if(tabCoworking){
+  tabCoworking.addEventListener('click',()=>{playClick();alert('Goat Coworking — En développement.')});
+}
+// Fermer le model dropdown quand on clique ailleurs
+document.addEventListener('click',function(e){if(tabChat&&modelDDMenu&&!tabChat.contains(e.target)&&!modelDDMenu.contains(e.target)){modelDDMenu.classList.remove('open');tabChat.setAttribute('aria-expanded','false')}});
+
 }();
 </script>
 </body>
@@ -1254,10 +1305,11 @@ def run_tests() -> None:
 # ============================================================
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Le Goat — Interface web locale")
+    parser = argparse.ArgumentParser(description="Le Goat — Interface desktop native")
     parser.add_argument("--host", default=AppConfig.HOST)
     parser.add_argument("--port", type=int, default=AppConfig.PORT)
-    parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--no-browser", action="store_true", help="Mode serveur pur (pas de fenêtre)")
+    parser.add_argument("--browser", action="store_true", help="Ouvrir dans le navigateur au lieu de la fenêtre native")
     parser.add_argument("--test", action="store_true")
     args = parser.parse_args()
     if args.test:
@@ -1267,16 +1319,52 @@ def main() -> None:
     server = GoatHTTPServer((args.host, args.port), GoatRequestHandler, app)
     url = f"http://{args.host}:{args.port}"
     print(f"Le Goat lancé sur {url}")
-    if not args.no_browser:
-        t = threading.Timer(0.45, lambda: webbrowser.open(url))
-        t.daemon = True
-        t.start()
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("Arrêt du serveur Le Goat.")
-    finally:
-        server.server_close()
+
+    # Lancer le serveur HTTP dans un thread daemon
+    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
+
+    if args.no_browser:
+        # Mode serveur pur — on bloque sur le thread principal
+        try:
+            server_thread.join()
+        except KeyboardInterrupt:
+            print("Arrêt du serveur Le Goat.")
+        finally:
+            server.server_close()
+    elif args.browser or webview is None:
+        # Fallback navigateur si pywebview absent ou demandé
+        import webbrowser
+        if webview is None:
+            print("⚠ pywebview non installé — ouverture dans le navigateur.")
+            print("  Pour la fenêtre native : pip install pywebview")
+        webbrowser.open(url)
+        try:
+            server_thread.join()
+        except KeyboardInterrupt:
+            print("Arrêt du serveur Le Goat.")
+        finally:
+            server.server_close()
+    else:
+        # Mode desktop natif avec pywebview
+        window = webview.create_window(
+            AppConfig.DEFAULT_TITLE,
+            url,
+            width=1280,
+            height=820,
+            min_size=(800, 500),
+            resizable=True,
+            text_select=True,
+        )
+        # webview.start() bloque le thread principal jusqu'à fermeture de la fenêtre
+        try:
+            webview.start(debug=False)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            print("Arrêt du serveur Le Goat.")
+            server.shutdown()
+            server.server_close()
 
 
 if __name__ == "__main__":
