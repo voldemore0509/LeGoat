@@ -8,72 +8,62 @@ import sys  # (AJOUT) Besoin d'écrire/vider explicitement la sortie standard
 
 # --- Config & utils RAG ------------------------------------------------------
 
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_classic.memory import ConversationBufferMemory
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
+import time
+import sys
+
 class Minou_Setup:
-    def __init__(self): # Constructor to initialize the chat agent
-        self.degre = 0.5
-        self.tokens = 1200   # <-- AJOUT Token
+    def __init__(self):
+        self.degre = 0.1
+        self.tokens = 600
+        self.max_history_messages = 4  # garde seulement les 2 derniers échanges
         self.memory = ConversationBufferMemory(return_messages=True)
-        self.tokens_default = 1200
         self.prompt = ChatPromptTemplate.from_template("""
-        Your name is The Goat , You are 
-        Conversation history : {history}
-        User : {input}
+        You are The Goat.
+        Answer briefly and directly by default.
+
+        Conversation history:
+        {history}
+
+        User: {input}
         """)
-        self.build_model()   # initialise model & chain avec degree=0.3
+        self.build_model()
         self.numberOfInteraction = 0
         self.displayInformation = 0
-    
+
     def build_model(self):
-        # 1) Modèle
         self.model = OllamaLLM(
-            model="mistral",
+            model="mistral-small:latest",
             model_kwargs={
                 "temperature": self.degre,
-                "top_p": min(1.0, self.degre + 0.3),
-                "num_predict": self.tokens
-            }
-        )
-        # 2) Chaîne fallback (sans RAG)
-        self.chain = self.prompt | self.model
-
-    def thinking_mode(self):
-        """Mode réflexion approfondie — plus de tokens, température basse pour un raisonnement structuré."""
-        self.degre = 0.2
-        self.tokens = 4096
-        self.model = OllamaLLM(
-            model="mistral",
-            model_kwargs={
-                "temperature": self.degre,
-                "top_p": 0.4,
+                "top_p": 0.6,
                 "num_predict": self.tokens,
-                "repeat_penalty": 1.1
-            }
-        )
-        self.chain = self.prompt | self.model
-        print("Mode Thinking activé — Réflexion profonde, 4096 tokens.")
-
-    def fast_mode(self):
-        """Mode rapide — réponses courtes et directes, latence minimale."""
-        self.degre = 0.1
-        self.tokens = 512
-        self.model = OllamaLLM(
-            model="mistral",
-            model_kwargs={
-                "temperature": self.degre,
-                "top_p": 0.5,
-                "num_predict": self.tokens,
+                "num_ctx": 2048,
                 "repeat_penalty": 1.0
             }
         )
         self.chain = self.prompt | self.model
-        print("Mode Fast activé — Réponses rapides, 512 tokens.")
+
+    def reflection_mode(self):
+        self.degre = 0.2
+        self.tokens = 1024
+        self.build_model()
+        print("Mode Thinking activé — Réflexion plus longue, 1024 tokens.")
+
+    def fast_mode(self):
+        self.degre = 0.1
+        self.tokens = 256
+        self.build_model()
+        print("Mode Fast activé — Réponses rapides, 256 tokens.")
 
     def maestro_mode(self):
-        """Mode Maestro — utilise Gemma 3 27B pour des réponses de haute qualité."""
         self.degre = 0.5
         self.tokens = 2048
         self.model = OllamaLLM(
-            model="gemma3:27b",
+            model="qwen3:30b",
             model_kwargs={
                 "temperature": self.degre,
                 "top_p": 0.7,
@@ -84,15 +74,22 @@ class Minou_Setup:
         self.chain = self.prompt | self.model
         print("Mode Maestro activé — Gemma 3 27B, 2048 tokens.")
 
-    def tokens_attribution(self,requet):
-        print("Mode pour savoir combien de tokens attribué")
-        keyword = ["comment","explique","dit moi"]
-        for i in range(0,len(requet)):  #Crée un système pour parcourir la réponse de l'utilisateur si un des mot clef et detecter on permet d'augementer les tokens sinon on reste à l'initial
-            requet = keyword
-
+    def goat_code(self):
+        self.degre = 0.3
+        self.tokens = 1024
+        self.model = OllamaLLM(
+            model="qwen2.5-coder:14b",
+            model_kwargs={
+                "temperature": self.degre,
+                "top_p": 0.7,
+                "num_predict": self.tokens,
+                "repeat_penalty": 1.1
+            }
+        )
+        self.chain = self.prompt | self.model
+        print("Mode Goat Code activé — qwen2.5-coder:14b.")
 
 minou_setup = Minou_Setup()
-
 
 class Cmd:
 
@@ -160,6 +157,10 @@ class Cmd:
         elif commande == "maestro -mode-":
             minou_setup.maestro_mode()
             return True
+        elif commande == "goat code":
+            minou_setup.goat_code()
+            return True
+
 
 order = Cmd()
 

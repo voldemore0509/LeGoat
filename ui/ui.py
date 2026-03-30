@@ -567,6 +567,10 @@ body[data-effects="off"] .composer,body[data-effects="off"] .settings-backdrop{b
 *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"JetBrains Mono","Segoe UI",Arial,sans-serif;font-size:calc(16px * var(--text-scale));background:var(--bg);color:var(--text-primary)}
 button,input,textarea,select{font:inherit}
 
+/* ── Goat Coworking visual mode ── */
+body[data-active-tab="coworking"]{background-image:linear-gradient(rgba(59,130,246,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.08) 1px,transparent 1px);background-size:32px 32px;background-position:center center}
+body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gradient(rgba(96,165,250,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(96,165,250,.11) 1px,transparent 1px)}
+
 /* ── Top Tab Bar (Chat / Goat Coworking) ── */
 .top-tab-bar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:center;z-index:55;background:var(--bg);border-bottom:1px solid var(--line);padding:0 16px}
 .top-tab-bar-inner{display:flex;align-items:center;background:var(--surface-soft);border-radius:12px;padding:3px;gap:2px}
@@ -782,7 +786,7 @@ body[data-aifont="arial"] .message-row.assistant .bubble{font-family:Arial,Helve
 body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Open Dyslexic","OpenDyslexic",sans-serif}
 </style>
 </head>
-<body data-theme="light" data-effects="on" data-textsize="default">
+<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat">
 
 <!-- Top Tab Bar -->
 <div class="top-tab-bar">
@@ -825,9 +829,9 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
     <div style="display:flex;justify-content:flex-end;width:100%;padding:0 4px;position:relative">
       <div class="char-counter" id="char-counter"><span id="char-counter-text">0 / 10 000</span><div class="char-counter-tip" id="char-counter-tip"></div></div>
     </div>
-    <div class="controls-row">
+    <div class="controls-row" id="controls-row">
       <!-- Modes -->
-      <div class="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
+      <div class="mode-panel" id="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
       <!-- Writing Styles désactivé
       <div class="style-panel"><button type="button" class="style-trigger" id="style-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_style_trigger"><span class="trigger-icon" id="style-icon">✎</span><span id="selected-style-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="style-menu" role="menu"></div></div>
       -->
@@ -912,12 +916,14 @@ const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_
 const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,aifont:'default',overclock:'off'};
 const ls=(k,v)=>{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
+const controlsRow=$('controls-row'),modePanel=$('mode-panel');
 const modeTrigger=$('mode-trigger'),modeMenu=$('mode-menu'),modeLbl=$('selected-mode-label'),modeIcn=$('mode-icon'),modeAnn=$('mode-announcement');
 const styleTrigger=$('style-trigger'),styleMenu=$('style-menu'),styleLbl=$('selected-style-label'),styleIcn=$('style-icon');
 /* Gadgets desactive pour le moment
 const gadgetTrigger=$('gadget-trigger'),gadgetMenu=$('gadget-menu'),gadgetLbl=$('selected-gadget-label'),gadgetIcn=$('gadget-icon');
 */
 const modelTriggerBtn=$('model-trigger-btn'),modelDDMenu=$('model-dd-menu'),modelCurrentLabel=$('model-current-label');
+const tabChat=$('tab-chat'),tabCoworking=$('tab-coworking');
 const privateChatBtn=$('private-chat-btn');
 const composerPlus=$('composer-plus'),plusMenu=$('plus-menu'),plusAddSheet=$('plus-add-sheet'),sheetsRow=$('sheets-row');
 const sheetBackdrop=$('sheet-modal-backdrop'),sheetTA=$('sheet-textarea'),sheetAddBtn=$('sheet-add-btn'),sheetCancelBtn=$('sheet-cancel'),sheetTitle=$('sheet-modal-title');
@@ -933,6 +939,39 @@ let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY
 let sheets=[];
 let isGenerating=false;
 let abortController=null;
+let activeTab='chat';
+const coworkingContent={
+  fr:{
+    placeholder:"Décrivez votre idée et l'IA la réalisera",
+    status:"Le Goat Coworking peut uniquement vous concevoir des applications qui nécessitent du code.",
+    messages:[
+      "Commencez à créer vos projets avec des IA en local, sans aucune limite.",
+      "Décrivez votre application et Le Goat Coworking posera la base technique.",
+      "Passez d'une idée brute à une application codée avec une direction claire."
+    ],
+    desc:""
+  },
+  en:{
+    placeholder:"Describe your idea and the AI will build it",
+    status:"The Goat Coworking can only design applications that require code.",
+    messages:[
+      "Start building your projects with local AI, without limits.",
+      "Describe your app and Goat Coworking will shape the technical base.",
+      "Move from a raw idea to a coded application with a clear direction."
+    ],
+    desc:""
+  },
+  es:{
+    placeholder:"Describa su idea y la IA la realizará",
+    status:"Goat Coworking solo puede diseñar aplicaciones que requieran código.",
+    messages:[
+      "Empiece a crear sus proyectos con IA local, sin límites.",
+      "Describa su aplicación y Goat Coworking definirá la base técnica.",
+      "Pase de una idea inicial a una aplicación codificada con una dirección clara."
+    ],
+    desc:""
+  }
+};
 function t(k){return(T[S.lang]||T[defs.lang]||{})[k]||(T[defs.lang]||{})[k]||k}
 function appTitle(){return titleByLang[S.lang]||titleByLang[defs.lang]}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
@@ -987,7 +1026,7 @@ modelTriggerBtn.addEventListener('click',()=>{playClick();modelDDMenu.classList.
 // ── Private Chat (mode incognito) ──
 let themeBeforePrivate=null;
 function enterPrivateChat(){S.privateChat=true;privateChatBtn.classList.add('active');themeBeforePrivate=S.theme;document.body.dataset.theme='dark';S.theme='dark';$$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue==='dark'));updateThemedLogos();messages=[];renderMessages();welcomeEl.textContent=t('private_chat_welcome');welcomeDesc.textContent=t('private_chat_welcome_desc');ta.value='';autoResize();statusEl.textContent=ST[S.lang]||ST[defs.lang];fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}).catch(()=>{})}
-function exitPrivateChat(){S.privateChat=false;privateChatBtn.classList.remove('active');const restore=themeBeforePrivate||defs.theme;themeBeforePrivate=null;applyTheme(restore,false);const pool=WP[S.lang]||WP[defs.lang]||['...'];welcomeEl.textContent=pool[Math.floor(Math.random()*pool.length)];welcomeDesc.textContent=''}
+function exitPrivateChat(){S.privateChat=false;privateChatBtn.classList.remove('active');const restore=themeBeforePrivate||defs.theme;themeBeforePrivate=null;applyTheme(restore,false);refreshWelcomeContent()}
 privateChatBtn.addEventListener('click',()=>{playClick();S.privateChat?exitPrivateChat():enterPrivateChat()});
 function updatePrivateChatLabels(){$('pc-title').textContent=t('private_chat');$('pc-desc').textContent=t('private_chat_desc')}
 
@@ -1072,7 +1111,44 @@ function applyClickStyle(v,snd){apply('clickStyle',['bulle','nebrise'].includes(
 function applyAiSound(v,snd){apply('aiSound',v==='on'?'on':'off','ai-sound',snd);$$('[data-ai-sound]').forEach(b=>b.classList.toggle('active',b.dataset.aiSound===S.aiSound));if(v==='on')checkUiOptOff()}
 function updateSndVis(){const kr=$('keyboard-style-row'),cr=$('click-style-row');if(kr)kr.hidden=S.kbSound!=='on';if(cr)cr.hidden=S.clickSound!=='on'}
 function updatePerf(){$('effects-state').textContent=S.effects==='off'?t('state_on'):t('state_off');$('responses-state').textContent=S.optResp==='on'?t('state_on'):t('state_off');$('uiopt-state').textContent=S.uiOpt==='on'?t('state_on'):t('state_off')}
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));ta.placeholder=t('placeholder');$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();if(!messages.length){if(S.privateChat){welcomeEl.textContent=t('private_chat_welcome');welcomeDesc.textContent=t('private_chat_welcome_desc')}else{const pool=WP[S.lang]||WP[defs.lang]||['...'];welcomeEl.textContent=pool[Math.floor(Math.random()*pool.length)];welcomeDesc.textContent=''}}updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();statusEl.textContent=ST[S.lang]||ST[defs.lang];renderMessages()}
+function getCoworkingContent(){return coworkingContent[S.lang]||coworkingContent[defs.lang]||coworkingContent.fr}
+function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function refreshWelcomeContent(){
+  if(messages.length)return;
+  if(S.privateChat){
+    welcomeEl.textContent=t('private_chat_welcome');
+    welcomeDesc.textContent=t('private_chat_welcome_desc');
+    return;
+  }
+  if(activeTab==='coworking'){
+    const cfg=getCoworkingContent();
+    welcomeEl.textContent=pickRandom(cfg.messages);
+    welcomeDesc.textContent=cfg.desc||'';
+    return;
+  }
+  const pool=WP[S.lang]||WP[defs.lang]||['...'];
+  welcomeEl.textContent=pickRandom(pool);
+  welcomeDesc.textContent='';
+}
+function updateTabUI(){
+  document.body.dataset.activeTab=activeTab;
+  if(tabChat)tabChat.classList.toggle('active',activeTab==='chat');
+  if(tabCoworking)tabCoworking.classList.toggle('active',activeTab==='coworking');
+  if(modePanel)modePanel.hidden=activeTab==='coworking';
+  if(modeAnn)modeAnn.hidden=activeTab==='coworking';
+  ta.placeholder=activeTab==='coworking'?getCoworkingContent().placeholder:t('placeholder');
+  statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
+  refreshWelcomeContent();
+}
+function setActiveTab(tab,refresh){
+  activeTab=tab==='coworking'?'coworking':'chat';
+  closeModelDD();
+  closeMM();
+  closeSM();
+  if(refresh!==false)refreshWelcomeContent();
+  updateTabUI();
+}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 // API
@@ -1086,7 +1162,7 @@ styleTrigger.addEventListener('click',()=>{playClick();styleMenu.classList.conta
 /* gadgetTrigger.addEventListener('click',()=>{playClick();gadgetMenu.classList.contains('open')?closeGM():openGM()}); // desactive */
 $('settings-button').addEventListener('click',openSettings);$('settings-close').addEventListener('click',closeSettings);backdrop.addEventListener('click',closeSettings);
 dragH.addEventListener('mousedown',startDrag);document.addEventListener('mousemove',onDrag);document.addEventListener('mouseup',()=>{dragging=false});
-$('newchat-button').addEventListener('click',async()=>{playClick();if(!confirm(t('new_chat_confirm')))return;statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;const pool=WP[S.lang]||WP[defs.lang]||['...'];welcomeEl.textContent=pool[Math.floor(Math.random()*pool.length)];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];ta.value='';autoResize();ta.focus()}catch(e){statusEl.textContent=e.message}});
+$('newchat-button').addEventListener('click',async()=>{playClick();if(!confirm(t('new_chat_confirm')))return;statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;refreshWelcomeContent();renderMessages();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);ta.value='';autoResize();ta.focus()}catch(e){statusEl.textContent=e.message}});
 $$('[data-settings-tab]').forEach(t=>t.addEventListener('click',()=>{playClick();showTab(t.dataset.settingsTab||'general')}));
 $$('[data-language-value]').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.languageValue)));
 $$('[data-theme-value]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.themeValue)));
@@ -1121,15 +1197,31 @@ applyOptResp(S.optResp,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
 applyAiFont(S.aifont,false);updateOverclockUI();updateCharCounter();
-statusEl.textContent=ST[S.lang]||ST[defs.lang];ta.focus();
+setActiveTab(activeTab,false);ta.focus();
 
-// ── Top Tab Bar (Chat = model dropdown, Goat Coworking = en dev) ──
-const tabChat=$('tab-chat'),tabCoworking=$('tab-coworking');
+// ── Top Tab Bar (Chat / Goat Coworking) ──
 if(tabChat){
-  tabChat.addEventListener('click',()=>{playClick();const menu=modelDDMenu;if(menu.classList.contains('open')){menu.classList.remove('open');tabChat.setAttribute('aria-expanded','false')}else{menu.classList.add('open');tabChat.setAttribute('aria-expanded','true')}});
+  tabChat.addEventListener('click',()=>{
+    playClick();
+    if(activeTab!=='chat'){
+      setActiveTab('chat',true);
+      return;
+    }
+    const menu=modelDDMenu;
+    if(menu.classList.contains('open')){
+      menu.classList.remove('open');
+      tabChat.setAttribute('aria-expanded','false');
+    }else{
+      menu.classList.add('open');
+      tabChat.setAttribute('aria-expanded','true');
+    }
+  });
 }
 if(tabCoworking){
-  tabCoworking.addEventListener('click',()=>{playClick();alert('Goat Coworking — En développement.')});
+  tabCoworking.addEventListener('click',()=>{
+    playClick();
+    setActiveTab('coworking',true);
+  });
 }
 // Fermer le model dropdown quand on clique ailleurs
 document.addEventListener('click',function(e){if(tabChat&&modelDDMenu&&!tabChat.contains(e.target)&&!modelDDMenu.contains(e.target)){modelDDMenu.classList.remove('open');tabChat.setAttribute('aria-expanded','false')}});
