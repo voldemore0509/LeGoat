@@ -1,6 +1,53 @@
 # -*- coding: utf-8 -*-
-# UI Desktop native — Le Goat (Goatistique)
-# Refactorisé par Claude — v3 fenêtre native pywebview (fallback navigateur)
+"""
+Le Goat — Interface desktop native (Goatistique)
+=================================================
+Application desktop monopage basée sur pywebview + serveur HTTP local.
+Toute l'UI (HTML/CSS/JS) est générée et servie en mémoire — aucun fichier
+statique externe n'est nécessaire.
+
+Architecture
+------------
+┌─────────────────────────────────────────────┐
+│  main()                                     │
+│    └─ GoatHTTPServer  (ThreadingHTTPServer) │
+│         └─ GoatRequestHandler               │
+│              └─ GoatWebApp                  │
+│                   ├─ ChatSession            │
+│                   └─ build_index_html()     │
+└─────────────────────────────────────────────┘
+
+Flux d'une requête
+------------------
+  Utilisateur → pywebview → localhost:8765 → GoatRequestHandler
+  → GoatWebApp.submit_message() → ChatSession.submit()
+  → generate_reply() [backend IA — à implémenter]
+  → réponse JSON → JS frontend → rendu HTML
+
+Pour les développeurs — points d'extension
+-------------------------------------------
+  • Ajouter un MODE       → AppConfig.MODE_OPTIONS + traductions
+  • Ajouter un MODÈLE     → AppConfig.MODELS + traductions
+  • Ajouter un STYLE      → AppConfig.WRITING_STYLES + traductions
+  • Brancher l'IA         → implémenter generate_reply() (voir stub ci-dessous)
+  • Changer le port       → AppConfig.PORT
+  • Changer la langue par défaut → AppConfig.DEFAULT_LANG
+
+Dépendances
+-----------
+  pip install pywebview          # fenêtre desktop native (optionnel, fallback navigateur)
+  # Le reste n'utilise que la stdlib Python (http.server, threading, json…)
+
+Usage
+-----
+  python ui.py                   # fenêtre native
+  python ui.py --browser         # ouvrir dans le navigateur
+  python ui.py --no-browser      # serveur pur (API uniquement)
+  python ui.py --test            # lancer la suite de tests
+
+Auteur  : Goatistique / Longan AI
+Version : voir AppConfig.VERSION
+"""
 
 from __future__ import annotations
 
@@ -21,58 +68,101 @@ from typing import ClassVar, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 # ============================================================
-# Configuration
+# Configuration centrale de l'application
 # ============================================================
 
 class AppConfig:
+    """
+    Configuration statique de Le Goat.
+
+    Tous les réglages globaux (titre, port, thème, modes, modèles…) sont
+    centralisés ici pour faciliter la maintenance et la contribution.
+    Modifier une valeur ici propage le changement à toute l'application.
+    """
+
+    # ── Titres localisés affichés dans l'interface ─────────────
     TITLE_BY_LANG: ClassVar[Dict[str, str]] = {"fr": "Le Goat", "en": "The Goat", "es": "El Goat"}
     DEFAULT_TITLE = "Le Goat"
+
+    # ── Version affichée dans les paramètres ───────────────────
     VERSION = "Goatesque 1.0.0"
-    HOST = "127.0.0.1"
-    PORT = 8765
-    DEFAULT_LANG = "fr"
-    DEFAULT_THEME = "light"
-    DEFAULT_EFFECTS = "on"
-    DEFAULT_TEXT_SIZE = "default"
-    DEFAULT_OPT_RESPONSES = "off"
-    DEFAULT_UI_OPT = "off"
-    DEFAULT_KB_SOUND = "on"
-    DEFAULT_KB_STYLE = "bulle"
-    DEFAULT_CLICK_SOUND = "on"
-    DEFAULT_CLICK_STYLE = "bulle"
-    DEFAULT_AI_SOUND = "on"
+
+    # ── Serveur HTTP local ─────────────────────────────────────
+    HOST = "127.0.0.1"   # Ne pas exposer sur le réseau — local uniquement
+    PORT = 8765           # Port par défaut ; modifiable via --port
+
+    # ── Paramètres UI par défaut ───────────────────────────────
+    DEFAULT_LANG        = "fr"      # Langue : "fr" | "en" | "es"
+    DEFAULT_THEME       = "light"   # Thème  : "light" | "dark"
+    DEFAULT_EFFECTS     = "on"      # Effets visuels (transitions, ombres)
+    DEFAULT_TEXT_SIZE   = "default" # Taille texte : "default" | "large"
+    DEFAULT_OPT_RESPONSES = "off"   # Optimisation réponses (désactive modes lourds)
+    DEFAULT_UI_OPT      = "off"     # Optimisation UI (désactive sons + effets)
+    DEFAULT_KB_SOUND    = "on"      # Son clavier
+    DEFAULT_KB_STYLE    = "bulle"   # Style son clavier : "bulle" | "aurela" | "verdrock" | "feryn"
+    DEFAULT_CLICK_SOUND = "on"      # Son des boutons
+    DEFAULT_CLICK_STYLE = "bulle"   # Style son boutons : "bulle" | "nebrise"
+    DEFAULT_AI_SOUND    = "on"      # Son réponse IA
+
+    # ── Préfixe localStorage (évite les collisions entre apps) ─
     STORAGE_PREFIX = "goat"
+    # ── Modes disponibles ────────────────────────────────────────
+    # Pour ajouter un mode :
+    #   1. Ajoutez une entrée {"id": "mon_mode", "icon": "⚡"} ici.
+    #   2. Ajoutez les clés de traduction "mode_mon_mode" dans TranslationManager.STRINGS (fr/en/es).
+    #   3. Ajoutez "tooltip_mode_mon_mode" dans les traductions.
+    #   4. Optionnel : ajoutez l'id dans DISABLED_MODES_OPTIMIZED pour le bloquer en mode optimisé.
     MODE_OPTIONS: ClassVar[list] = [
-        {"id": "reflection", "icon": "\u25cc"},
-        {"id": "fast", "icon": "\u26a1"},
-        {"id": "research_in_data", "icon": "\u25a3"},
-        {"id": "research_in_memory", "icon": "\u25cd"},
-        # {"id": "creativity", "icon": "\u2726"},  # Désactivé
-        {"id": "deep_research", "icon": "\u2b23"},
+        {"id": "reflection", "icon": "\u25cc"},   # ◌ Reflection — raisonnement approfondi
+        {"id": "fast",       "icon": "\u26a1"},   # ⚡ Fast       — réponse rapide, faible coût
+        # Modes Research — désactivés temporairement (en développement)
+        # {"id": "research_in_data",   "icon": "\u25a3"},  # ▣ Research In Data   — RAG sur documents
+        # {"id": "research_in_memory", "icon": "\u25cd"},  # ◍ Research In Memory — RAG sur historique
+        # {"id": "deep_research",      "icon": "\u2b23"},  # ⬣ Deep Research      — analyse avancée
+        # Mode Creativity — désactivé temporairement
+        # {"id": "creativity", "icon": "\u2726"},          # ✦ Creativity         — style créatif
     ]
-    DEFAULT_MODE_ID = ""
-    DISABLED_MODES_OPTIMIZED: ClassVar[set] = {"reflection", "research_in_memory", "deep_research"}
+    DEFAULT_MODE_ID = ""  # "" = aucun mode sélectionné au démarrage
+
+    # Modes bloqués quand l'optimisation des réponses est activée (Settings)
+    DISABLED_MODES_OPTIMIZED: ClassVar[set] = {"reflection"}
+
+    # ── Modèles IA disponibles ───────────────────────────────────
+    # Pour ajouter un modèle :
+    #   1. Ajoutez une entrée {"id": "...", "label_key": "...", "desc_key": "..."}.
+    #   2. Ajoutez les clés dans TranslationManager.STRINGS.
+    #   3. Ajoutez sa limite de feuille dans SHEET_LIMITS.
+    #   4. Gérez-le dans generate_reply() selon son id.
     MODELS: ClassVar[list] = [
-        {"id": "goat", "label_key": "model_goat", "desc_key": "model_goat_desc"},
+        {"id": "goat",    "label_key": "model_goat",    "desc_key": "model_goat_desc"},
         {"id": "maestro", "label_key": "model_maestro", "desc_key": "model_maestro_desc"},
-        {"id": "goat_code", "label_key": "model_goat_code", "desc_key": "model_goat_code_desc"},
     ]
-    DEFAULT_MODEL = "goat"
-    # Taille max par feuille (en octets) selon le modèle
+    DEFAULT_MODEL = "goat"  # Modèle sélectionné au premier lancement
+
+    # ── Limites de contexte par modèle (feuilles d'écriture) ────
+    # Ajustez ces valeurs selon la fenêtre de contexte réelle de chaque modèle.
     SHEET_LIMITS: ClassVar[Dict[str, int]] = {
-        "goat": 6 * 1024,        # 6 Ko par feuille
-        "goat_code": 6 * 1024,   # 6 Ko par feuille
-        "maestro": 350 * 1024,   # 350 Ko par feuille
+        "goat":      6   * 1024,   # ~6 Ko  — modèle léger
+        "maestro":   350 * 1024,   # ~350 Ko — modèle lourd, large contexte
     }
+
+    # ── Styles d'écriture ────────────────────────────────────────
+    # Pour ajouter un style :
+    #   1. Ajoutez une entrée {"id": "...", "icon": "..."} ici.
+    #   2. Ajoutez "style_<id>" et "tooltip_style_<id>" dans les traductions.
     WRITING_STYLES: ClassVar[list] = [
-        {"id": "explicatif", "icon": "\U0001f4d6"},
-        {"id": "educatif", "icon": "\U0001f393"},
+        {"id": "explicatif", "icon": "\U0001f4d6"},   # 📖 Style explicatif
+        {"id": "educatif",   "icon": "\U0001f393"},   # 🎓 Style éducatif
     ]
-    DEFAULT_WRITING_STYLE = ""
+    DEFAULT_WRITING_STYLE = ""  # "" = aucun style sélectionné
+
+    # ── Gadgets (fonctionnalités avancées, désactivés pour l'instant) ──
     GADGETS: ClassVar[list] = [
-        {"id": "schema", "icon": "\U0001f4ca"},
+        # {"id": "schema", "icon": "\U0001f4ca"},  # 📊 Génération de schéma visuel
     ]
     DEFAULT_GADGET = ""
+
+    # ── Prompt de migration (export mémoire depuis une autre IA) ─
     MIGRATION_PROMPT = r"""Export all of my stored memories and any context you've learned about me from past conversations. Preserve my words verbatim where possible, especially for instructions and preferences.
 
 ## Categories (output in this order):
@@ -98,14 +188,29 @@ If no date is known, use [unknown] instead.
 ## Output:
 - Wrap the entire export in a single code block for easy copying.
 - After the code block, state whether this is the complete set or if more remain."""
+
+    # ── Chemins de recherche du logo (ordre de priorité) ────────
     LOGO_PATHS: ClassVar[list] = [Path("le_goat.png"), Path("logo_goat.png")]
 
 
 # ============================================================
-# Traductions
+# Traductions (i18n)
 # ============================================================
 
 class TranslationManager:
+    """
+    Gestion des traductions de l'interface.
+
+    Pour ajouter une langue :
+      1. Ajoutez une entrée dans STATUS, WELCOME et STRINGS avec la clé
+         ISO 639-1 de la langue (ex. "de" pour l'allemand).
+      2. Ajoutez la langue dans AppConfig.TITLE_BY_LANG.
+      3. Dans le JS, ajoutez le bouton de langue dans le HTML des paramètres.
+
+    Pour ajouter une clé de traduction :
+      Ajoutez-la dans chaque bloc linguistique (fr / en / es) avec la même clé.
+      Le JS accède aux chaînes via la fonction t('ma_cle').
+    """
     STATUS: ClassVar[Dict[str, str]] = {
         "fr": "Le Goat peut commettre des erreurs. Vérifiez les informations importantes, en particulier si le degré de sûreté affiché est inférieur à 50 %.",
         "en": "The Goat can make mistakes. Verify important information, especially if the displayed confidence score is below 50%.",
@@ -140,13 +245,14 @@ class TranslationManager:
             "placeholder_tone": "Ex. professionnel, détendu, direct…",
             "data_security_memory": "Gérer la mémoire", "data_security_history": "Gérer l'historique des discussions",
             "optimization_effects": "Optimiser les effets visuels", "optimization_responses": "Optimiser les réponses",
-            "optimization_ui": "Optimisation de l'interface", "optimization_ram": "Libération mémoire vive",
-            "optimization_ram_hint": "Placeholder (ne fait rien pour l'instant).",
+            "optimization_ram": "Libération de la mémoire vive de l'IA",
+            "optimization_ram_hint": "Libère la mémoire de la discussion en cours — l'IA ne se souviendra plus des échanges de cette session.",
             "state_on": "Activé", "state_off": "Désactivé",
             "mode_active_prefix": "Mode actif :", "no_mode": "Aucun mode",
             "close": "Fermer", "settings_hint": "Astuce : vous pouvez déplacer cette fenêtre avec la souris.",
             "new_chat": "Nouvelle discussion",
             "new_chat_confirm": "La discussion actuelle sera supprimée et irrécupérable. Continuer ?",
+            "tab_switch_confirm": "Changer d'espace va réinitialiser la discussion en cours. Continuer ?",
             "regenerate": "Relancer", "soon": "Bientôt disponible.",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
@@ -246,13 +352,14 @@ class TranslationManager:
             "placeholder_tone": "e.g., professional, casual, direct…",
             "data_security_memory": "Manage memory", "data_security_history": "Manage chat history",
             "optimization_effects": "Optimize visual effects", "optimization_responses": "Optimize responses",
-            "optimization_ui": "Interface optimization", "optimization_ram": "Free RAM",
-            "optimization_ram_hint": "Placeholder (does nothing yet).",
+            "optimization_ram": "Free AI working memory",
+            "optimization_ram_hint": "Clears the current conversation memory — the AI will no longer remember previous exchanges in this session.",
             "state_on": "On", "state_off": "Off",
             "mode_active_prefix": "Active mode:", "no_mode": "No mode",
             "close": "Close", "settings_hint": "Tip: you can move this window with your mouse.",
             "new_chat": "New chat",
             "new_chat_confirm": "The current chat will be deleted and cannot be recovered. Continue?",
+            "tab_switch_confirm": "Switching workspace will reset the current conversation. Continue?",
             "regenerate": "Regenerate", "soon": "Coming soon.",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
@@ -352,13 +459,14 @@ class TranslationManager:
             "placeholder_tone": "p. ej., profesional, relajado, directo…",
             "data_security_memory": "Gestionar memoria", "data_security_history": "Gestionar historial de chats",
             "optimization_effects": "Optimizar efectos visuales", "optimization_responses": "Optimizar respuestas",
-            "optimization_ui": "Optimización de interfaz", "optimization_ram": "Liberar RAM",
-            "optimization_ram_hint": "Placeholder (no hace nada todavía).",
+            "optimization_ram": "Liberar memoria de trabajo de la IA",
+            "optimization_ram_hint": "Borra la memoria de la conversación actual — la IA ya no recordará los intercambios anteriores de esta sesión.",
             "state_on": "Activado", "state_off": "Desactivado",
             "mode_active_prefix": "Modo activo:", "no_mode": "Sin modo",
             "close": "Cerrar", "settings_hint": "Consejo: puede mover esta ventana con el ratón.",
             "new_chat": "Nuevo chat",
             "new_chat_confirm": "El chat actual se eliminará y no se podrá recuperar. ¿Continuar?",
+            "tab_switch_confirm": "Cambiar de espacio reiniciará la conversación actual. ¿Continuar?",
             "regenerate": "Regenerar", "soon": "Próximamente.",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
@@ -438,20 +546,83 @@ class TranslationManager:
     }
 
 
+
 # ============================================================
-# Session / Logo / Build (inchangés sauf ajout writing_style au submit)
+# Types de données
 # ============================================================
 
+# Un message est un tuple (expéditeur: str, texte: str)
+# Ex. : ("Vous", "Bonjour !") ou ("Le Goat", "Réponse de l'IA")
 Message = Tuple[str, str]
+
+
+# ============================================================
+# Backend IA — stub à implémenter
+# ============================================================
+
+def generate_reply(message: str, mode: str = "") -> str:
+    """
+    Point d'entrée principal du backend IA.
+
+    Cette fonction est appelée par ChatSession.submit() et ChatSession.regenerate()
+    à chaque fois que l'utilisateur envoie un message.
+
+    Paramètres
+    ----------
+    message : str
+        Le texte envoyé par l'utilisateur (déjà normalisé et non vide).
+    mode : str
+        L'identifiant du mode actif (ex. "fast", "reflection", "").
+        Chaîne vide si aucun mode n'est sélectionné.
+
+    Retour
+    ------
+    str
+        La réponse textuelle à afficher dans l'interface.
+
+    Implémentation suggérée
+    -----------------------
+    Connectez ici votre backend Ollama, OpenAI, ou tout autre LLM :
+
+        import requests
+        def generate_reply(message, mode=""):
+            payload = {"model": "mistral", "prompt": message, "stream": False}
+            r = requests.post("http://localhost:11434/api/generate", json=payload)
+            return r.json()["response"]
+
+    Pour l'instant, cette implémentation renvoie un placeholder.
+    """
+    return f"[IA non connectée] Votre message : « {message} » (mode : {mode or 'aucun'})"
+
+
+# ============================================================
+# Session de chat
+# ============================================================
 
 @dataclass
 class ChatSession:
+    """
+    Gère l'historique d'une conversation et les appels au backend IA.
+
+    Chaque instance représente une session unique (chat standard ou chat privé).
+    Les messages sont stockés en mémoire — aucune persistance disque par défaut.
+
+    Attributs
+    ---------
+    messages : list[Message]
+        Historique complet de la conversation (utilisateur + IA).
+    last_user_message : str
+        Dernier message utilisateur (pour la fonction Relancer).
+    last_mode_id : str
+        Mode actif lors du dernier envoi (pour la fonction Relancer).
+    """
     messages: List[Message] = field(default_factory=list)
     last_user_message: str = ""
     last_mode_id: str = ""
 
     def submit(self, text: str, mode: str = "") -> str:
-        cleaned = " ".join(text.strip().split())
+        """Normalise le texte, l'envoie au backend IA et stocke le résultat."""
+        cleaned = " ".join(text.strip().split())  # Collapse des espaces multiples
         if not cleaned:
             return ""
         self.last_user_message = cleaned
@@ -465,6 +636,7 @@ class ChatSession:
         return reply
 
     def regenerate(self, mode: str | None = None) -> str:
+        """Relance le dernier message utilisateur avec un mode optionnel différent."""
         if not self.last_user_message:
             return ""
         active_mode = mode if mode is not None else self.last_mode_id
@@ -473,6 +645,7 @@ class ChatSession:
         except Exception as exc:
             reply = f"Erreur backend IA : {exc}"
         self.last_mode_id = active_mode
+        # Remplace la dernière réponse IA si elle existe, sinon l'ajoute
         if self.messages and self.messages[-1][0] != "Vous":
             self.messages[-1] = (AppConfig.DEFAULT_TITLE, reply)
         else:
@@ -480,14 +653,27 @@ class ChatSession:
         return reply
 
     def reset(self) -> None:
+        """Vide complètement la session (nouvelle discussion)."""
         self.messages.clear()
         self.last_user_message = ""
         self.last_mode_id = ""
 
 
+# ============================================================
+# Chargement des ressources graphiques
+# ============================================================
+
 class LogoLoader:
+    """
+    Charge les logos de l'application sous forme de data URI base64
+    pour les injecter directement dans le HTML (pas de fichier statique servi).
+
+    Priorité de recherche pour le logo principal :
+      AppConfig.LOGO_PATHS → dossier du script → répertoire courant
+    """
     @classmethod
     def get_data_uri(cls, paths: Optional[Sequence[Path]] = None) -> str:
+        """Retourne un data URI base64 du logo principal, ou un SVG de secours."""
         search = list(paths) if paths else cls._build_search_paths()
         for p in search:
             try:
@@ -496,10 +682,11 @@ class LogoLoader:
                     return f"data:image/png;base64,{b64}"
             except OSError:
                 continue
-        return cls._fallback_svg()
+        return cls._fallback_svg()  # Logo SVG généré si aucun fichier trouvé
 
     @classmethod
     def _build_search_paths(cls) -> List[Path]:
+        """Construit la liste des chemins de recherche sans doublons."""
         base = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
         cwd = Path.cwd()
         seen, result = set(), []
@@ -512,7 +699,7 @@ class LogoLoader:
 
     @classmethod
     def _load_file_as_data_uri(cls, filepath: Path) -> str:
-        """Charge un fichier image et retourne un data URI base64."""
+        """Charge un fichier image et retourne un data URI base64, ou "" si absent."""
         try:
             if filepath.is_file():
                 b64 = base64.b64encode(filepath.read_bytes()).decode("ascii")
@@ -522,29 +709,90 @@ class LogoLoader:
         return ""
 
     @classmethod
+    def get_icon_path(cls) -> Optional[str]:
+        """
+        Retourne le chemin absolu de l'icône pour la fenêtre native pywebview.
+
+        Ordre de priorité :
+          .ico (recommandé Windows) → PNG depuis dossier Logo → PNG racine
+        """
+        base = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
+        logo_dir = base / "Logo"
+        candidates = [
+            base / "le_goat.ico",                          # .ico optimal taskbar Windows
+            base / "logo_goat.ico",
+            logo_dir / "le_goat.ico",
+            logo_dir / "Image_LeGoat_FondBlanc.png",       # PNG clair (fallback)
+            logo_dir / "Image_LeGoat_FondNoire.png",
+            base / "le_goat.png",
+            base / "logo_goat.png",
+        ]
+        for p in candidates:
+            try:
+                if p.is_file():
+                    return str(p)
+            except OSError:
+                continue
+        return None
+
+    @classmethod
     def get_themed_logos(cls) -> Dict[str, str]:
         """Charge les logos LeGoat et Goatistique pour les thèmes clair et sombre."""
         base = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
         logo_dir = base / "Logo"
         return {
-            "legoat_light": cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondBlanc.png"),
-            "legoat_dark": cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondNoire.png"),
+            "legoat_light":      cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondBlanc.png"),
+            "legoat_dark":       cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondNoire.png"),
             "goatistique_light": cls._load_file_as_data_uri(logo_dir / "Logo Goatistique fond blanc.png"),
-            "goatistique_dark": cls._load_file_as_data_uri(logo_dir / "logo goatistique fond noire.png"),
+            "goatistique_dark":  cls._load_file_as_data_uri(logo_dir / "logo goatistique fond noire.png"),
         }
 
     @staticmethod
     def _fallback_svg() -> str:
+        """SVG minimaliste généré si aucun fichier logo n'est trouvé."""
         svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#19b7ff'/><stop offset='100%' stop-color='#2f5bff'/></linearGradient></defs><rect width='128' height='128' rx='28' fill='#050816'/><circle cx='44' cy='46' r='9' fill='url(#g)'/><circle cx='84' cy='46' r='9' fill='url(#g)'/><path d='M34 84c9-10 18-15 30-15s21 5 30 15' fill='none' stroke='url(#g)' stroke-width='10' stroke-linecap='round'/></svg>"
         import urllib.parse
         return "data:image/svg+xml," + urllib.parse.quote(svg)
 
 
 # ============================================================
-# Template HTML
+# Template HTML / CSS / JS
 # ============================================================
 
 def _load_html_template() -> str:
+    """
+    Retourne le template HTML complet de l'interface.
+
+    Ce template est une chaîne brute (raw string) contenant des marqueurs
+    %%NOM%% qui seront remplacés par build_index_html() avant envoi au client.
+
+    Structure du template
+    ---------------------
+    <head>
+      Polices (Google Fonts) + CSS inline complet
+    </head>
+    <body>
+      Top Tab Bar  — onglets Chat / Goat Code + modèles
+      Private Chat Button
+      <main>
+        .brand-stack    — logo + message de bienvenue
+        .messages       — historique de conversation
+        .composer-wrap  — zone de saisie + boutons de contrôle
+      </main>
+      Modales — paramètres, migration, feuilles, overclock
+      <script> — logique UI complète (vanilla JS)
+    </body>
+
+    Marqueurs disponibles
+    ---------------------
+    %%APP_TITLE%%         Titre de l'application
+    %%APP_VERSION%%       Version (AppConfig.VERSION)
+    %%TRANSLATIONS_JSON%% Objet JSON des traductions
+    %%MODES_JSON%%        Tableau JSON des modes actifs
+    %%MODELS_JSON%%       Tableau JSON des modèles
+    %%MESSAGES_JSON%%     Historique de la session courante
+    ... (voir build_index_html pour la liste complète)
+    """
     return r'''<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -600,13 +848,14 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .model-dd-action:hover{background:var(--menu-hover)}
 
 /* ── Private chat button ── */
-.private-chat-btn{position:fixed;top:18px;right:18px;z-index:50;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;box-shadow:var(--shadow-soft);transition:transform .14s}
+.private-chat-btn{position:fixed;top:9px;right:16px;z-index:56;height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.8rem;font-weight:600;font-family:"JetBrains Mono","Segoe UI",sans-serif;box-shadow:var(--shadow-soft);transition:transform .14s,background .16s,color .16s}
 .private-chat-btn:hover{transform:translateY(-1px)}
-.private-chat-btn .pc-tooltip{display:none;position:fixed;top:66px;right:18px;background:var(--tooltip-bg);color:var(--tooltip-text);padding:10px 14px;border-radius:12px;font-size:.8rem;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:100}
+.private-chat-btn .pc-tooltip{display:none;position:fixed;top:52px;right:16px;background:var(--tooltip-bg);color:var(--tooltip-text);padding:10px 14px;border-radius:12px;font-size:.8rem;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:100}
 .private-chat-btn .pc-tooltip .pc-title{font-weight:700;margin-bottom:3px}
 .private-chat-btn .pc-tooltip .pc-desc{opacity:.7;font-size:.75rem}
 .private-chat-btn:hover .pc-tooltip{display:block}
 .private-chat-btn.active{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.3);color:#3b82f6}
+.top-tab-btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 
 .shell{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:72px 16px 40px}
 .shell.has-messages{justify-content:flex-start;padding-top:82px}
@@ -793,7 +1042,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
       <button type="button" class="top-tab-btn active" id="tab-chat" aria-expanded="false"><span id="model-current-label">Chat</span><span class="chevron">▾</span></button>
       <div class="model-dd-menu" id="model-dd-menu" role="menu"></div>
     </div>
-    <button type="button" class="top-tab-btn" id="tab-coworking" data-tab="coworking">Goat Coworking</button>
+    <button type="button" class="top-tab-btn" id="tab-coworking" data-tab="coworking">Goat Code</button>
   </div>
 </div>
 
@@ -802,7 +1051,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
   <button type="button" class="model-trigger-btn" id="model-trigger-btn" aria-expanded="false"></button>
 </div>
 
-<button type="button" class="private-chat-btn" id="private-chat-btn">🔍<div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
+<button type="button" class="private-chat-btn" id="private-chat-btn">🔒<span id="pc-label">Chat Privé</span><div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
 
 <main class="shell" id="shell">
   <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div></section>
@@ -881,8 +1130,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
       <section class="settings-section" data-settings-content="optimization">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ui">Interface</div><div class="settings-row-subtitle">Désactive sons + effets visuels.</div></div><div class="settings-choice-group"><span class="settings-state" id="uiopt-state"></span><button type="button" class="settings-ghost-button" id="toggle-uiopt-button" data-i18n="optimization_ui"></button></div></div></div>
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">RAM</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
       </section>
       <!-- Goat Developer -->
@@ -901,8 +1149,29 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
 <!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
 <div hidden>
   <button id="composer-plus"></button><div id="plus-menu"></div><button id="plus-add-sheet"></button><div id="sheets-row"></div>
+  <button id="toggle-uiopt-button"></button><span id="uiopt-state"></span>
 </div>
 <script>
+// ─────────────────────────────────────────────────────────────────
+// Le Goat — Logique UI (vanilla JS, aucune dépendance externe)
+//
+// Architecture JS :
+//   S            → état global persisté en localStorage
+//   t(key)       → fonction de traduction (accède à T[S.lang][key])
+//   applyXxx()   → applique un paramètre UI et le sauvegarde
+//   renderXxx()  → re-génère un composant DOM
+//   openXxx()    → ouvre une modale / dropdown
+//   updateXxx()  → met à jour l'affichage sans recréer le DOM
+//
+// Pour ajouter un mode côté JS :
+//   Les modes sont injectés via %%MODES_JSON%% — aucune modification JS
+//   n'est nécessaire. Voir AppConfig.MODE_OPTIONS (Python).
+//
+// Pour ajouter un paramètre persisté :
+//   1. Ajoutez une clé dans l'objet S avec sa valeur par défaut.
+//   2. Créez une fonction applyMonParam(v, snd) qui appelle apply().
+//   3. Liez l'événement UI et ajoutez l'init dans la section "Init".
+// ─────────────────────────────────────────────────────────────────
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
 const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%;
@@ -927,55 +1196,68 @@ const charCounterEl=$('char-counter'),charCounterText=$('char-counter-text'),cha
 const stopBtn=$('stop-button');
 const contractionTag=$('contraction-tag'),contractionTip=$('contraction-tip');
 const overclockToggle=$('overclock-toggle'),ocBackdrop=$('overclock-backdrop'),ocWarningText=$('oc-warning-text'),ocConfirmBtn=$('oc-confirm-btn'),ocCancelBtn=$('oc-cancel-btn');
+// ── État global — tout l'état UI persisté en localStorage ────────
+// Chaque clé correspond à un réglage sauvegardé entre les sessions.
 let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,privateChat:false,aifont:ls('aifont')||defs.aifont,overclock:ls('overclock')||defs.overclock};
+// ── Variables runtime (non persistées) ───────────────────────────
 let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null;
-let sheets=[];
-let isGenerating=false;
-let abortController=null;
-let activeTab='chat';
+let sheets=[];          // Feuilles d'écriture attachées à la requête courante
+let isGenerating=false; // Vrai pendant qu'une réponse IA est en cours
+let abortController=null; // Contrôleur pour interrompre la génération
+let activeTab='chat';   // Onglet actif : "chat" | "coworking"
+// ── Contenu de l'onglet Goat Code (localisé) ─────────────────────
+// Pour modifier les messages d'accueil ou le placeholder de Goat Code,
+// éditez les valeurs "messages", "placeholder" et "status" ci-dessous.
 const coworkingContent={
   fr:{
-    placeholder:"Décrivez votre idée et l'IA la réalisera",
-    status:"Le Goat Coworking peut uniquement vous concevoir des applications qui nécessitent du code.",
+    placeholder:"Décrivez votre besoin et Goat Code le traduit en code",
+    status:"Le code généré par Goat Code est à titre indicatif — il est recommandé de le tester dans un environnement isolé avant toute intégration en production.",
     messages:[
-      "Commencez à créer vos projets avec des IA en local, sans aucune limite.",
-      "Décrivez votre application et Le Goat Coworking posera la base technique.",
-      "Passez d'une idée brute à une application codée avec une direction claire."
+      "Codez intelligemment avec Goat Code — local, rapide, sans compromis.",
+      "Décrivez votre logique, Goat Code structure le code pour vous.",
+      "De l'idée à l'implémentation, Goat Code pose les fondations techniques."
     ],
     desc:""
   },
   en:{
-    placeholder:"Describe your idea and the AI will build it",
-    status:"The Goat Coworking can only design applications that require code.",
+    placeholder:"Describe your need and Goat Code will write the code",
+    status:"Code generated by Goat Code is provided for reference — it is recommended to test it in an isolated environment before any production integration.",
     messages:[
-      "Start building your projects with local AI, without limits.",
-      "Describe your app and Goat Coworking will shape the technical base.",
-      "Move from a raw idea to a coded application with a clear direction."
+      "Code smarter with Goat Code — local, fast, no compromise.",
+      "Describe your logic, Goat Code structures the code for you.",
+      "From idea to implementation, Goat Code lays the technical foundation."
     ],
     desc:""
   },
   es:{
-    placeholder:"Describa su idea y la IA la realizará",
-    status:"Goat Coworking solo puede diseñar aplicaciones que requieran código.",
+    placeholder:"Describa su necesidad y Goat Code lo traducirá en código",
+    status:"El código generado por Goat Code es orientativo — se recomienda probarlo en un entorno aislado antes de cualquier integración en producción.",
     messages:[
-      "Empiece a crear sus proyectos con IA local, sin límites.",
-      "Describa su aplicación y Goat Coworking definirá la base técnica.",
-      "Pase de una idea inicial a una aplicación codificada con una dirección clara."
+      "Programe de forma inteligente con Goat Code — local, rápido, sin compromisos.",
+      "Describa su lógica y Goat Code estructurará el código por usted.",
+      "De la idea a la implementación, Goat Code sienta las bases técnicas."
     ],
     desc:""
   }
 };
-function t(k){return(T[S.lang]||T[defs.lang]||{})[k]||(T[defs.lang]||{})[k]||k}
-function appTitle(){return titleByLang[S.lang]||titleByLang[defs.lang]}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
-// Audio
+// ── Utilitaires de base ───────────────────────────────────────────
+function t(k){return(T[S.lang]||T[defs.lang]||{})[k]||(T[defs.lang]||{})[k]||k}  // Traduction
+function appTitle(){return titleByLang[S.lang]||titleByLang[defs.lang]}             // Titre localisé
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}  // Échappement HTML
+
+// ── Système audio (Web Audio API, synthèse additive) ─────────────
+// Aucun fichier audio externe — les sons sont générés en temps réel.
+// Pour ajouter un style sonore, ajoutez un cas dans playClick() / playKey().
 function ensureAudio(){if(audioCtx)return audioCtx;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;audioCtx=new A();return audioCtx}
 function tone(f,d,type,g,det){const c=ensureAudio();if(!c)return;if(c.state==='suspended')c.resume().catch(()=>{});const o=c.createOscillator(),a=c.createGain();o.type=type||'sine';o.frequency.value=f;o.detune.value=det||0;const n=c.currentTime;a.gain.setValueAtTime(.0001,n);a.gain.exponentialRampToValueAtTime(g||.1,n+.01);a.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(a);a.connect(c.destination);o.start(n);o.stop(n+d+.01)}
 function playClick(){if(S.clickSound!=='on')return;if(S.clickStyle==='nebrise'){tone(260,.055,'sawtooth',.07);setTimeout(()=>tone(340,.045,'triangle',.05),22);return}tone(420,.06,'triangle',.08)}
 function playSend(){if(S.clickSound!=='on')return;tone(600,.045,'sine',.10);setTimeout(()=>tone(820,.055,'sine',.08),35)}
 function playAiReply(){if(S.aiSound!=='on')return;tone(520,.06,'sine',.085);setTimeout(()=>tone(680,.05,'sine',.07),40)}
 let lastKS=0;function playKey(){if(S.kbSound!=='on')return;const n=performance.now();if(n-lastKS<22)return;lastKS=n;if(S.kbStyle==='aurela'){tone(320,.03,'triangle',.06);return}if(S.kbStyle==='verdrock'){tone(180,.025,'square',.045);return}if(S.kbStyle==='feryn'){tone(520,.02,'sine',.06,-12);setTimeout(()=>tone(520,.02,'sine',.05,14),18);return}tone(560,.02,'sine',.05)}
-// Tooltips
+
+// ── Tooltips ─────────────────────────────────────────────────────
+// Les tooltips sont positionnés dynamiquement pour rester dans la fenêtre.
+// Liez un tooltip via bindTip(element, 'tooltip_cle') ou bindTip(element, 'Texte direct').
 function showTip(el,txt){tooltipEl.textContent=txt;tooltipEl.hidden=false;const r=el.getBoundingClientRect();tooltipEl.style.top=Math.min(innerHeight-12,r.bottom+10)+'px';tooltipEl.style.left=Math.max(12,Math.min(innerWidth-12,r.left))+'px';requestAnimationFrame(()=>tooltipEl.classList.add('show'))}
 function hideTip(){tooltipEl.classList.remove('show');setTimeout(()=>{if(!tooltipEl.classList.contains('show'))tooltipEl.hidden=true},120)}
 function bindTip(el,k){if(!el)return;el.addEventListener('mouseenter',()=>{ttTimer=setTimeout(()=>showTip(el,k.startsWith('tooltip_')?t(k):k),520)});el.addEventListener('mouseleave',()=>{clearTimeout(ttTimer);hideTip()});el.addEventListener('mousedown',()=>{clearTimeout(ttTimer);hideTip()})}
@@ -1018,15 +1300,41 @@ modelTriggerBtn.addEventListener('click',()=>{playClick();modelDDMenu.classList.
 
 // ── Private Chat (mode incognito) ──
 let themeBeforePrivate=null;
-function enterPrivateChat(){S.privateChat=true;privateChatBtn.classList.add('active');themeBeforePrivate=S.theme;document.body.dataset.theme='dark';S.theme='dark';$$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue==='dark'));updateThemedLogos();messages=[];renderMessages();welcomeEl.textContent=t('private_chat_welcome');welcomeDesc.textContent=t('private_chat_welcome_desc');ta.value='';autoResize();statusEl.textContent=ST[S.lang]||ST[defs.lang];fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}).catch(()=>{})}
-function exitPrivateChat(){S.privateChat=false;privateChatBtn.classList.remove('active');const restore=themeBeforePrivate||defs.theme;themeBeforePrivate=null;applyTheme(restore,false);refreshWelcomeContent()}
+function enterPrivateChat(){
+  // Si on est dans Goat Code, revenir au chat d'abord
+  if(activeTab==='coworking'){activeTab='chat';updateTabUI()}
+  S.privateChat=true;
+  privateChatBtn.classList.add('active');
+  // Désactiver l'onglet Goat Code
+  if(tabCoworking){tabCoworking.disabled=true}
+  themeBeforePrivate=S.theme;
+  document.body.dataset.theme='dark';S.theme='dark';
+  $$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue==='dark'));
+  updateThemedLogos();
+  messages=[];renderMessages();
+  welcomeEl.textContent=t('private_chat_welcome');
+  welcomeDesc.textContent=t('private_chat_welcome_desc');
+  ta.value='';autoResize();
+  statusEl.textContent=ST[S.lang]||ST[defs.lang];
+  fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}).catch(()=>{})
+}
+function exitPrivateChat(){
+  S.privateChat=false;
+  privateChatBtn.classList.remove('active');
+  // Réactiver l'onglet Goat Code
+  if(tabCoworking){tabCoworking.disabled=false}
+  const restore=themeBeforePrivate||defs.theme;
+  themeBeforePrivate=null;
+  applyTheme(restore,false);
+  refreshWelcomeContent()
+}
 privateChatBtn.addEventListener('click',()=>{playClick();S.privateChat?exitPrivateChat():enterPrivateChat()});
 function updatePrivateChatLabels(){$('pc-title').textContent=t('private_chat');$('pc-desc').textContent=t('private_chat_desc')}
 
 // ── Modes ──
-function isModeOff(id){if(S.model==='goat_code')return true;return S.optResp==='on'&&DM.includes(id)}
-function isStyleOff(){return S.model==='goat_code'}
-function enforceMode(){if(S.mode&&isModeOff(S.mode)){S.mode=S.model==='goat_code'?'':'fast';ls('mode',S.mode)}if(S.wstyle&&isStyleOff()){S.wstyle='';ls('wstyle',S.wstyle)}}
+function isModeOff(id){return S.optResp==='on'&&DM.includes(id)}
+function isStyleOff(){return false}
+function enforceMode(){if(S.mode&&isModeOff(S.mode)){S.mode='fast';ls('mode',S.mode)}if(S.wstyle&&isStyleOff()){S.wstyle='';ls('wstyle',S.wstyle)}}
 function updateModeUI(){enforceMode();const m=MO.find(o=>o.id===S.mode);modeLbl.textContent=m?t('mode_'+m.id):t('no_mode');modeIcn.textContent=m?m.icon:'○';modeAnn.textContent=m?t('mode_active_prefix')+' '+t('mode_'+m.id):''}
 function renderModes(){modeMenu.innerHTML=MO.map(o=>{const sel=o.id===S.mode,dis=isModeOff(o.id);return'<button type="button" class="dropdown-menu-item'+(sel?' selected':'')+(dis?' disabled':'')+'" data-mode-id="'+esc(o.id)+'" '+(dis?'disabled':'')+' role="menuitemradio"><span class="dm-icon">'+esc(o.icon)+'</span><span class="dm-label">'+esc(t('mode_'+o.id))+'</span><span class="dm-check">✓</span></button>'}).join('');modeMenu.querySelectorAll('[data-mode-id]').forEach(b=>{bindTip(b,'tooltip_mode_'+b.dataset.modeId);b.addEventListener('click',()=>{if(b.disabled)return;playClick();S.mode=(b.dataset.modeId===S.mode)?'':b.dataset.modeId;ls('mode',S.mode);renderModes();updateModeUI();closeMM()})})}
 function openMM(){modeMenu.classList.add('open');modeTrigger.setAttribute('aria-expanded','true')}
@@ -1076,7 +1384,7 @@ composerPlus.addEventListener('click',()=>{playClick();plusMenu.classList.toggle
 plusAddSheet.addEventListener('click',()=>{playClick();plusMenu.classList.remove('open');openSheetModal()});
 
 // ── Messages (with Goat Code buttons) ──
-function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=S.model==='goat_code';msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){let acts='';if(i===last&&!isLoading){acts='<div class="bubble-actions"><button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';if(isCode){acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>'}acts+='</div>'}return'<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+'</div>'}return'<div class="message-row user"><div class="bubble">'+e+'</div></div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiRegen(abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
+function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=activeTab==='coworking';msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){let acts='';if(i===last&&!isLoading){acts='<div class="bubble-actions"><button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';if(isCode){acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>'}acts+='</div>'}return'<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+'</div>'}return'<div class="message-row user"><div class="bubble">'+e+'</div></div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiRegen(abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
 let resizeRAF=null;function autoResize(){if(resizeRAF)cancelAnimationFrame(resizeRAF);resizeRAF=requestAnimationFrame(()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,180)+'px'})}
 
 // ── Settings ──
@@ -1133,6 +1441,16 @@ function updateTabUI(){
   statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
   refreshWelcomeContent();
 }
+async function switchTabWithReset(targetTab){
+  if(activeTab===targetTab)return;
+  if(messages.length>0){
+    if(!confirm(t('tab_switch_confirm')))return;
+    try{const p=await apiNewChat();messages=p.messages}catch(e){statusEl.textContent=e.message;return}
+  }
+  activeTab=targetTab==='coworking'?'coworking':'chat';
+  closeModelDD();closeMM();closeSM();
+  refreshWelcomeContent();updateTabUI();
+}
 function setActiveTab(tab,refresh){
   activeTab=tab==='coworking'?'coworking':'chat';
   closeModelDD();
@@ -1144,12 +1462,16 @@ function setActiveTab(tab,refresh){
 function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
-// API
+// ── API HTTP — communication avec le backend Python ──────────────
+// Toutes les requêtes sont en POST JSON vers localhost.
+// Les endpoints sont définis dans GoatRequestHandler (Python).
 async function apiSend(msg,signal){const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 async function apiRegen(signal){const r=await fetch('/api/regenerate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
-// Events
+
+// ── Soumission du formulaire (envoi message + gestion erreurs) ────
 form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…')messages.pop();renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
+// ── Liaisons événements contrôles UI ─────────────────────────────
 modeTrigger.addEventListener('click',()=>{playClick();modeMenu.classList.contains('open')?closeMM():openMM()});
 styleTrigger.addEventListener('click',()=>{playClick();styleMenu.classList.contains('open')?closeSM():openSM()});
 /* gadgetTrigger.addEventListener('click',()=>{playClick();gadgetMenu.classList.contains('open')?closeGM():openGM()}); // desactive */
@@ -1157,6 +1479,7 @@ $('settings-button').addEventListener('click',openSettings);$('settings-close').
 dragH.addEventListener('mousedown',startDrag);document.addEventListener('mousemove',onDrag);document.addEventListener('mouseup',()=>{dragging=false});
 $('newchat-button').addEventListener('click',async()=>{playClick();if(!confirm(t('new_chat_confirm')))return;statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;refreshWelcomeContent();renderMessages();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);ta.value='';autoResize();ta.focus()}catch(e){statusEl.textContent=e.message}});
 $$('[data-settings-tab]').forEach(t=>t.addEventListener('click',()=>{playClick();showTab(t.dataset.settingsTab||'general')}));
+// Paramètres — tous les boutons data-xxx-value sont liés dynamiquement
 $$('[data-language-value]').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.languageValue)));
 $$('[data-theme-value]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.themeValue)));
 $$('[data-textsize-value]').forEach(b=>b.addEventListener('click',()=>applyTextSize(b.dataset.textsizeValue)));
@@ -1170,6 +1493,7 @@ $('toggle-effects-button').addEventListener('click',()=>applyEffects(S.effects==
 $('toggle-responses-button').addEventListener('click',()=>applyOptResp(S.optResp==='on'?'off':'on'));
 $('toggle-uiopt-button').addEventListener('click',()=>applyUiOpt(S.uiOpt==='on'?'off':'on'));
 ['user-firstname','user-lastname','user-tone','user-info'].forEach(id=>$(id).addEventListener('input',persistPerso));
+// Boutons paramètres — fonctionnalités à venir (alertes temporaires)
 $('manage-memory-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('manage-history-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('release-ram-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
@@ -1177,12 +1501,19 @@ $('update-info-button').addEventListener('click',()=>{playClick();alert(t('soon'
 $('goat-dev-news-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('goat-dev-about-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('migrate-data-button').addEventListener('click',()=>{playClick();closeSettings();setTimeout(openMigrate,200)});
+// Fermeture des dropdowns au clic en dehors
 document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open')});
+// Touche Escape — ferme toutes les modales et dropdowns ouverts
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeSettings();closeMigrate();closeOverclockModal();hideTip()}});
+// Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
+// Tooltips data-attribute — liés automatiquement au chargement
 $$('[data-tooltip-key]').forEach(el=>bindTip(el,el.dataset.tooltipKey));
-// Init
+
+// ── Initialisation au démarrage ───────────────────────────────────
+// Ordre important : charger les préférences AVANT d'appliquer les traductions
+// pour que la langue correcte soit déjà dans S.lang lors du premier rendu.
 loadPerso();showTab('general');
 document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;document.body.dataset.textsize=S.textSize;document.body.dataset.aifont=S.aifont;
 applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);
@@ -1190,14 +1521,14 @@ applyOptResp(S.optResp,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
 applyAiFont(S.aifont,false);updateOverclockUI();updateCharCounter();
-setActiveTab(activeTab,false);ta.focus();
+setActiveTab(activeTab,false);ta.focus(); // Focus textarea au démarrage
 
-// ── Top Tab Bar (Chat / Goat Coworking) ──
+// ── Top Tab Bar (Chat / Goat Code) ──
 if(tabChat){
   tabChat.addEventListener('click',()=>{
     playClick();
     if(activeTab!=='chat'){
-      setActiveTab('chat',true);
+      switchTabWithReset('chat');
       return;
     }
     const menu=modelDDMenu;
@@ -1213,7 +1544,7 @@ if(tabChat){
 if(tabCoworking){
   tabCoworking.addEventListener('click',()=>{
     playClick();
-    setActiveTab('coworking',true);
+    switchTabWithReset('coworking');
   });
 }
 // Fermer le model dropdown quand on clique ailleurs
@@ -1273,47 +1604,172 @@ def build_index_html(logo_uri: str, messages: Iterable[Message], themed_logos: O
 
 
 # ============================================================
+# Génération de la page HTML
+# ============================================================
+
+def build_index_html(
+    logo_uri: str,
+    messages: Iterable[Message],
+    themed_logos: Optional[Dict[str, str]] = None,
+) -> str:
+    """
+    Injecte toutes les données de configuration dans le template HTML.
+
+    Paramètres
+    ----------
+    logo_uri      : data URI base64 du logo principal (fallback)
+    messages      : historique de la session courante (injecté dans le JS)
+    themed_logos  : dict {"legoat_light", "legoat_dark", …} → data URI
+
+    Retour
+    ------
+    str : page HTML complète prête à être servie au client.
+
+    Note : tous les marqueurs %%NOM%% doivent avoir une entrée dans
+    `replacements`. Un marqueur non résolu reste visible tel quel dans l'UI.
+    """
+    cfg, tm = AppConfig, TranslationManager
+    tpl = _load_html_template()
+    tl = themed_logos or {}
+
+    # Table de remplacement — chaque clé est un marqueur dans le template HTML.
+    # Les valeurs sont sérialisées en JSON pour être directement utilisables en JS.
+    replacements = {
+        # ── Métadonnées ──────────────────────────────────────────
+        "%%APP_TITLE%%":     html.escape(cfg.DEFAULT_TITLE),
+        "%%APP_VERSION%%":   html.escape(cfg.VERSION),
+        "%%VERSION_JSON%%":  json.dumps(cfg.VERSION, ensure_ascii=False),
+
+        # ── Logos (data URI base64) ───────────────────────────────
+        "%%LOGO_DATA_URI%%":        html.escape(logo_uri, quote=True),
+        "%%LEGOAT_LIGHT_URI%%":     html.escape(tl.get("legoat_light", logo_uri), quote=True),
+        "%%LEGOAT_DARK_URI%%":      html.escape(tl.get("legoat_dark",  logo_uri), quote=True),
+        "%%GOATISTIQUE_LIGHT_URI%%":html.escape(tl.get("goatistique_light", ""), quote=True),
+        "%%GOATISTIQUE_DARK_URI%%": html.escape(tl.get("goatistique_dark",  ""), quote=True),
+
+        # ── Traductions et contenu dynamique ─────────────────────
+        "%%TRANSLATIONS_JSON%%": json.dumps(tm.STRINGS,  ensure_ascii=False),
+        "%%WELCOME_JSON%%":      json.dumps(tm.WELCOME,  ensure_ascii=False),
+        "%%STATUS_JSON%%":       json.dumps(tm.STATUS,   ensure_ascii=False),
+        "%%TITLE_BY_LANG_JSON%%":json.dumps(cfg.TITLE_BY_LANG, ensure_ascii=False),
+
+        # ── Modes, modèles, styles ────────────────────────────────
+        "%%MODES_JSON%%":          json.dumps(cfg.MODE_OPTIONS,           ensure_ascii=False),
+        "%%DISABLED_MODES_JSON%%": json.dumps(sorted(cfg.DISABLED_MODES_OPTIMIZED)),
+        "%%MODELS_JSON%%":         json.dumps(cfg.MODELS,                 ensure_ascii=False),
+        "%%WSTYLES_JSON%%":        json.dumps(cfg.WRITING_STYLES,         ensure_ascii=False),
+        "%%GADGETS_JSON%%":        json.dumps(cfg.GADGETS,                ensure_ascii=False),
+        "%%SHEET_LIMITS_JSON%%":   json.dumps(cfg.SHEET_LIMITS,           ensure_ascii=False),
+
+        # ── Valeurs par défaut (injectées dans l'objet `defs` JS) ─
+        "%%DEFAULT_LANG_JSON%%":       json.dumps(cfg.DEFAULT_LANG),
+        "%%DEFAULT_THEME_JSON%%":      json.dumps(cfg.DEFAULT_THEME),
+        "%%DEFAULT_EFFECTS_JSON%%":    json.dumps(cfg.DEFAULT_EFFECTS),
+        "%%DEFAULT_TEXTSIZE_JSON%%":   json.dumps(cfg.DEFAULT_TEXT_SIZE),
+        "%%DEFAULT_OPTRESP_JSON%%":    json.dumps(cfg.DEFAULT_OPT_RESPONSES),
+        "%%DEFAULT_UIOPT_JSON%%":      json.dumps(cfg.DEFAULT_UI_OPT),
+        "%%DEFAULT_KB_SOUND_JSON%%":   json.dumps(cfg.DEFAULT_KB_SOUND),
+        "%%DEFAULT_KB_STYLE_JSON%%":   json.dumps(cfg.DEFAULT_KB_STYLE),
+        "%%DEFAULT_CLICK_SOUND_JSON%%":json.dumps(cfg.DEFAULT_CLICK_SOUND),
+        "%%DEFAULT_CLICK_STYLE_JSON%%":json.dumps(cfg.DEFAULT_CLICK_STYLE),
+        "%%DEFAULT_AI_SOUND_JSON%%":   json.dumps(cfg.DEFAULT_AI_SOUND),
+        "%%DEFAULT_MODE_JSON%%":       json.dumps(cfg.DEFAULT_MODE_ID),
+        "%%DEFAULT_MODEL_JSON%%":      json.dumps(cfg.DEFAULT_MODEL),
+        "%%DEFAULT_WSTYLE_JSON%%":     json.dumps(cfg.DEFAULT_WRITING_STYLE),
+        "%%DEFAULT_GADGET_JSON%%":     json.dumps(cfg.DEFAULT_GADGET),
+
+        # ── Divers ────────────────────────────────────────────────
+        "%%MIGRATION_PROMPT_JSON%%": json.dumps(cfg.MIGRATION_PROMPT, ensure_ascii=False),
+        "%%STORAGE_PREFIX_JSON%%":   json.dumps(cfg.STORAGE_PREFIX),
+        "%%MESSAGES_JSON%%":         json.dumps(list(messages), ensure_ascii=False),
+    }
+
+    # Remplacement séquentiel — chaque marqueur ne peut apparaître qu'une fois
+    for key, value in replacements.items():
+        tpl = tpl.replace(key, value)
+    return tpl
+
+
+
+# ============================================================
 # Serveur HTTP
 # ============================================================
 
 class GoatWebApp:
+    """
+    Couche applicative principale — coordonne session et rendu HTML.
+
+    C'est le point d'entrée de toutes les requêtes traitées par
+    GoatRequestHandler. Une seule instance est créée au démarrage
+    et partagée par tous les threads du serveur.
+    """
+
     def __init__(self) -> None:
-        self.session = ChatSession()
-        self.logo_uri = LogoLoader.get_data_uri()
-        self.themed_logos = LogoLoader.get_themed_logos()
+        self.session      = ChatSession()               # Session de chat active
+        self.logo_uri     = LogoLoader.get_data_uri()   # Logo encodé en base64
+        self.themed_logos = LogoLoader.get_themed_logos() # Logos clair/sombre
 
     def render_index(self) -> str:
+        """Génère et retourne la page HTML complète avec l'état actuel."""
         return build_index_html(self.logo_uri, self.session.messages, self.themed_logos)
 
     def submit_message(self, message: str, mode: str = "") -> dict:
+        """Envoie un message à l'IA et retourne la réponse + historique."""
         reply = self.session.submit(message, mode)
         if not reply:
             return {"ok": False, "error": "Veuillez saisir un message."}
         return {"ok": True, "reply": reply, "messages": self.session.messages}
 
     def regenerate(self, mode: str = "") -> dict:
+        """Relance le dernier message et retourne la nouvelle réponse."""
         reply = self.session.regenerate(mode)
         if not reply:
             return {"ok": False, "error": "Aucun message à relancer."}
         return {"ok": True, "reply": reply, "messages": self.session.messages}
 
     def new_chat(self) -> dict:
+        """Réinitialise la session et retourne un historique vide."""
         self.session.reset()
         return {"ok": True, "messages": self.session.messages}
 
 
 class GoatHTTPServer(ThreadingHTTPServer):
-    def __init__(self, addr, handler_cls, app: GoatWebApp):
+    """
+    Serveur HTTP multi-thread qui expose l'instance GoatWebApp aux handlers.
+
+    L'attribut `app` est accessible depuis GoatRequestHandler via self.server.app.
+    ThreadingHTTPServer gère chaque requête dans un thread séparé.
+    """
+
+    def __init__(self, addr: tuple, handler_cls, app: GoatWebApp) -> None:
         super().__init__(addr, handler_cls)
-        self.app = app
+        self.app = app  # Partagé entre tous les threads — ChatSession n'est pas thread-safe
 
 
 class GoatRequestHandler(BaseHTTPRequestHandler):
-    server: GoatHTTPServer
+    """
+    Handler HTTP — route les requêtes vers GoatWebApp.
 
-    def log_message(self, fmt, *args): pass
+    Routes disponibles
+    ------------------
+    GET  /              → page HTML complète (render_index)
+    GET  /api/history   → historique JSON de la session
+    POST /api/send      → envoyer un message {message, mode}
+    POST /api/regenerate→ relancer le dernier message {mode}
+    POST /api/new_chat  → réinitialiser la session {}
+
+    Pour ajouter une route :
+      - GET  : ajoutez un elif dans do_GET()
+      - POST : ajoutez une entrée lambda dans le dict handlers de do_POST()
+    """
+
+    server: GoatHTTPServer  # Typage pour accès à self.server.app
+
+    def log_message(self, fmt, *args) -> None:
+        pass  # Silence les logs HTTP dans la console (trop verbeux)
 
     def _send(self, body: str, status: int = 200, ct: str = "text/html; charset=utf-8") -> None:
+        """Envoie une réponse HTTP texte avec les headers appropriés."""
         data = body.encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", ct)
@@ -1322,31 +1778,49 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def _json(self, payload: dict, status: int = 200) -> None:
+        """Sérialise un dict en JSON et l'envoie comme réponse HTTP."""
         self._send(json.dumps(payload, ensure_ascii=False), status, "application/json; charset=utf-8")
 
     def do_GET(self) -> None:
+        """Gère toutes les requêtes GET."""
         if self.path == "/":
+            # Page principale — regenerée à chaque requête avec l'état courant
             self._send(self.server.app.render_index())
         elif self.path == "/api/history":
+            # Endpoint optionnel pour récupérer l'historique en JSON
             self._json({"ok": True, "messages": self.server.app.session.messages})
         elif self.path in {"/favicon.ico", "/favicon.png"}:
-            self.send_response(204); self.end_headers()
+            # Évite les erreurs 404 dans les logs pour le favicon
+            self.send_response(204)
+            self.end_headers()
         else:
             self._json({"ok": False, "error": "Not found."}, 404)
 
     def do_POST(self) -> None:
+        """Gère toutes les requêtes POST via un dispatch par chemin."""
+        # Lecture et décodage du corps de la requête
         length = int(self.headers.get("Content-Length", "0"))
         raw = self.rfile.read(length) if length > 0 else b"{}"
         try:
             payload = json.loads(raw.decode("utf-8") or "{}")
-            if not isinstance(payload, dict): payload = {}
+            if not isinstance(payload, dict):
+                payload = {}
         except json.JSONDecodeError:
-            self._json({"ok": False, "error": "JSON invalide."}, 400); return
+            self._json({"ok": False, "error": "JSON invalide."}, 400)
+            return
+
+        # Table de dispatch — associe chaque route à sa méthode GoatWebApp
         handlers = {
-            "/api/send": lambda: self.server.app.submit_message(str(payload.get("message", "")), str(payload.get("mode", ""))),
-            "/api/regenerate": lambda: self.server.app.regenerate(str(payload.get("mode", ""))),
-            "/api/new_chat": lambda: self.server.app.new_chat(),
+            "/api/send":       lambda: self.server.app.submit_message(
+                                   str(payload.get("message", "")),
+                                   str(payload.get("mode", ""))
+                               ),
+            "/api/regenerate": lambda: self.server.app.regenerate(
+                                   str(payload.get("mode", ""))
+                               ),
+            "/api/new_chat":   lambda: self.server.app.new_chat(),
         }
+
         fn = handlers.get(self.path)
         if fn:
             result = fn()
@@ -1356,69 +1830,94 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
 
 
 # ============================================================
-# Tests
+# Tests unitaires
 # ============================================================
 
 class TestChatSession(unittest.TestCase):
+    """Tests de la logique de session de chat."""
+
     def test_normalize(self):
+        """Les espaces multiples doivent être collapsés en un seul espace."""
         s = ChatSession()
         s.submit("  Bonjour   Le Goat  ")
         self.assertEqual(s.messages[0], ("Vous", "Bonjour Le Goat"))
 
     def test_empty_ignored(self):
+        """Un message vide ou uniquement composé d'espaces ne doit rien ajouter."""
         s = ChatSession()
         self.assertEqual(s.submit("   "), "")
 
 
 class TestLogo(unittest.TestCase):
+    """Tests du chargement des ressources graphiques."""
+
     def test_fallback(self):
+        """Si aucun fichier logo n'existe, un SVG de secours doit être retourné."""
         uri = LogoLoader.get_data_uri([Path("/no/such/file")])
         self.assertTrue(uri.startswith("data:image/svg+xml,"))
 
 
 def run_tests() -> None:
+    """Lance la suite de tests et quitte avec code 1 si un test échoue."""
     suite = unittest.TestSuite()
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestChatSession))
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestLogo))
-    r = unittest.TextTestRunner(verbosity=2).run(suite)
-    if not r.wasSuccessful():
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    if not result.wasSuccessful():
         raise SystemExit(1)
 
 
 # ============================================================
-# Main
+# Point d'entrée principal
 # ============================================================
 
 def main() -> None:
+    """
+    Initialise et lance l'application Le Goat.
+
+    Modes de lancement
+    ------------------
+    (défaut)      Fenêtre native pywebview
+    --browser     Ouvre dans le navigateur système
+    --no-browser  Serveur HTTP pur (headless), utile pour le dev ou l'API
+    --test        Lance la suite de tests unitaires et quitte
+    --host HOST   Adresse d'écoute (défaut : 127.0.0.1)
+    --port PORT   Port d'écoute (défaut : 8765)
+    """
     parser = argparse.ArgumentParser(description="Le Goat — Interface desktop native")
-    parser.add_argument("--host", default=AppConfig.HOST)
-    parser.add_argument("--port", type=int, default=AppConfig.PORT)
+    parser.add_argument("--host",       default=AppConfig.HOST)
+    parser.add_argument("--port",       type=int, default=AppConfig.PORT)
     parser.add_argument("--no-browser", action="store_true", help="Mode serveur pur (pas de fenêtre)")
-    parser.add_argument("--browser", action="store_true", help="Ouvrir dans le navigateur au lieu de la fenêtre native")
-    parser.add_argument("--test", action="store_true")
+    parser.add_argument("--browser",    action="store_true", help="Ouvrir dans le navigateur")
+    parser.add_argument("--test",       action="store_true", help="Lancer les tests unitaires")
     args = parser.parse_args()
+
+    # Mode test — exécute les tests et quitte immédiatement
     if args.test:
         run_tests()
         return
-    app = GoatWebApp()
+
+    # Initialisation de l'application et du serveur HTTP
+    app    = GoatWebApp()
     server = GoatHTTPServer((args.host, args.port), GoatRequestHandler, app)
-    url = f"http://{args.host}:{args.port}"
+    url    = f"http://{args.host}:{args.port}"
     print(f"Le Goat lancé sur {url}")
 
-    # Lancer le serveur HTTP dans un thread daemon
+    # Le serveur tourne dans un thread daemon — il s'arrête avec le processus principal
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
 
     if args.no_browser:
-        # Mode serveur pur — on bloque sur le thread principal
+        # ── Mode headless — utile pour tester l'API ou faire du dev ──
         try:
-            server_thread.join()
+            server_thread.join()  # Bloque jusqu'à Ctrl+C
         except KeyboardInterrupt:
             print("Arrêt du serveur Le Goat.")
         finally:
             server.server_close()
+
     elif args.browser or webview is None:
-        # Fallback navigateur si pywebview absent ou demandé
+        # ── Fallback navigateur — si pywebview n'est pas installé ────
         import webbrowser
         if webview is None:
             print("⚠ pywebview non installé — ouverture dans le navigateur.")
@@ -1430,19 +1929,25 @@ def main() -> None:
             print("Arrêt du serveur Le Goat.")
         finally:
             server.server_close()
+
     else:
-        # Mode desktop natif avec pywebview
-        window = webview.create_window(
+        # ── Mode fenêtre native pywebview (recommandé) ───────────────
+        webview.create_window(
             AppConfig.DEFAULT_TITLE,
             url,
             width=1280,
             height=820,
             min_size=(800, 500),
             resizable=True,
-            text_select=True,
+            text_select=True,   # Permet la sélection de texte dans la fenêtre
         )
-        # webview.start() bloque le thread principal jusqu'à fermeture de la fenêtre
+        # Cherche le logo pour l'icône de la taskbar Windows
+        icon_path = LogoLoader.get_icon_path()
         try:
+            # webview.start() bloque jusqu'à la fermeture de la fenêtre
+            webview.start(debug=False, icon=icon_path)
+        except TypeError:
+            # Ancienne version de pywebview sans paramètre icon
             webview.start(debug=False)
         except KeyboardInterrupt:
             pass
