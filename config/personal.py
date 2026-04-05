@@ -16,16 +16,7 @@ class Personal_information:
         age = input("please enter your age for AI : ")
         print("your age is ",age," years old , the AI adress to you in fonction do you age\n")
         return age
-    
-    def identity_sexe():
-        sexe = int(input("\n1)Male\n2)Female\n3)No Genre\n"))
-        if(sexe == 1 or sexe == 2 or sexe == 3):
-            print("your sexe is",sexe,"the AI adapt the chating for your sexe\n")
-            return sexe
-        else:
-            print("aucun sexe selectioner")
-            
-    
+  
     def identity_information():
         information = input("please the information about you beacause to help the AI : ")
         print("the information is sauvegarded and private\n")
@@ -35,7 +26,7 @@ class Personal_information:
 personal = Personal_information
 i = 0
 while(i < 1):
-    print("SETTING -> PERSONAL\n1)First Name\n2)Name\n3)Sexe\n4)Information\n")
+    print("SETTING -> PERSONAL\n1)First Name\n2)Name\n3)Information\n")
     choice = int(input("enter your choice : "))
     if choice == 1:
         first_name = personal.identity_first_name()
@@ -46,13 +37,9 @@ while(i < 1):
         with open("backup_personal_name.txt", "w", encoding="utf-8") as f:
             f.write(name)
     elif choice == 3:
-        sexe = personal.identity_sexe()
-        with open("backup_personal_sexe.txt", "w", encoding="utf-8") as f:
-            f.write(str(sexe))
-    elif choice == 4:
         information = personal.identity_information()
         with open("backup_personal_information.txt", "w", encoding="utf-8") as f:
-            f.write(information)
+            f.write(information)   
     else:
         print("le choix entrée est non valide")
 

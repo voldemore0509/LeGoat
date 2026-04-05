@@ -64,12 +64,10 @@ class AppConfig:
         "goat_code": 6 * 1024,   # 6 Ko par feuille
         "maestro": 350 * 1024,   # 350 Ko par feuille
     }
-    # Writing styles désactivés
-    WRITING_STYLES: ClassVar[list] = []
-    # WRITING_STYLES: ClassVar[list] = [
-    #     {"id": "explicatif", "icon": "\U0001f4d6"},
-    #     {"id": "educatif", "icon": "\U0001f393"},
-    # ]
+    WRITING_STYLES: ClassVar[list] = [
+        {"id": "explicatif", "icon": "\U0001f4d6"},
+        {"id": "educatif", "icon": "\U0001f393"},
+    ]
     DEFAULT_WRITING_STYLE = ""
     GADGETS: ClassVar[list] = [
         {"id": "schema", "icon": "\U0001f4ca"},
@@ -804,9 +802,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
   <button type="button" class="model-trigger-btn" id="model-trigger-btn" aria-expanded="false"></button>
 </div>
 
-<!-- Private Chat button (désactivé)
 <button type="button" class="private-chat-btn" id="private-chat-btn">🔍<div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
--->
 
 <main class="shell" id="shell">
   <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div></section>
@@ -832,9 +828,8 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
     <div class="controls-row" id="controls-row">
       <!-- Modes -->
       <div class="mode-panel" id="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
-      <!-- Writing Styles désactivé
+      <!-- Writing Styles -->
       <div class="style-panel"><button type="button" class="style-trigger" id="style-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_style_trigger"><span class="trigger-icon" id="style-icon">✎</span><span id="selected-style-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="style-menu" role="menu"></div></div>
-      -->
       <!-- Gadgets (desactive pour le moment)
       <div class="style-panel"><button type="button" class="style-trigger" id="gadget-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_gadget_trigger"><span class="trigger-icon" id="gadget-icon">⚙</span><span id="selected-gadget-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="gadget-menu" role="menu"></div></div>
       -->
@@ -905,9 +900,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
 <div class="tooltip" id="tooltip" hidden></div>
 <!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
 <div hidden>
-  <button id="private-chat-btn"></button><span id="pc-title"></span><span id="pc-desc"></span>
   <button id="composer-plus"></button><div id="plus-menu"></div><button id="plus-add-sheet"></button><div id="sheets-row"></div>
-  <button id="style-trigger"></button><div id="style-menu"></div><span id="selected-style-label"></span><span id="style-icon"></span>
 </div>
 <script>
 !function(){"use strict";
