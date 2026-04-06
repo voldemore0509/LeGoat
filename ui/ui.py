@@ -54,8 +54,13 @@ from __future__ import annotations
 import argparse
 import base64
 import html
+import io
 import json
+import os
+import platform
+import re
 import threading
+import time
 import unittest
 try:
     import webview
@@ -65,6 +70,20 @@ from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import ClassVar, Dict, Iterable, List, Optional, Sequence, Tuple
+
+try:
+    from PIL import Image
+except Exception:
+    Image = None
+
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfgen import canvas as pdf_canvas
+except Exception:
+    A4 = None
+    ImageReader = None
+    pdf_canvas = None
 
 
 # ============================================================
@@ -85,7 +104,7 @@ class AppConfig:
     DEFAULT_TITLE = "Le Goat"
 
     # ── Version affichée dans les paramètres ───────────────────
-    VERSION = "Goatesque 1.0.0"
+    VERSION = "Goatesque 1.0.1"
 
     # ── Serveur HTTP local ─────────────────────────────────────
     HOST = "127.0.0.1"   # Ne pas exposer sur le réseau — local uniquement
@@ -311,7 +330,7 @@ class TranslationManager:
             "goat_dev_news_desc": "Découvrez les dernières fonctionnalités et améliorations.",
             "goat_dev_about": "En savoir plus sur Goat Developer",
             "goat_dev_about_desc": "L'équipe et la vision derrière Le Goat.",
-            "thanks_message": "Merci d'utiliser Le Goat !",
+            "thanks_message": "Designed and coded in France",
             "char_limit_tooltip": "Limite de caractères que l'IA peut analyser en une seule requête.",
             "char_limit_overclock_tooltip": "Overclocking activé — Attention en dépassant la limite, les réponses peuvent être dégradées.",
             "sheets_max_one": "Maximum 1 feuille atteint. Activez l'overclocking pour en ajouter jusqu'à 10.",
@@ -325,9 +344,49 @@ class TranslationManager:
             "overclock_cancel": "Annuler",
             "stop_generation": "Arrêter la génération",
             "font_label": "Police de réponse de l'IA",
+            "font_user_label": "Police d'écriture de l'utilisateur",
             "font_default": "Par défaut (Noto Serif)",
             "font_arial": "Arial",
             "font_opendyslexic": "Open Dyslexic",
+            "tab_profile": "Profil",
+            "profile_share_hint": "Carte de profil partageable et modifiable localement.",
+            "profile_chats_sent": "Chats envoyés à l'IA",
+            "profile_goat_score": "Goat Score",
+            "profile_description": "Description",
+            "profile_social_links": "Réseaux sociaux",
+            "profile_instagram": "Instagram",
+            "profile_tiktok": "TikTok",
+            "profile_youtube": "YouTube",
+            "profile_github": "GitHub",
+            "profile_bluesky": "Bluesky",
+            "profile_edit": "Modifier",
+            "profile_close_edit": "Fermer l'édition",
+            "profile_share_pro": "Envoyer le profil professionnel",
+            "profile_share_full": "Envoyer le profil complet",
+            "profile_avatar": "Photo de profil",
+            "profile_banner": "Bannière",
+            "profile_change_avatar": "Importer la photo",
+            "profile_change_banner": "Importer la bannière",
+            "profile_remove_avatar": "Retirer",
+            "profile_remove_banner": "Retirer",
+            "profile_firstname": "Prénom",
+            "profile_lastname": "Nom",
+            "profile_bio": "Bio",
+            "profile_auto_save": "Sauvegarde automatique locale.",
+            "profile_no_name": "Profil sans nom",
+            "profile_no_description": "Ajoutez une description pour présenter ce profil.",
+            "profile_copied": "Profil copié dans le presse-papiers.",
+            "profile_share_error": "Impossible de partager le profil pour le moment.",
+            "profile_share_dev": "Fonction d\u2019envoi du profil en cours de développement.",
+            "regenerate_command": "Régénère la réponse précédente.",
+            "profile_preview_title": "Aperçu du profil",
+            "profile_choose_avatar": "Choisir une image",
+            "profile_choose_banner": "Choisir une bannière",
+            "profile_picker_title": "Choisir une image",
+            "profile_picker_title_banner": "Choisir une bannière",
+            "profile_picker_category_goat": "Goat",
+            "profile_picker_import_avatar": "Importer une image",
+            "profile_picker_import_banner": "Importer une bannière",
         },
         "en": {
             "placeholder": "Ask The Goat...", "settings_label": "Settings", "settings_title": "Settings",
@@ -418,7 +477,7 @@ class TranslationManager:
             "goat_dev_news_desc": "Discover the latest features and improvements.",
             "goat_dev_about": "Learn more about Goat Developer",
             "goat_dev_about_desc": "The team and vision behind The Goat.",
-            "thanks_message": "Thanks for using The Goat!",
+            "thanks_message": "Designed and coded in France",
             "char_limit_tooltip": "Character limit the AI can analyze in a single request.",
             "char_limit_overclock_tooltip": "Overclocking enabled — Be careful exceeding the limit, responses may be degraded.",
             "sheets_max_one": "Maximum 1 sheet reached. Enable overclocking to add up to 10.",
@@ -432,9 +491,49 @@ class TranslationManager:
             "overclock_cancel": "Cancel",
             "stop_generation": "Stop generation",
             "font_label": "AI response font",
+            "font_user_label": "User writing font",
             "font_default": "Default (Noto Serif)",
             "font_arial": "Arial",
             "font_opendyslexic": "Open Dyslexic",
+            "tab_profile": "Profile",
+            "profile_share_hint": "Shareable profile card stored locally.",
+            "profile_chats_sent": "Chats sent to the AI",
+            "profile_goat_score": "Goat Score",
+            "profile_description": "Description",
+            "profile_social_links": "Social links",
+            "profile_instagram": "Instagram",
+            "profile_tiktok": "TikTok",
+            "profile_youtube": "YouTube",
+            "profile_github": "GitHub",
+            "profile_bluesky": "Bluesky",
+            "profile_edit": "Edit",
+            "profile_close_edit": "Close editor",
+            "profile_share_pro": "Share professional profile",
+            "profile_share_full": "Share full profile",
+            "profile_avatar": "Profile photo",
+            "profile_banner": "Banner",
+            "profile_change_avatar": "Import photo",
+            "profile_change_banner": "Import banner",
+            "profile_remove_avatar": "Remove",
+            "profile_remove_banner": "Remove",
+            "profile_firstname": "First name",
+            "profile_lastname": "Last name",
+            "profile_bio": "Bio",
+            "profile_auto_save": "Saved locally automatically.",
+            "profile_no_name": "Unnamed profile",
+            "profile_no_description": "Add a description to present this profile.",
+            "profile_copied": "Profile copied to clipboard.",
+            "profile_share_error": "Unable to share the profile right now.",
+            "profile_share_dev": "Profile sharing is still in development.",
+            "regenerate_command": "Regenerate the previous answer.",
+            "profile_preview_title": "Profile preview",
+            "profile_choose_avatar": "Choose an image",
+            "profile_choose_banner": "Choose a banner",
+            "profile_picker_title": "Choose an image",
+            "profile_picker_title_banner": "Choose a banner",
+            "profile_picker_category_goat": "Goat",
+            "profile_picker_import_avatar": "Import an image",
+            "profile_picker_import_banner": "Import a banner",
         },
         "es": {
             "placeholder": "Pregunte a El Goat...", "settings_label": "Ajustes", "settings_title": "Ajustes",
@@ -525,7 +624,7 @@ class TranslationManager:
             "goat_dev_news_desc": "Descubra las últimas funcionalidades y mejoras.",
             "goat_dev_about": "Más información sobre Goat Developer",
             "goat_dev_about_desc": "El equipo y la visión detrás de El Goat.",
-            "thanks_message": "¡Gracias por usar El Goat!",
+            "thanks_message": "Designed and coded in France",
             "char_limit_tooltip": "Límite de caracteres que la IA puede analizar en una sola solicitud.",
             "char_limit_overclock_tooltip": "Overclocking activado — Cuidado al superar el límite, las respuestas pueden degradarse.",
             "sheets_max_one": "Máximo 1 hoja alcanzado. Active el overclocking para agregar hasta 10.",
@@ -539,9 +638,49 @@ class TranslationManager:
             "overclock_cancel": "Cancelar",
             "stop_generation": "Detener generación",
             "font_label": "Fuente de respuesta de la IA",
+            "font_user_label": "Fuente de escritura del usuario",
             "font_default": "Por defecto (Noto Serif)",
             "font_arial": "Arial",
             "font_opendyslexic": "Open Dyslexic",
+            "tab_profile": "Perfil",
+            "profile_share_hint": "Tarjeta de perfil compartible guardada localmente.",
+            "profile_chats_sent": "Chats enviados a la IA",
+            "profile_goat_score": "Goat Score",
+            "profile_description": "Descripción",
+            "profile_social_links": "Redes sociales",
+            "profile_instagram": "Instagram",
+            "profile_tiktok": "TikTok",
+            "profile_youtube": "YouTube",
+            "profile_github": "GitHub",
+            "profile_bluesky": "Bluesky",
+            "profile_edit": "Editar",
+            "profile_close_edit": "Cerrar edición",
+            "profile_share_pro": "Compartir perfil profesional",
+            "profile_share_full": "Compartir perfil completo",
+            "profile_avatar": "Foto de perfil",
+            "profile_banner": "Banner",
+            "profile_change_avatar": "Importar foto",
+            "profile_change_banner": "Importar banner",
+            "profile_remove_avatar": "Quitar",
+            "profile_remove_banner": "Quitar",
+            "profile_firstname": "Nombre",
+            "profile_lastname": "Apellido",
+            "profile_bio": "Bio",
+            "profile_auto_save": "Guardado local automático.",
+            "profile_no_name": "Perfil sin nombre",
+            "profile_no_description": "Agregue una descripción para presentar este perfil.",
+            "profile_copied": "Perfil copiado al portapapeles.",
+            "profile_share_error": "No se puede compartir el perfil en este momento.",
+            "profile_share_dev": "La función de compartir el perfil sigue en desarrollo.",
+            "regenerate_command": "Regenera la respuesta anterior.",
+            "profile_preview_title": "Vista previa del perfil",
+            "profile_choose_avatar": "Elegir una imagen",
+            "profile_choose_banner": "Elegir un banner",
+            "profile_picker_title": "Elegir una imagen",
+            "profile_picker_title_banner": "Elegir un banner",
+            "profile_picker_category_goat": "Goat",
+            "profile_picker_import_avatar": "Importar una imagen",
+            "profile_picker_import_banner": "Importar un banner",
         },
     }
 
@@ -875,8 +1014,10 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 @keyframes dotPulse{0%,100%{transform:translateY(0);opacity:.35}25%{transform:translateY(-12px);opacity:1}50%{transform:translateY(4px);opacity:.6}75%{transform:translateY(-4px);opacity:.8}}
 .messages{width:min(760px,calc(100vw - 32px));display:none;flex-direction:column;gap:14px;margin-top:4px;margin-bottom:6px}
 .shell.has-messages .messages{display:flex}
-.message-row{display:flex;width:100%}.message-row.user{justify-content:flex-end}
+.message-row{display:flex;width:100%}.message-row.user{justify-content:flex-end;align-items:flex-end;gap:8px}
 .message-row.assistant{justify-content:flex-start;flex-direction:column;align-items:flex-start;gap:6px}
+.message-user-avatar{width:34px;height:34px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface-soft);box-shadow:var(--shadow-soft);flex:0 0 34px;align-self:flex-end}
+.message-user-avatar img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .bubble{max-width:min(84%,640px);padding:14px 16px;border-radius:22px;line-height:1.5;white-space:pre-wrap;word-break:break-word;box-shadow:var(--shadow-soft);border:1px solid var(--line)}
 .message-row.user .bubble{background:var(--bubble-user);color:var(--text-primary);border-top-right-radius:8px}
 .message-row.assistant .bubble{background:var(--bubble-assistant);color:var(--text-primary);border-top-left-radius:8px;font-family:"Noto Serif",Georgia,serif}
@@ -925,8 +1066,14 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .migrate-btn-cancel{background:var(--surface-soft);color:var(--text-primary);box-shadow:0 0 0 2px var(--text-secondary),3px 3px 0 0 rgba(0,0,0,.2)}
 
 /* ── Send button pixel style ── */
-.send-button{width:42px;height:42px;border:none;border-radius:0;background:var(--send-bg);color:var(--send-color);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:var(--send-shadow);transition:transform .12s,opacity .12s;font-size:.95rem;font-weight:700;font-family:"JetBrains Mono","Courier New",monospace;clip-path:polygon(18% 0%,82% 0%,82% 9%,91% 9%,91% 18%,100% 18%,100% 82%,91% 82%,91% 91%,82% 91%,82% 100%,18% 100%,18% 91%,9% 91%,9% 82%,0% 82%,0% 18%,9% 18%,9% 9%,18% 9%)}
-.send-button:hover{transform:translateY(-1px)}.send-button:disabled{cursor:default;opacity:.55;transform:none}
+.send-button,.voice-input-button{width:42px;height:42px;border:none;border-radius:0;background:var(--send-bg);color:var(--send-color);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:var(--send-shadow);transition:transform .12s,opacity .12s,filter .12s;font-size:.95rem;font-weight:700;font-family:"JetBrains Mono","Courier New",monospace;clip-path:polygon(18% 0%,82% 0%,82% 9%,91% 9%,91% 18%,100% 18%,100% 82%,91% 82%,91% 91%,82% 91%,82% 100%,18% 100%,18% 91%,9% 91%,9% 82%,0% 82%,0% 18%,9% 18%,9% 9%,18% 9%)}
+.voice-input-button{background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);color:#2563eb;box-shadow:0 0 0 1px rgba(37,99,235,.16),0 10px 22px rgba(37,99,235,.12)}
+.voice-input-button svg{width:18px;height:18px;stroke-width:2.25}
+body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#111c35 0%,#172554 100%);color:#93c5fd;box-shadow:0 0 0 1px rgba(147,197,253,.18),0 12px 26px rgba(0,0,0,.28)}
+.send-button:hover,.voice-input-button:hover{transform:translateY(-1px);filter:brightness(1.04)}.send-button:disabled,.voice-input-button:disabled{cursor:default;opacity:.55;transform:none;filter:none}
+.voice-input-button{background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);color:#1d4ed8;box-shadow:0 0 0 2px rgba(29,78,216,.35),3px 3px 0 0 rgba(29,78,216,.18),0 8px 18px rgba(29,78,216,.12)}
+body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1e3a8a 0%,#1d4ed8 100%);color:#eff6ff;box-shadow:0 0 0 2px rgba(147,197,253,.38),3px 3px 0 0 rgba(59,130,246,.22),0 8px 18px rgba(37,99,235,.28)}
+.voice-input-button svg{width:18px;height:18px;display:block}
 
 /* ── Mode + Style rows ── */
 .controls-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
@@ -952,21 +1099,21 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .settings-button-label,.newchat-button-label{padding:0 12px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-secondary);display:inline-flex;align-items:center;font-size:.8125rem;box-shadow:var(--shadow-soft);opacity:0;transform:translateX(-4px);pointer-events:none;transition:opacity .14s,transform .14s}
 .settings-anchor:hover .settings-button-label,.newchat-anchor:hover .newchat-button-label{opacity:1;transform:translateX(0)}
 .settings-backdrop{position:fixed;inset:0;background:var(--settings-backdrop);backdrop-filter:blur(6px);z-index:60;opacity:0;transition:opacity .18s}.settings-backdrop.open{opacity:1}
-.settings-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,calc(100vw - 36px));min-height:560px;max-height:calc(100vh - 48px);border-radius:26px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.32);z-index:70;display:grid;grid-template-columns:250px 1fr;opacity:0;transition:opacity .18s,transform .18s}
+.settings-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1080px,calc(100vw - 32px));min-height:560px;max-height:calc(100vh - 36px);border-radius:26px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.32);z-index:70;display:grid;grid-template-columns:250px 1fr;opacity:0;transition:opacity .18s,transform .18s}
 .settings-modal.open{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.settings-sidebar{background:var(--settings-sidebar);border-right:1px solid var(--settings-panel-border);padding:18px;display:flex;flex-direction:column;gap:8px}
+.settings-sidebar{background:var(--settings-sidebar);border-right:1px solid var(--settings-panel-border);padding:18px;display:flex;flex-direction:column;gap:8px;overflow:hidden;position:relative;padding-bottom:104px}
 .settings-close-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.settings-close-row strong{color:var(--text-primary);font-size:.9375rem}
 .settings-close{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.25rem}
 .settings-tab{width:100%;min-height:46px;border:none;border-radius:14px;background:transparent;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:12px;padding:0 14px;text-align:left;transition:background .14s}
 .settings-tab:hover{background:var(--settings-tab-hover)}.settings-tab.active{background:var(--settings-tab-active);color:#3b82f6}
 .settings-tab-icon{width:18px;text-align:center;opacity:.9;flex:0 0 18px}
-.settings-main{display:flex;flex-direction:column;min-width:0}
+.settings-main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .settings-header{padding:20px 24px 12px;border-bottom:1px solid var(--settings-row-border);cursor:grab;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .settings-header:active{cursor:grabbing}
 .settings-header h2{margin:0;font-size:1.5rem;font-weight:600;color:var(--text-primary)}
 .settings-header p{margin:6px 0 0;font-size:.8125rem;color:var(--text-secondary)}
 .settings-hint{font-size:.75rem;color:var(--text-secondary);text-align:right;max-width:260px}
-.settings-content{padding:12px 24px 24px;overflow:auto}
+.settings-content{padding:12px 24px 24px;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;scroll-behavior:smooth;overscroll-behavior:contain}
 .settings-section{display:none;flex-direction:column;gap:18px}.settings-section.active{display:flex}
 .settings-block{border-bottom:1px solid var(--settings-row-border);padding-bottom:18px}.settings-block:last-child{border-bottom:none;padding-bottom:0}
 .settings-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0}
@@ -981,13 +1128,119 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .settings-input,.settings-textarea{width:min(420px,100%);border-radius:16px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-primary);padding:12px 14px;box-shadow:var(--shadow-soft);outline:none}
 .settings-textarea{min-height:110px;resize:vertical}
 .settings-state{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:.75rem;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-secondary);min-width:92px;text-align:center}
+
+/* ── Profile tab ── */
+.profile-shell{display:flex;justify-content:center;padding:4px 0 16px}
+.profile-stack{width:min(760px,100%);display:flex;flex-direction:column;gap:18px}
+.profile-card{border:1px solid var(--settings-row-border);border-radius:24px;overflow:hidden;background:var(--bubble-assistant);box-shadow:var(--shadow-soft)}
+.profile-banner{height:180px;background:linear-gradient(135deg,#1f2937 0%,#3b82f6 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
+.profile-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.08),rgba(15,23,42,.34))}
+.profile-card-body{padding:0 26px 26px;display:flex;flex-direction:column;gap:18px}
+.profile-avatar-wrap{margin-top:-54px;position:relative;z-index:1}
+.profile-avatar{width:108px;height:108px;border-radius:28px;object-fit:cover;border:4px solid var(--settings-panel);background:var(--surface-soft);box-shadow:var(--shadow-soft)}
+.profile-headline{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.profile-name-block{display:flex;flex-direction:column;gap:6px}
+.profile-name{margin:0;font-size:1.45rem;font-weight:700;color:var(--text-primary)}
+.profile-subline{font-size:.86rem;color:var(--text-secondary)}
+.profile-description{margin:0;font-size:.95rem;line-height:1.65;color:var(--text-secondary)}
+.profile-description.empty{color:var(--text-muted);font-style:italic}
+.profile-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.profile-metric{border:1px solid var(--settings-row-border);border-radius:18px;padding:14px 16px;background:var(--surface-soft);display:flex;flex-direction:column;gap:6px}
+.profile-metric span{font-size:.8rem;color:var(--text-secondary)}
+.profile-metric strong{font-size:1.1rem;color:var(--text-primary)}
+.profile-section-title{font-size:.86rem;font-weight:700;color:var(--text-primary);text-transform:uppercase;letter-spacing:.04em}
+.profile-socials{display:flex;flex-wrap:wrap;gap:10px}
+.profile-social-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface-soft);color:var(--text-primary);text-decoration:none;transition:transform .14s,background .14s}
+.profile-social-link:hover{transform:translateY(-1px);background:var(--settings-tab-hover)}
+.profile-social-empty{font-size:.86rem;color:var(--text-muted)}
+.profile-share-actions{display:flex;flex-wrap:wrap;gap:12px}
+.profile-share-actions .settings-ghost-button{border-radius:14px}
+.profile-share-actions .settings-ghost-button.primary{background:var(--send-bg);color:var(--send-color)}
+.profile-editor{border:1px solid var(--settings-row-border);border-radius:24px;padding:18px;background:var(--surface-softer);display:flex;flex-direction:column;gap:16px}
+.profile-editor-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.profile-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.profile-editor-grid .profile-span-2{grid-column:1 / -1}
+.profile-upload-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.profile-upload-card{border:1px dashed var(--settings-row-border);border-radius:18px;padding:14px;background:var(--bubble-assistant);display:flex;flex-direction:column;gap:12px}
+.profile-upload-title{font-size:.92rem;font-weight:600;color:var(--text-primary)}
+.profile-upload-preview{height:92px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--text-muted);font-size:.82rem}
+.profile-upload-preview img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.profile-upload-actions{display:flex;flex-wrap:wrap;gap:10px}
+.profile-upload-actions .settings-ghost-button{border-radius:12px;min-height:38px}
+.profile-helper{font-size:.8rem;color:var(--text-secondary)}
+.profile-hidden-input{display:none}
+
+.settings-tab-profile-footer{min-height:66px;padding:10px 12px;border:1px solid var(--settings-row-border);background:color-mix(in srgb,var(--surface-soft) 88%,transparent);display:grid;grid-template-columns:42px minmax(0,1fr);justify-content:flex-start;align-items:center;gap:12px;position:absolute;left:18px;right:18px;bottom:18px;z-index:4;backdrop-filter:blur(8px)}
+.settings-tab-profile-footer.active{background:var(--settings-tab-active)}
+.settings-profile-tab-avatar{width:42px;height:42px;border-radius:14px;object-fit:cover;object-position:center center;border:1px solid var(--line);background:var(--surface-soft);flex:0 0 42px}
+.settings-profile-tab-copy{display:flex;flex-direction:column;min-width:0}
+.settings-profile-tab-label{font-size:.92rem;font-weight:600;color:inherit}
+.settings-profile-tab-name{font-size:.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.profile-inline-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--settings-row-border);border-radius:18px;background:var(--bubble-assistant)}
+.profile-inline-toggle-text{display:flex;flex-direction:column;gap:4px}
+.profile-inline-toggle-text strong{font-size:.95rem;color:var(--text-primary)}
+.profile-inline-toggle-text span{font-size:.82rem;color:var(--text-secondary);line-height:1.4}
+.profile-switch{position:relative;display:inline-flex;width:54px;height:30px;flex:0 0 54px}
+.profile-switch input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.profile-switch-track{width:54px;height:30px;border-radius:999px;background:var(--surface-soft);border:1px solid var(--line);transition:background .14s,border-color .14s;display:block}
+.profile-switch-track::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.22);transition:transform .14s}
+.profile-switch input:checked + .profile-switch-track{background:#2563eb;border-color:#2563eb}
+.profile-switch input:checked + .profile-switch-track::after{transform:translateX(24px)}
+.profile-security-note{font-size:.78rem;color:var(--text-secondary)}
+.profile-avatar.is-logo,.settings-profile-tab-avatar.is-logo,.message-user-avatar img.is-logo,#profile-avatar-hover-image.is-logo,.profile-upload-preview img.is-logo{object-fit:contain;padding:6px;background:var(--surface-softer);box-sizing:border-box}
+.profile-picker-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);z-index:96;display:none;align-items:center;justify-content:center;padding:20px}
+.profile-picker-backdrop.open{display:flex}
+.profile-picker-modal{width:min(880px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:hidden;border-radius:28px;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.profile-picker-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--settings-row-border)}
+.profile-picker-header strong{font-size:1.15rem;color:var(--text-primary)}
+.profile-picker-header button{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer;font-size:1.2rem}
+.profile-picker-body{padding:20px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.profile-picker-section-title{font-size:2rem;font-weight:700;color:var(--text-primary);letter-spacing:-.03em}
+.profile-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.profile-picker-grid.banner-mode{grid-template-columns:repeat(3,minmax(0,1fr))}
+.profile-picker-card{border:none;background:transparent;padding:0;display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left}
+.profile-picker-card-label{font-size:.86rem;font-weight:600;color:var(--text-primary)}
+.profile-picker-thumb{height:170px;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--surface-soft);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-soft);transition:transform .14s,border-color .14s}
+.profile-picker-thumb.banner{height:132px}
+.profile-picker-thumb img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.profile-picker-thumb img.is-logo{object-fit:contain;padding:14px;background:var(--surface-softer);box-sizing:border-box}
+.profile-picker-card.import .profile-picker-thumb{border:1px dashed var(--settings-row-border);background:color-mix(in srgb,var(--surface-soft) 86%,transparent);color:var(--text-secondary);font-size:2rem;font-weight:700;flex-direction:column;gap:8px}
+.profile-picker-card.import .profile-picker-thumb span{font-size:.9rem;font-weight:600;color:var(--text-primary)}
+.profile-picker-card:hover .profile-picker-thumb{transform:translateY(-2px)}
+@media(max-width:760px){.profile-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-picker-section-title{font-size:1.65rem}}
+.profile-avatar-hover-card{position:fixed;z-index:125;display:flex;flex-direction:column;gap:0;border-radius:22px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-row-border);box-shadow:0 24px 64px rgba(0,0,0,.28);width:min(288px,calc(100vw - 24px));opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);transition:opacity .16s,transform .16s}
+.profile-avatar-hover-card.show{opacity:1;transform:translateY(0) scale(1)}
+.profile-avatar-hover-banner{height:86px;background:linear-gradient(135deg,#1f2937 0%,#3b82f6 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
+.profile-avatar-hover-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.06),rgba(15,23,42,.28))}
+.profile-avatar-hover-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.profile-avatar-hover-head{display:flex;align-items:flex-end;gap:10px;margin-top:-28px;position:relative;z-index:1}
+.profile-avatar-hover-card img{width:72px;height:72px;object-fit:cover;border-radius:20px;border:3px solid var(--settings-panel);background:var(--surface-soft);box-shadow:var(--shadow-soft)}
+.profile-avatar-hover-copy{display:flex;flex-direction:column;gap:4px;min-width:0;padding-bottom:6px}
+.profile-avatar-hover-copy strong{font-size:.92rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.profile-avatar-hover-copy span{font-size:.78rem;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35}
+.profile-crop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);z-index:95;display:none;align-items:center;justify-content:center;padding:20px}
+.profile-crop-backdrop.open{display:flex}
+.profile-crop-modal{width:min(920px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:hidden;border-radius:24px;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.profile-crop-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--settings-row-border)}
+.profile-crop-header strong{font-size:1rem;color:var(--text-primary)}
+.profile-crop-header button{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer}
+.profile-crop-body{padding:18px 20px 10px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.profile-crop-canvas-wrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#0b1020;min-height:300px;height:min(56vh,520px)}
+#profile-crop-canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#profile-crop-canvas.dragging{cursor:grabbing}
+.profile-crop-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.profile-crop-controls input[type="range"]{flex:1;min-width:180px}
+.profile-crop-actions{display:flex;justify-content:flex-end;gap:12px;padding:0 20px 20px}
+.profile-crop-actions .settings-ghost-button.primary{background:var(--send-bg);color:var(--send-color)}
+@media(max-width:640px){.settings-tab-profile-footer{margin-top:0;position:static}.profile-crop-body{padding:14px}.profile-crop-canvas-wrap{height:46vh}.profile-crop-actions{padding:0 14px 14px}.profile-picker-body{padding:16px}.profile-picker-grid{grid-template-columns:1fr 1fr}.profile-picker-thumb{height:132px}.profile-picker-thumb.banner{height:108px}}
+
 .tooltip{position:fixed;z-index:999;max-width:360px;padding:10px 12px;border-radius:12px;background:var(--tooltip-bg);color:var(--tooltip-text);border:1px solid var(--tooltip-border);box-shadow:0 24px 60px rgba(0,0,0,.28);font-size:.8125rem;line-height:1.35;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
 .tooltip.show{opacity:1;transform:translateY(0)}
 [hidden]{display:none!important}
 .thanks-text{text-align:center;font-size:1rem;font-weight:600;padding:18px 0 6px;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899,#3b82f6);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:300% 50%}}
-@media(max-width:900px){.settings-modal{width:min(980px,calc(100vw - 24px));grid-template-columns:1fr}.settings-sidebar{border-right:none;border-bottom:1px solid var(--settings-panel-border)}.settings-header{cursor:default}.settings-hint{display:none}}
-@media(max-width:640px){.composer{padding:14px;border-radius:22px}.bubble{max-width:92%}.controls-row{flex-wrap:wrap}.mode-announcement{padding-left:0}.dropdown-menu{min-width:min(280px,calc(100vw - 32px))}.settings-anchor{left:12px;bottom:12px}.newchat-anchor{left:12px;top:58px}.settings-modal{min-height:auto;max-height:calc(100vh - 24px)}.settings-header h2{font-size:1.25rem}.settings-row{flex-direction:column;align-items:flex-start}.settings-choice-group{justify-content:flex-start}}
+@media(max-width:900px){.settings-modal{width:min(1080px,calc(100vw - 18px));grid-template-columns:1fr}.settings-sidebar{border-right:none;border-bottom:1px solid var(--settings-panel-border)}.settings-header{cursor:default}.settings-hint{display:none}}
+@media(max-width:640px){.composer{padding:14px;border-radius:22px}.bubble{max-width:92%}.controls-row{flex-wrap:wrap}.mode-announcement{padding-left:0}.dropdown-menu{min-width:min(280px,calc(100vw - 32px))}.settings-anchor{left:12px;bottom:12px}.newchat-anchor{left:12px;top:58px}.settings-modal{min-height:auto;max-height:calc(100vh - 24px)}.settings-header h2{font-size:1.25rem}.settings-row{flex-direction:column;align-items:flex-start}.settings-choice-group{justify-content:flex-start}.profile-metrics,.profile-editor-grid,.profile-upload-grid{grid-template-columns:1fr}.profile-card-body{padding:0 18px 18px}.voice-input-button{order:1}}
 
 /* ── Character counter ── */
 .char-counter{display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-secondary);font-family:"JetBrains Mono",monospace;cursor:default;padding:2px 0;margin-top:2px;user-select:none;transition:color .2s}
@@ -1031,6 +1284,8 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 /* ── Font classes for AI responses ── */
 body[data-aifont="arial"] .message-row.assistant .bubble{font-family:Arial,Helvetica,sans-serif}
 body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Open Dyslexic","OpenDyslexic",sans-serif}
+body[data-userfont="arial"] .message-row.user .bubble{font-family:Arial,Helvetica,sans-serif}
+body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open Dyslexic","OpenDyslexic",sans-serif}
 </style>
 </head>
 <body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat">
@@ -1065,6 +1320,9 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
       <button type="button" class="composer-plus" id="composer-plus" data-tooltip-key="tooltip_plus_btn">+</button>
       -->
       <textarea id="message-input" rows="1"></textarea>
+      <button type="button" class="voice-input-button" id="voice-input-btn" aria-label="Voice input">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V6a2 2 0 0 1 2-2Z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><path d="M12 16v4"/><path d="M9 20h6"/></svg>
+      </button>
       <button type="submit" class="send-button" id="send-button" data-tooltip-key="tooltip_send">↑</button>
       <button type="button" class="stop-button" id="stop-button" hidden>■</button>
       <!-- Plus menu désactivé
@@ -1100,10 +1358,17 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
     <button type="button" class="settings-tab" data-settings-tab="data_security"><span class="settings-tab-icon">☑</span><span data-i18n="tab_data_security">Données</span></button>
     <button type="button" class="settings-tab" data-settings-tab="optimization"><span class="settings-tab-icon">⚡</span><span data-i18n="tab_optimization">Optimisation</span></button>
     <button type="button" class="settings-tab" data-settings-tab="goat_dev"><span class="settings-tab-icon">🐐</span><span data-i18n="tab_goat_dev">Goat Developer</span></button>
+    <button type="button" class="settings-tab settings-tab-profile-footer" data-settings-tab="profile">
+      <img class="settings-profile-tab-avatar" id="settings-profile-tab-avatar" alt="Avatar profil">
+      <div class="settings-profile-tab-copy">
+        <span class="settings-profile-tab-label" data-i18n="tab_profile">Profil</span>
+        <span class="settings-profile-tab-name" id="settings-profile-tab-name">Profil local</span>
+      </div>
+    </button>
   </aside>
   <div class="settings-main">
     <div class="settings-header" id="settings-drag-handle"><div><h2 data-i18n="settings_title">Paramètres</h2><p data-i18n="settings_subtitle"></p></div><div class="settings-hint" data-i18n="settings_hint"></div></div>
-    <div class="settings-content">
+    <div class="settings-content" id="settings-content">
       <section class="settings-section active" data-settings-content="general">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_version">Version</div></div><div class="settings-version-value" id="settings-version-value">%%APP_VERSION%%</div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="update_info">Mises à jour</div></div><button type="button" class="settings-ghost-button" id="update-info-button" data-i18n="update_info"></button></div></div>
@@ -1114,7 +1379,8 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sounds">Son boutons</div></div><div class="settings-choice-group" id="click-sound-toggle"><button type="button" class="settings-choice" data-click-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-click-sound="off" data-i18n="sound_off">Désactiver</button></div></div><div class="settings-row" id="click-style-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sound_style">Style</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-click-style="bulle" data-i18n="sound_style_bulle">Bulle</button><button type="button" class="settings-choice" data-click-style="nebrise" data-i18n="sound_style_nebrise">Nebrise</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_ai_reply_sounds">Son IA</div></div><div class="settings-choice-group" id="ai-sound-toggle"><button type="button" class="settings-choice" data-ai-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-ai-sound="off" data-i18n="sound_off">Désactiver</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_label">Police IA</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-aifont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-aifont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-aifont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
-        <div class="thanks-text" id="thanks-text" data-i18n="thanks_message">Merci d'utiliser Le Goat !</div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_user_label">Police utilisateur</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-userfont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-userfont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-userfont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
+        <div class="thanks-text" id="thanks-text" data-i18n="thanks_message">Designed and coded in France</div>
       </section>
       <section class="settings-section" data-settings-content="personalization"><div class="settings-block">
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="personalization_name">Prénom</div></div><input class="settings-input" id="user-firstname" data-placeholder-key="placeholder_firstname"></div>
@@ -1138,14 +1404,130 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="goat_dev_news">Nouveautés</div><div class="settings-row-subtitle" data-i18n="goat_dev_news_desc"></div></div><button type="button" class="settings-ghost-button" id="goat-dev-news-btn" data-i18n="goat_dev_news"></button></div>
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="goat_dev_about">À propos</div><div class="settings-row-subtitle" data-i18n="goat_dev_about_desc"></div></div><button type="button" class="settings-ghost-button" id="goat-dev-about-btn" data-i18n="goat_dev_about"></button></div>
       </div></section>
+      <section class="settings-section" data-settings-content="profile">
+        <div class="profile-shell">
+          <div class="profile-stack">
+            <div class="profile-card">
+              <div class="profile-banner" id="profile-banner-preview"></div>
+              <div class="profile-card-body">
+                <div class="profile-avatar-wrap"><img class="profile-avatar" id="profile-avatar-preview" alt="Profile avatar"></div>
+                <div class="profile-headline">
+                  <div class="profile-name-block">
+                    <h3 class="profile-name" id="profile-name-preview"></h3>
+                    <div class="profile-subline" id="profile-share-hint" data-i18n="profile_share_hint"></div>
+                  </div>
+                  <button type="button" class="settings-ghost-button" id="profile-edit-toggle" data-i18n="profile_edit">Modifier</button>
+                </div>
+                <p class="profile-description" id="profile-description-preview"></p>
+                <div class="profile-metrics">
+                  <div class="profile-metric"><span data-i18n="profile_chats_sent">Chats envoyés à l'IA</span><strong id="profile-chat-count">0</strong></div>
+                  <div class="profile-metric"><span data-i18n="profile_goat_score">Goat Score</span><strong id="profile-goat-score">0</strong></div>
+                </div>
+                <div>
+                  <div class="profile-section-title" data-i18n="profile_social_links">Réseaux sociaux</div>
+                  <div class="profile-socials" id="profile-socials-preview"></div>
+                </div>
+                <div class="profile-share-actions">
+                  <button type="button" class="settings-ghost-button" id="profile-share-pro-btn" data-i18n="profile_share_pro">Envoyer le profil professionnel</button>
+                  <button type="button" class="settings-ghost-button primary" id="profile-share-full-btn" data-i18n="profile_share_full">Envoyer le profil complet</button>
+                </div>
+              </div>
+            </div>
+            <div class="profile-editor" id="profile-editor" hidden>
+              <div class="profile-editor-header">
+                <div class="profile-section-title">Profile Builder</div>
+                <div class="profile-helper" data-i18n="profile_auto_save">Sauvegarde automatique locale.</div>
+              </div>
+              <div class="profile-inline-toggle">
+                <div class="profile-inline-toggle-text">
+                  <strong>Afficher ma photo à côté de mes messages</strong>
+                  <span>Activé, vos messages s'affichent avec votre photo de profil. Par défaut : désactivé.</span>
+                </div>
+                <label class="profile-switch" aria-label="Afficher la photo dans le chat">
+                  <input type="checkbox" id="profile-avatar-messages-toggle">
+                  <span class="profile-switch-track"></span>
+                </label>
+              </div>
+              <div class="profile-upload-grid">
+                <div class="profile-upload-card">
+                  <div class="profile-upload-title" data-i18n="profile_avatar">Photo de profil</div>
+                  <div class="profile-upload-preview" id="profile-avatar-upload-preview"></div>
+                  <div class="profile-upload-actions">
+                    <button type="button" class="settings-ghost-button" id="profile-avatar-upload-btn" data-i18n="profile_choose_avatar">Choisir une image</button>
+                    <button type="button" class="settings-ghost-button" id="profile-avatar-remove-btn" data-i18n="profile_remove_avatar">Retirer</button>
+                  </div>
+                </div>
+                <div class="profile-upload-card">
+                  <div class="profile-upload-title" data-i18n="profile_banner">Bannière</div>
+                  <div class="profile-upload-preview" id="profile-banner-upload-preview"></div>
+                  <div class="profile-upload-actions">
+                    <button type="button" class="settings-ghost-button" id="profile-banner-upload-btn" data-i18n="profile_choose_banner">Choisir une bannière</button>
+                    <button type="button" class="settings-ghost-button" id="profile-banner-remove-btn" data-i18n="profile_remove_banner">Retirer</button>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-security-note">Les images passent par un filtre local de sécurité avant d'être acceptées. Ce filtre est volontairement conservateur.</div>
+              <div class="profile-editor-grid">
+                <div><div class="settings-row-title" data-i18n="profile_firstname">Prénom</div><input class="settings-input" id="profile-firstname-input" placeholder="Prénom"></div>
+                <div><div class="settings-row-title" data-i18n="profile_lastname">Nom</div><input class="settings-input" id="profile-lastname-input" placeholder="Nom"></div>
+                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bio">Bio</div><textarea class="settings-textarea" id="profile-bio-input" placeholder="Bio"></textarea></div>
+                <div><div class="settings-row-title" data-i18n="profile_instagram">Instagram</div><input class="settings-input" id="profile-instagram-input" placeholder="https://instagram.com/... ou @pseudo"></div>
+                <div><div class="settings-row-title" data-i18n="profile_tiktok">TikTok</div><input class="settings-input" id="profile-tiktok-input" placeholder="https://tiktok.com/... ou @pseudo"></div>
+                <div><div class="settings-row-title" data-i18n="profile_youtube">YouTube</div><input class="settings-input" id="profile-youtube-input" placeholder="https://youtube.com/... ou @chaîne"></div>
+                <div><div class="settings-row-title" data-i18n="profile_github">GitHub</div><input class="settings-input" id="profile-github-input" placeholder="https://github.com/... ou pseudo"></div>
+                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bluesky">BleuSky</div><input class="settings-input" id="profile-bluesky-input" placeholder="https://bsky.app/... ou handle"></div>
+              </div>
+              <input class="profile-hidden-input" type="file" id="profile-avatar-file" accept="image/*">
+              <input class="profile-hidden-input" type="file" id="profile-banner-file" accept="image/*">
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </section>
 <div class="migrate-backdrop" id="migrate-backdrop"><div class="migrate-modal"><h3><span id="migrate-title"></span><button type="button" id="migrate-close-x">×</button></h3><div class="migrate-step" id="migrate-step1"></div><div class="migrate-prompt-box" id="migrate-prompt-box"></div><button type="button" class="migrate-copy-btn" id="migrate-copy-btn"></button><div class="migrate-step" id="migrate-step2" style="margin-top:8px"></div><textarea class="migrate-textarea" id="migrate-textarea"></textarea><div class="migrate-actions"><button type="button" class="migrate-btn-cancel" id="migrate-cancel-btn"></button><button type="button" class="migrate-btn-add" id="migrate-add-btn" disabled></button></div></div></div>
 <div class="sheet-modal-backdrop" id="sheet-modal-backdrop"><div class="sheet-modal"><div class="sheet-modal-header"><h3 id="sheet-modal-title"></h3><span class="sheet-char-counter" id="sheet-char-counter">0 / 14 000</span></div><textarea id="sheet-textarea" placeholder=""></textarea><div class="sheet-modal-actions"><button type="button" class="sheet-btn-cancel" id="sheet-cancel"></button><button type="button" class="sheet-btn-add" id="sheet-add-btn"></button></div></div></div>
+<div class="profile-crop-backdrop" id="profile-crop-backdrop">
+  <div class="profile-crop-modal">
+    <div class="profile-crop-header"><strong id="profile-crop-title">Recadrer l'image</strong><button type="button" id="profile-crop-close">×</button></div>
+    <div class="profile-crop-body">
+      <div class="profile-crop-canvas-wrap"><canvas id="profile-crop-canvas"></canvas></div>
+      <div class="profile-crop-controls">
+        <span>Zoom</span>
+        <input type="range" id="profile-crop-zoom" min="100" max="260" step="1" value="100">
+      </div>
+    </div>
+    <div class="profile-crop-actions">
+      <button type="button" class="settings-ghost-button" id="profile-crop-cancel">Annuler</button>
+      <button type="button" class="settings-ghost-button primary" id="profile-crop-apply">Appliquer</button>
+    </div>
+  </div>
+</div>
+<div class="profile-picker-backdrop" id="profile-picker-backdrop">
+  <div class="profile-picker-modal">
+    <div class="profile-picker-header"><strong id="profile-picker-title">Choisir une image</strong><button type="button" id="profile-picker-close">×</button></div>
+    <div class="profile-picker-body">
+      <div class="profile-picker-section-title" id="profile-picker-section-title">Goat</div>
+      <div class="profile-picker-grid" id="profile-picker-grid"></div>
+    </div>
+  </div>
+</div>
 <div class="goatistique-badge" id="goatistique-badge"><img id="goatistique-logo" src="%%GOATISTIQUE_LIGHT_URI%%" data-light="%%GOATISTIQUE_LIGHT_URI%%" data-dark="%%GOATISTIQUE_DARK_URI%%" alt="Goatistique"></div>
 <div class="overclock-backdrop" id="overclock-backdrop"><div class="overclock-modal"><h3>⚠ Overclocking IA</h3><div class="oc-warning-text" id="oc-warning-text"></div><div class="oc-actions"><button type="button" class="oc-btn-cancel" id="oc-cancel-btn"></button><button type="button" class="oc-btn-confirm" id="oc-confirm-btn"></button></div></div></div>
 <div class="tooltip" id="tooltip" hidden></div>
+<div class="profile-avatar-hover-card" id="profile-avatar-hover-card" hidden>
+  <div class="profile-avatar-hover-banner" id="profile-avatar-hover-banner"></div>
+  <div class="profile-avatar-hover-body">
+    <div class="profile-avatar-hover-head">
+      <img id="profile-avatar-hover-image" alt="Aperçu profil">
+      <div class="profile-avatar-hover-copy">
+        <strong id="profile-avatar-hover-name"></strong>
+        <span id="profile-avatar-hover-bio"></span>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
 <div hidden>
   <button id="composer-plus"></button><div id="plus-menu"></div><button id="plus-add-sheet"></button><div id="sheets-row"></div>
@@ -1175,7 +1557,7 @@ body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Ope
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
 const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%;
-const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,aifont:'default',overclock:'off'};
+const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,aifont:'default',userfont:'default',overclock:'off'};
 const ls=(k,v)=>{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
 const controlsRow=$('controls-row'),modePanel=$('mode-panel');
@@ -1194,13 +1576,24 @@ const migrateBackdrop=$('migrate-backdrop'),migrateTA=$('migrate-textarea'),migr
 const modal=$('settings-modal'),backdrop=$('settings-backdrop'),dragH=$('settings-drag-handle'),tooltipEl=$('tooltip');
 const charCounterEl=$('char-counter'),charCounterText=$('char-counter-text'),charCounterTip=$('char-counter-tip');
 const stopBtn=$('stop-button');
+const voiceInputBtn=$('voice-input-btn');
 const contractionTag=$('contraction-tag'),contractionTip=$('contraction-tip');
 const overclockToggle=$('overclock-toggle'),ocBackdrop=$('overclock-backdrop'),ocWarningText=$('oc-warning-text'),ocConfirmBtn=$('oc-confirm-btn'),ocCancelBtn=$('oc-cancel-btn');
+const profileEditToggle=$('profile-edit-toggle'),profileEditor=$('profile-editor'),profileNamePreview=$('profile-name-preview'),profileDescriptionPreview=$('profile-description-preview'),profileChatCount=$('profile-chat-count'),profileGoatScore=$('profile-goat-score'),profileSocialsPreview=$('profile-socials-preview'),profileAvatarPreview=$('profile-avatar-preview'),profileBannerPreview=$('profile-banner-preview');
+const profileAvatarUploadPreview=$('profile-avatar-upload-preview'),profileBannerUploadPreview=$('profile-banner-upload-preview');
+const profileFirstnameInput=$('profile-firstname-input'),profileLastnameInput=$('profile-lastname-input'),profileBioInput=$('profile-bio-input'),profileInstagramInput=$('profile-instagram-input'),profileTikTokInput=$('profile-tiktok-input'),profileYouTubeInput=$('profile-youtube-input'),profileGitHubInput=$('profile-github-input'),profileBlueskyInput=$('profile-bluesky-input');
+const profileAvatarUploadBtn=$('profile-avatar-upload-btn'),profileBannerUploadBtn=$('profile-banner-upload-btn'),profileAvatarRemoveBtn=$('profile-avatar-remove-btn'),profileBannerRemoveBtn=$('profile-banner-remove-btn'),profileAvatarFile=$('profile-avatar-file'),profileBannerFile=$('profile-banner-file');
+const profileShareProBtn=$('profile-share-pro-btn'),profileShareFullBtn=$('profile-share-full-btn');
+const profileAvatarMessagesToggle=$('profile-avatar-messages-toggle'),settingsProfileTabAvatar=$('settings-profile-tab-avatar'),settingsProfileTabName=$('settings-profile-tab-name');
+const cropBackdrop=$('profile-crop-backdrop'),cropCanvas=$('profile-crop-canvas'),cropZoom=$('profile-crop-zoom'),cropTitle=$('profile-crop-title'),cropApplyBtn=$('profile-crop-apply'),cropCancelBtn=$('profile-crop-cancel'),cropCloseBtn=$('profile-crop-close');
+const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBanner=$('profile-avatar-hover-banner'),profileAvatarHoverImage=$('profile-avatar-hover-image'),profileAvatarHoverName=$('profile-avatar-hover-name'),profileAvatarHoverBio=$('profile-avatar-hover-bio');
+const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,privateChat:false,aifont:ls('aifont')||defs.aifont,overclock:ls('overclock')||defs.overclock};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock};
 // ── Variables runtime (non persistées) ───────────────────────────
-let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null;
+let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
+let cropState=null;
 let sheets=[];          // Feuilles d'écriture attachées à la requête courante
 let isGenerating=false; // Vrai pendant qu'une réponse IA est en cours
 let abortController=null; // Contrôleur pour interrompre la génération
@@ -1287,12 +1680,13 @@ stopBtn.addEventListener('click',()=>{playClick();if(abortController){abortContr
 
 // ── Font switching ──
 function applyAiFont(v,snd){apply('aifont',['default','arial','opendyslexic'].includes(v)?v:'default','aifont',snd);document.body.dataset.aifont=S.aifont;$$('[data-aifont-value]').forEach(b=>b.classList.toggle('active',b.dataset.aifontValue===S.aifont))}
+function applyUserFont(v,snd){apply('userfont',['default','arial','opendyslexic'].includes(v)?v:'default','userfont',snd);document.body.dataset.userfont=S.userfont;$$('[data-userfont-value]').forEach(b=>b.classList.toggle('active',b.dataset.userfontValue===S.userfont))}
 
 // ── Model dropdown (ChatGPT style) ──
 function renderModelDD(){
   modelCurrentLabel.textContent=t(models.find(m=>m.id===S.model).label_key);
   modelDDMenu.innerHTML='<div class="model-dd-header">'+esc(t('model_recent'))+'</div>'+models.map(m=>'<button type="button" class="model-dd-item'+(m.id===S.model?' selected':'')+'" data-model="'+esc(m.id)+'" role="menuitemradio"><div class="m-info"><span class="m-name">'+esc(t(m.label_key))+'</span><span class="m-desc">'+esc(t(m.desc_key))+'</span></div><span class="m-check">✓</span></button>').join('')+'<div class="model-dd-sep"></div>';
-  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{playClick();S.model=b.dataset.model;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD()}));
+  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',async()=>{playClick();const nextModel=b.dataset.model;if(nextModel===S.model){closeModelDD();return}statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;S.model=nextModel;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD();refreshWelcomeContent();renderMessages();ta.value='';autoResize();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang])}catch(e){statusEl.textContent=e.message}}));
 }
 function openModelDD(){modelDDMenu.classList.add('open');modelTriggerBtn.setAttribute('aria-expanded','true');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','true')}
 function closeModelDD(){modelDDMenu.classList.remove('open');modelTriggerBtn.setAttribute('aria-expanded','false');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','false')}
@@ -1384,14 +1778,19 @@ composerPlus.addEventListener('click',()=>{playClick();plusMenu.classList.toggle
 plusAddSheet.addEventListener('click',()=>{playClick();plusMenu.classList.remove('open');openSheetModal()});
 
 // ── Messages (with Goat Code buttons) ──
-function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=activeTab==='coworking';msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){let acts='';if(i===last&&!isLoading){acts='<div class="bubble-actions"><button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';if(isCode){acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>'}acts+='</div>'}return'<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+'</div>'}return'<div class="message-row user"><div class="bubble">'+e+'</div></div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiRegen(abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
+function shouldShowProfileAvatarInMessages(){return profileGet('showMessageAvatar','off')==='on'}
+function getProfileAvatarForMessages(){return profileGet('avatar','')||($('main-logo')?$('main-logo').getAttribute('src'):'')}
+function showProfileAvatarHover(target){if(!profileAvatarHoverCard||!profileAvatarHoverImage||!profileAvatarHoverName||!profileAvatarHoverBio)return;const data=getProfileData();const src=data.avatar||getProfileAvatarForMessages();if(!src)return;profileAvatarHoverImage.src=src;applyAvatarFitMode(profileAvatarHoverImage,src);profileAvatarHoverName.textContent=getProfileFullName(data);profileAvatarHoverBio.textContent=(data.bio||t('profile_preview_title'));if(profileAvatarHoverBanner)profileAvatarHoverBanner.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';const rect=target.getBoundingClientRect();const cardW=288,cardH=178;let left=rect.left-cardW+rect.width;if(left<12)left=Math.min(window.innerWidth-cardW-12,rect.right+10);let top=rect.top-(cardH-rect.height)/2;top=Math.max(12,Math.min(window.innerHeight-cardH-12,top));profileAvatarHoverCard.hidden=false;profileAvatarHoverCard.style.left=left+'px';profileAvatarHoverCard.style.top=top+'px';requestAnimationFrame(()=>profileAvatarHoverCard.classList.add('show'))}
+function hideProfileAvatarHover(immediate){clearTimeout(avatarHoverTimer);if(!profileAvatarHoverCard)return;if(immediate){profileAvatarHoverCard.classList.remove('show');profileAvatarHoverCard.hidden=true;return}profileAvatarHoverCard.classList.remove('show');setTimeout(()=>{if(profileAvatarHoverCard&&!profileAvatarHoverCard.classList.contains('show'))profileAvatarHoverCard.hidden=true},160)}
+function bindUserAvatarHover(scope){if(!scope)return;scope.querySelectorAll('.message-user-avatar').forEach(el=>{el.addEventListener('mouseenter',()=>{clearTimeout(avatarHoverTimer);avatarHoverTimer=setTimeout(()=>showProfileAvatarHover(el),500)});el.addEventListener('mouseleave',()=>hideProfileAvatarHover(false))})}
+function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=activeTab==='coworking';const showUserAvatar=shouldShowProfileAvatarInMessages();const userAvatar=getProfileAvatarForMessages();msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){let acts='';if(i===last&&!isLoading){acts='<div class="bubble-actions"><button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';if(isCode){acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>'}acts+='</div>'}return'<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+'</div>'}const avatarHtml=showUserAvatar&&userAvatar?'<div class="message-user-avatar"><img class="'+(isLogoStyleAvatarSrc(userAvatar)?'is-logo':'')+'" src="'+esc(userAvatar)+'" alt="Photo utilisateur"></div>':'';return'<div class="message-row user"><div class="bubble">'+e+'</div>'+avatarHtml+'</div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;bindUserAvatarHover(msgBox);msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiSend(t('regenerate_command'),abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
 let resizeRAF=null;function autoResize(){if(resizeRAF)cancelAnimationFrame(resizeRAF);resizeRAF=requestAnimationFrame(()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,180)+'px'})}
 
 // ── Settings ──
 function resetModal(){modal.style.left='50%';modal.style.top='50%';modal.style.transform='translate(-50%,-50%)'}
 function openSettings(){playClick();if(settingsOpen)return;settingsOpen=true;resetModal();backdrop.hidden=false;modal.hidden=false;requestAnimationFrame(()=>{backdrop.classList.add('open');modal.classList.add('open')})}
 function closeSettings(){playClick();if(!settingsOpen)return;settingsOpen=false;backdrop.classList.remove('open');modal.classList.remove('open');setTimeout(()=>{if(!settingsOpen){backdrop.hidden=true;modal.hidden=true;resetModal()}},180)}
-function showTab(id){$$('[data-settings-tab]').forEach(t=>t.classList.toggle('active',t.dataset.settingsTab===id));$$('[data-settings-content]').forEach(s=>s.classList.toggle('active',s.dataset.settingsContent===id))}
+function showTab(id){const section=id||'general';ls('settings-tab',section);$$('[data-settings-tab]').forEach(t=>t.classList.toggle('active',t.dataset.settingsTab===section));$$('[data-settings-content]').forEach(s=>s.classList.toggle('active',s.dataset.settingsContent===section));const content=$('settings-content');if(content)content.scrollTop=0}
 function startDrag(e){if(innerWidth<=900)return;if(e.target.closest('button'))return;const r=modal.getBoundingClientRect();modal.style.left=r.left+'px';modal.style.top=r.top+'px';modal.style.transform='none';dragging=true;dragSX=e.clientX;dragSY=e.clientY;mSL=r.left;mST=r.top;e.preventDefault()}
 function onDrag(e){if(!dragging)return;modal.style.left=Math.max(12,mSL+(e.clientX-dragSX))+'px';modal.style.top=Math.max(12,mST+(e.clientY-dragSY))+'px'}
 
@@ -1443,13 +1842,11 @@ function updateTabUI(){
 }
 async function switchTabWithReset(targetTab){
   if(activeTab===targetTab)return;
-  if(messages.length>0){
-    if(!confirm(t('tab_switch_confirm')))return;
-    try{const p=await apiNewChat();messages=p.messages}catch(e){statusEl.textContent=e.message;return}
-  }
+  statusEl.textContent='...';
+  try{const p=await apiNewChat();messages=p.messages}catch(e){statusEl.textContent=e.message;return}
   activeTab=targetTab==='coworking'?'coworking':'chat';
   closeModelDD();closeMM();closeSM();
-  refreshWelcomeContent();updateTabUI();
+  refreshWelcomeContent();updateTabUI();renderMessages();ta.value='';autoResize();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
 }
 function setActiveTab(tab,refresh){
   activeTab=tab==='coworking'?'coworking':'chat';
@@ -1459,13 +1856,55 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();renderMessages()}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
+function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
+function profileSet(key,val){ls('profile-'+key,val||'');return val||''}
+function getChatCount(){const raw=ls('stats-chat-count');if(raw===null){const seeded=messages.filter(m=>Array.isArray(m)&&m[0]==='Vous').length;ls('stats-chat-count',String(seeded));return seeded}const n=parseInt(raw,10);return Number.isFinite(n)&&n>=0?n:0}
+function setChatCount(n){ls('stats-chat-count',String(Math.max(0,Math.floor(n))));updateProfileUI()}
+function incrementChatCount(){setChatCount(getChatCount()+1)}
+function computeGoatScore(count){return Math.floor((count*10)+(Math.sqrt(Math.max(0,count))*25))}
+function getProfileData(){return{firstname:profileGet('firstname'),lastname:profileGet('lastname'),bio:profileGet('bio'),avatar:profileGet('avatar'),banner:profileGet('banner'),instagram:profileGet('instagram'),tiktok:profileGet('tiktok'),youtube:profileGet('youtube'),github:profileGet('github'),bluesky:profileGet('bluesky'),showMessageAvatar:profileGet('showMessageAvatar','off')}}
+function getProfileFullName(data){const full=[data.firstname,data.lastname].filter(Boolean).join(' ').trim();return full||t('profile_no_name')}
+function normalizeSocialUrl(platform,value){const raw=String(value||'').trim();if(!raw)return'';if(/^https?:\/\//i.test(raw))return raw;const clean=raw.replace(/^@+/,'');const bases={instagram:'https://www.instagram.com/',tiktok:'https://www.tiktok.com/@',youtube:'https://www.youtube.com/@',github:'https://github.com/',bluesky:'https://bsky.app/profile/'};return(bases[platform]||'https://')+clean}
+function socialEntries(data){return[{id:'instagram',label:t('profile_instagram'),value:data.instagram},{id:'tiktok',label:t('profile_tiktok'),value:data.tiktok},{id:'youtube',label:t('profile_youtube'),value:data.youtube},{id:'github',label:t('profile_github'),value:data.github},{id:'bluesky',label:t('profile_bluesky'),value:data.bluesky}]}
+function svgDataUri(svg){return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg)}
+function makeGoatAvatarPreset(id,title,c1,c2,accent){return{id,label:title,src:svgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="${id}-bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="512" height="512" rx="120" fill="url(#${id}-bg)"/><circle cx="256" cy="208" r="124" fill="rgba(255,255,255,.15)"/><path d="M168 352c28-36 59-54 88-54s60 18 88 54" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="28" stroke-linecap="round"/><text x="256" y="246" text-anchor="middle" font-family="JetBrains Mono, Arial" font-size="132" font-weight="800" fill="${accent}">G</text><text x="256" y="424" text-anchor="middle" font-family="JetBrains Mono, Arial" font-size="52" font-weight="700" fill="rgba(255,255,255,.92)">GOAT</text><!-- goat-preset --></svg>`)} }
+function makeGoatBannerPreset(id,title,c1,c2,accent){return{id,label:title,src:svgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500"><defs><linearGradient id="${id}-bg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="1600" height="500" rx="42" fill="url(#${id}-bg)"/><circle cx="1250" cy="120" r="190" fill="rgba(255,255,255,.08)"/><circle cx="1340" cy="340" r="220" fill="rgba(255,255,255,.06)"/><path d="M0 360c170-50 280-66 430-36s260 56 410 10 320-84 760 24v142H0z" fill="rgba(10,15,35,.18)"/><text x="120" y="188" font-family="JetBrains Mono, Arial" font-size="150" font-weight="800" fill="${accent}">LE GOAT</text><text x="124" y="260" font-family="JetBrains Mono, Arial" font-size="46" font-weight="600" fill="rgba(255,255,255,.88)">Designed and coded in France</text><path d="M1048 214c40-40 74-60 102-60 30 0 60 20 100 60" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="22" stroke-linecap="round"/><circle cx="1084" cy="170" r="18" fill="rgba(255,255,255,.92)"/><circle cx="1164" cy="170" r="18" fill="rgba(255,255,255,.92)"/><!-- goat-banner-preset --></svg>`)} }
+let profilePresetLibrary=null;
+function getProfilePresetLibrary(){if(profilePresetLibrary)return profilePresetLibrary;const logo=$('main-logo')?$('main-logo').getAttribute('src'):'';profilePresetLibrary={avatar:[logo?{id:'goat-logo',label:'Logo Le Goat',src:logo}:makeGoatAvatarPreset('goat-logo','Logo Le Goat','#f8fafc','#e5e7eb','#111827'),makeGoatAvatarPreset('goat-midnight','Goat Midnight','#0f172a','#2563eb','#ffffff'),makeGoatAvatarPreset('goat-ultra','Goat Ultra','#0b1020','#7c3aed','#e0f2fe'),makeGoatAvatarPreset('goat-frost','Goat Frost','#eff6ff','#93c5fd','#1d4ed8')],banner:[makeGoatBannerPreset('goat-banner-core','Goat Core','#111827','#2563eb','#ffffff'),makeGoatBannerPreset('goat-banner-neon','Goat Neon','#0f172a','#7c3aed','#f8fafc'),makeGoatBannerPreset('goat-banner-light','Goat Horizon','#1e3a8a','#60a5fa','#ffffff')]};return profilePresetLibrary}
+function isLogoStyleAvatarSrc(src){const logo=$('main-logo')?$('main-logo').getAttribute('src'):'';return!!src&&(src===logo||src.indexOf('goat-preset')!==-1)}
+function applyAvatarFitMode(el,src){if(!el)return;el.classList.toggle('is-logo',isLogoStyleAvatarSrc(src))}
+function setUploadPreview(box,src,fallbackLabel,kind){if(!box)return;box.innerHTML=src?'<img class="'+((kind==='avatar'&&isLogoStyleAvatarSrc(src))?'is-logo':'')+'" src="'+esc(src)+'" alt="preview">':'<span>'+esc(fallbackLabel)+'</span>'}
+function toggleProfileEditor(force){const open=typeof force==='boolean'?force:profileEditor.hidden;profileEditor.hidden=!open;profileEditToggle.textContent=open?t('profile_close_edit'):t('profile_edit')}
+function loadProfileForm(){const data=getProfileData();profileFirstnameInput.value=data.firstname;profileLastnameInput.value=data.lastname;profileBioInput.value=data.bio;profileInstagramInput.value=data.instagram;profileTikTokInput.value=data.tiktok;profileYouTubeInput.value=data.youtube;profileGitHubInput.value=data.github;profileBlueskyInput.value=data.bluesky;if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');updateProfileUI()}
+function persistProfileForm(){profileSet('firstname',profileFirstnameInput.value.trim());profileSet('lastname',profileLastnameInput.value.trim());profileSet('bio',profileBioInput.value.trim());profileSet('instagram',profileInstagramInput.value.trim());profileSet('tiktok',profileTikTokInput.value.trim());profileSet('youtube',profileYouTubeInput.value.trim());profileSet('github',profileGitHubInput.value.trim());profileSet('bluesky',profileBlueskyInput.value.trim());updateProfileUI()}
+function updateProfileUI(){if(!profileNamePreview)return;const data=getProfileData();const count=getChatCount();const score=computeGoatScore(count);const fullName=getProfileFullName(data);const fallbackAvatar=$('main-logo')?$('main-logo').getAttribute('src'):'';const avatarSrc=data.avatar||fallbackAvatar;profileNamePreview.textContent=fullName;profileDescriptionPreview.textContent=data.bio||t('profile_no_description');profileDescriptionPreview.classList.toggle('empty',!data.bio);profileChatCount.textContent=count.toLocaleString('fr-FR');profileGoatScore.textContent=score.toLocaleString('fr-FR');profileAvatarPreview.src=avatarSrc;applyAvatarFitMode(profileAvatarPreview,avatarSrc);profileBannerPreview.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';if(settingsProfileTabAvatar){settingsProfileTabAvatar.src=avatarSrc;applyAvatarFitMode(settingsProfileTabAvatar,avatarSrc)}if(settingsProfileTabName)settingsProfileTabName.textContent=fullName;setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';const socials=socialEntries(data).filter(item=>item.value.trim());if(!socials.length){profileSocialsPreview.innerHTML='<span class="profile-social-empty">'+esc(t('profile_share_hint'))+'</span>'}else{profileSocialsPreview.innerHTML=socials.map(item=>'<a class="profile-social-link" href="'+esc(normalizeSocialUrl(item.id,item.value))+'" target="_blank" rel="noreferrer noopener">'+esc(item.label)+'</a>').join('')}}
+function closeProfilePicker(){if(!profilePickerBackdrop)return;profilePickerBackdrop.classList.remove('open')}
+function renderProfilePicker(){if(!profilePickerGrid)return;const library=getProfilePresetLibrary()[profilePickerMode]||[];if(profilePickerTitle)profilePickerTitle.textContent=profilePickerMode==='banner'?t('profile_picker_title_banner'):t('profile_picker_title');if(profilePickerSectionTitle)profilePickerSectionTitle.textContent=t('profile_picker_category_goat');profilePickerGrid.innerHTML='';profilePickerGrid.classList.toggle('banner-mode',profilePickerMode==='banner');library.forEach(item=>{const btn=document.createElement('button');btn.type='button';btn.className='profile-picker-card';const thumb=document.createElement('div');thumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');const img=document.createElement('img');img.src=item.src;if(profilePickerMode==='avatar')applyAvatarFitMode(img,item.src);thumb.appendChild(img);const label=document.createElement('span');label.className='profile-picker-card-label';label.textContent=item.label;btn.appendChild(thumb);btn.appendChild(label);btn.addEventListener('click',()=>{playClick();profileSet(profilePickerMode,item.src);loadProfileForm();closeProfilePicker();renderMessages()});profilePickerGrid.appendChild(btn)});const importBtn=document.createElement('button');importBtn.type='button';importBtn.className='profile-picker-card import';const importThumb=document.createElement('div');importThumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');importThumb.innerHTML='<div>+</div><span>'+esc(profilePickerMode==='banner'?t('profile_picker_import_banner'):t('profile_picker_import_avatar'))+'</span>';const importLabel=document.createElement('span');importLabel.className='profile-picker-card-label';importLabel.textContent=profilePickerMode==='banner'?t('profile_choose_banner'):t('profile_choose_avatar');importBtn.appendChild(importThumb);importBtn.appendChild(importLabel);importBtn.addEventListener('click',()=>{playClick();closeProfilePicker();(profilePickerMode==='banner'?profileBannerFile:profileAvatarFile).click()});profilePickerGrid.appendChild(importBtn)}
+function openProfilePicker(mode){profilePickerMode=mode||'avatar';renderProfilePicker();if(profilePickerBackdrop)profilePickerBackdrop.classList.add('open')}
+function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(reader.error||new Error('read error'));reader.readAsDataURL(file)})}
+async function apiModerateProfileImage(filename,dataUrl){const r=await fetch('/api/moderate_profile_image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename,dataUrl})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Filtre image indisponible');return p}
+function closeCropper(){cropState=null;cropBackdrop.classList.remove('open');cropCanvas.classList.remove('dragging')}
+function cropAspect(mode){return mode==='banner'?3.2:1}
+function resizeCropCanvas(){if(!cropState)return;const rect=cropCanvas.getBoundingClientRect();const ratio=window.devicePixelRatio||1;cropCanvas.width=Math.max(1,Math.round(rect.width*ratio));cropCanvas.height=Math.max(1,Math.round(rect.height*ratio));cropState.pixelRatio=ratio;cropState.canvasW=rect.width;cropState.canvasH=rect.height}
+function initCropState(){if(!cropState||!cropState.img)return;resizeCropCanvas();const aspect=cropAspect(cropState.mode);let frameW=Math.min(cropState.canvasW*(cropState.mode==='banner'?0.82:0.58),cropState.canvasW-48);let frameH=frameW/aspect;if(frameH>cropState.canvasH*0.76){frameH=cropState.canvasH*0.76;frameW=frameH*aspect}cropState.frame={x:(cropState.canvasW-frameW)/2,y:(cropState.canvasH-frameH)/2,w:frameW,h:frameH};cropState.baseScale=Math.max(frameW/cropState.img.width,frameH/cropState.img.height);cropState.zoom=1;cropState.offsetX=0;cropState.offsetY=0;if(cropZoom)cropZoom.value='100';clampCropOffsets();renderCropper()}
+function clampCropOffsets(){if(!cropState||!cropState.frame)return;const drawW=cropState.img.width*cropState.baseScale*cropState.zoom;const drawH=cropState.img.height*cropState.baseScale*cropState.zoom;const f=cropState.frame;const minOffsetX=f.x+f.w-drawW/2-cropState.canvasW/2;const maxOffsetX=f.x+drawW/2-cropState.canvasW/2;const minOffsetY=f.y+f.h-drawH/2-cropState.canvasH/2;const maxOffsetY=f.y+drawH/2-cropState.canvasH/2;cropState.offsetX=Math.min(maxOffsetX,Math.max(minOffsetX,cropState.offsetX));cropState.offsetY=Math.min(maxOffsetY,Math.max(minOffsetY,cropState.offsetY))}
+function renderCropper(){if(!cropState)return;resizeCropCanvas();const ctx=cropCanvas.getContext('2d');const ratio=cropState.pixelRatio||1;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,cropState.canvasW,cropState.canvasH);const drawW=cropState.img.width*cropState.baseScale*cropState.zoom;const drawH=cropState.img.height*cropState.baseScale*cropState.zoom;const centerX=cropState.canvasW/2+cropState.offsetX;const centerY=cropState.canvasH/2+cropState.offsetY;const dx=centerX-drawW/2;const dy=centerY-drawH/2;cropState.draw={dx,dy,dw:drawW,dh:drawH};ctx.drawImage(cropState.img,dx,dy,drawW,drawH);ctx.fillStyle='rgba(3,8,20,.56)';ctx.fillRect(0,0,cropState.canvasW,cropState.canvasH);const f=cropState.frame;ctx.save();ctx.beginPath();ctx.rect(f.x,f.y,f.w,f.h);ctx.clip();ctx.clearRect(f.x,f.y,f.w,f.h);ctx.drawImage(cropState.img,dx,dy,drawW,drawH);ctx.restore();ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.strokeRect(f.x,f.y,f.w,f.h);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(f.x+f.w/3,f.y);ctx.lineTo(f.x+f.w/3,f.y+f.h);ctx.moveTo(f.x+2*f.w/3,f.y);ctx.lineTo(f.x+2*f.w/3,f.y+f.h);ctx.moveTo(f.x,f.y+f.h/3);ctx.lineTo(f.x+f.w,f.y+f.h/3);ctx.moveTo(f.x,f.y+2*f.h/3);ctx.lineTo(f.x+f.w,f.y+2*f.h/3);ctx.stroke()}
+function openCropper(dataUrl,mode){cropState={mode,img:new Image(),zoom:1,offsetX:0,offsetY:0,pointerId:null};cropTitle.textContent=mode==='banner'?'Recadrer la bannière':'Recadrer la photo de profil';cropBackdrop.classList.add('open');cropState.img.onload=()=>initCropState();cropState.img.src=dataUrl}
+function applyCrop(){if(!cropState||!cropState.draw)return;const f=cropState.frame;const d=cropState.draw;const scale=cropState.baseScale*cropState.zoom;const sx=Math.max(0,(f.x-d.dx)/scale);const sy=Math.max(0,(f.y-d.dy)/scale);const sw=Math.min(cropState.img.width-sx,f.w/scale);const sh=Math.min(cropState.img.height-sy,f.h/scale);const out=document.createElement('canvas');out.width=cropState.mode==='banner'?1600:768;out.height=cropState.mode==='banner'?500:768;const octx=out.getContext('2d');octx.drawImage(cropState.img,sx,sy,sw,sh,0,0,out.width,out.height);profileSet(cropState.mode,out.toDataURL('image/png'));closeCropper();loadProfileForm();renderMessages()}
+async function handleProfileImage(file,key){if(!file)return;try{const dataUrl=await readFileAsDataURL(file);const moderation=await apiModerateProfileImage(file.name||'',dataUrl);if(!moderation.safe){alert(moderation.reason||"Désolé, nous ne pouvons pas mettre votre photo de profil en raison de nos règles d'utilisation.");return}openCropper(dataUrl,key)}catch(err){alert("Impossible de vérifier l'image. Veuillez réessayer.")}}
+function formatProfileText(includeScore){const data=getProfileData();const count=getChatCount();const lines=[getProfileFullName(data)];if(data.bio)lines.push(data.bio);lines.push(t('profile_chats_sent')+' : '+count);if(includeScore)lines.push(t('profile_goat_score')+' : '+computeGoatScore(count));socialEntries(data).forEach(item=>{if(item.value.trim())lines.push(item.label+' : '+normalizeSocialUrl(item.id,item.value))});return lines.filter(Boolean).join('\n')}
+function sanitizeFilename(value){return String(value||'profil-goat').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').toLowerCase()||'profil-goat'}
+async function apiExportProfilePdf(includeScore){const payload={includeScore,chatCount:getChatCount(),goatScore:computeGoatScore(getChatCount()),profile:getProfileData()};const r=await fetch('/api/export_profile_pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Export PDF impossible');return p}
+async function shareProfile(includeScore){playClick();alert(t('profile_share_dev'))}
+async function apiVoiceShortcut(){const r=await fetch('/api/voice_shortcut',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Voice shortcut unavailable');return p}
+async function triggerVoiceInput(){playClick();try{const p=await apiVoiceShortcut();if(p.triggered)return}catch(e){}window.open('https://wisprflow.ai/','_blank','noopener')}
 // ── API HTTP — communication avec le backend Python ──────────────
 // Toutes les requêtes sont en POST JSON vers localhost.
 // Les endpoints sont définis dans GoatRequestHandler (Python).
-async function apiSend(msg,signal){const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
+async function apiSend(msg,signal){const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');incrementChatCount();return p}
 async function apiRegen(signal){const r=await fetch('/api/regenerate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 
@@ -1489,10 +1928,37 @@ $$('[data-click-sound]').forEach(b=>b.addEventListener('click',()=>applyClickSou
 $$('[data-click-style]').forEach(b=>b.addEventListener('click',()=>applyClickStyle(b.dataset.clickStyle)));
 $$('[data-ai-sound]').forEach(b=>b.addEventListener('click',()=>applyAiSound(b.dataset.aiSound)));
 $$('[data-aifont-value]').forEach(b=>b.addEventListener('click',()=>applyAiFont(b.dataset.aifontValue)));
+$$('[data-userfont-value]').forEach(b=>b.addEventListener('click',()=>applyUserFont(b.dataset.userfontValue)));
 $('toggle-effects-button').addEventListener('click',()=>applyEffects(S.effects==='on'?'off':'on'));
 $('toggle-responses-button').addEventListener('click',()=>applyOptResp(S.optResp==='on'?'off':'on'));
 $('toggle-uiopt-button').addEventListener('click',()=>applyUiOpt(S.uiOpt==='on'?'off':'on'));
 ['user-firstname','user-lastname','user-tone','user-info'].forEach(id=>$(id).addEventListener('input',persistPerso));
+['profile-firstname-input','profile-lastname-input','profile-bio-input','profile-instagram-input','profile-tiktok-input','profile-youtube-input','profile-github-input','profile-bluesky-input'].forEach(id=>$(id).addEventListener('input',persistProfileForm));
+profileEditToggle.addEventListener('click',()=>toggleProfileEditor());
+profileShareProBtn.addEventListener('click',()=>shareProfile(false));
+profileShareFullBtn.addEventListener('click',()=>shareProfile(true));
+if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.addEventListener('change',()=>{profileSet('showMessageAvatar',profileAvatarMessagesToggle.checked?'on':'off');updateProfileUI();renderMessages()});
+voiceInputBtn.addEventListener('click',triggerVoiceInput);
+profileAvatarUploadBtn.addEventListener('click',()=>openProfilePicker('avatar'));
+profileBannerUploadBtn.addEventListener('click',()=>openProfilePicker('banner'));
+if(profilePickerCloseBtn)profilePickerCloseBtn.addEventListener('click',closeProfilePicker);
+if(profilePickerBackdrop)profilePickerBackdrop.addEventListener('click',e=>{if(e.target===profilePickerBackdrop)closeProfilePicker()});
+profileAvatarRemoveBtn.addEventListener('click',()=>{profileSet('avatar','');loadProfileForm()});
+profileBannerRemoveBtn.addEventListener('click',()=>{profileSet('banner','');loadProfileForm()});
+profileAvatarFile.addEventListener('change',async()=>{if(profileAvatarFile.files&&profileAvatarFile.files[0])await handleProfileImage(profileAvatarFile.files[0],'avatar');profileAvatarFile.value=''})
+profileBannerFile.addEventListener('change',async()=>{if(profileBannerFile.files&&profileBannerFile.files[0])await handleProfileImage(profileBannerFile.files[0],'banner');profileBannerFile.value=''})
+cropApplyBtn.addEventListener('click',applyCrop);
+cropCancelBtn.addEventListener('click',closeCropper);
+cropCloseBtn.addEventListener('click',closeCropper);
+cropBackdrop.addEventListener('click',e=>{if(e.target===cropBackdrop)closeCropper()});
+cropZoom.addEventListener('input',()=>{if(!cropState)return;cropState.zoom=Math.max(1,Number(cropZoom.value||100)/100);clampCropOffsets();renderCropper()});
+cropCanvas.addEventListener('pointerdown',e=>{if(!cropState)return;cropState.dragging=true;cropState.pointerId=e.pointerId;cropState.lastX=e.clientX;cropState.lastY=e.clientY;cropCanvas.classList.add('dragging');try{cropCanvas.setPointerCapture(e.pointerId)}catch{}});
+cropCanvas.addEventListener('pointermove',e=>{if(!cropState||!cropState.dragging)return;cropState.offsetX+=e.clientX-cropState.lastX;cropState.offsetY+=e.clientY-cropState.lastY;cropState.lastX=e.clientX;cropState.lastY=e.clientY;clampCropOffsets();renderCropper()});
+const releaseCropPointer=e=>{if(!cropState)return;cropState.dragging=false;cropCanvas.classList.remove('dragging');try{if(e&&cropState.pointerId!==null)cropCanvas.releasePointerCapture(cropState.pointerId)}catch{}cropState.pointerId=null};
+cropCanvas.addEventListener('pointerup',releaseCropPointer);
+cropCanvas.addEventListener('pointercancel',releaseCropPointer);
+window.addEventListener('resize',()=>{if(cropState)initCropState();hideProfileAvatarHover(true)});
+msgBox.addEventListener('scroll',()=>hideProfileAvatarHover(true));
 // Boutons paramètres — fonctionnalités à venir (alertes temporaires)
 $('manage-memory-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('manage-history-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
@@ -1504,23 +1970,24 @@ $('migrate-data-button').addEventListener('click',()=>{playClick();closeSettings
 // Fermeture des dropdowns au clic en dehors
 document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open')});
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeSettings();closeMigrate();closeOverclockModal();hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeSettings();closeMigrate();closeOverclockModal();closeCropper();hideProfileAvatarHover(true);hideTip()}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
 // Tooltips data-attribute — liés automatiquement au chargement
 $$('[data-tooltip-key]').forEach(el=>bindTip(el,el.dataset.tooltipKey));
+bindTip(voiceInputBtn,'Micro vocal : Win + H sur Windows, sinon ouverture de Wispr Flow.');
 
 // ── Initialisation au démarrage ───────────────────────────────────
 // Ordre important : charger les préférences AVANT d'appliquer les traductions
 // pour que la langue correcte soit déjà dans S.lang lors du premier rendu.
-loadPerso();showTab('general');
-document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;document.body.dataset.textsize=S.textSize;document.body.dataset.aifont=S.aifont;
+loadPerso();loadProfileForm();toggleProfileEditor(false);showTab(ls('settings-tab')||'general');
+document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;document.body.dataset.textsize=S.textSize;document.body.dataset.aifont=S.aifont;document.body.dataset.userfont=S.userfont;
 applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);
 applyOptResp(S.optResp,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
-applyAiFont(S.aifont,false);updateOverclockUI();updateCharCounter();
+applyAiFont(S.aifont,false);applyUserFont(S.userfont,false);updateOverclockUI();updateCharCounter();
 setActiveTab(activeTab,false);ta.focus(); // Focus textarea au démarrage
 
 // ── Top Tab Bar (Chat / Goat Code) ──
@@ -1695,6 +2162,305 @@ def build_index_html(
 # Serveur HTTP
 # ============================================================
 
+
+
+PROFILE_IMAGE_REJECTION_MESSAGE = "Désolé, nous ne pouvons pas mettre votre photo de profil en raison de nos règles d'utilisation."
+
+RISKY_IMAGE_NAME_TOKENS = {
+    'porn', 'porno', 'nsfw', 'sex', 'sexe', 'nude', 'nudity', 'naked',
+    'loli', 'pedo', 'cp', 'childporn', 'child_porn', 'gore',
+    'violence', 'violent', 'blood', 'execution', 'beheading', 'hate',
+    'racist', 'racisme', 'racist meme', 'naz', 'nazi', 'ss', 'whitepower',
+    'homophobe', 'homophobic', 'misogyny', 'misogynie', 'misogynist',
+    'antisemite', 'antisemitic', 'antisemitisme'
+}
+
+RISKY_IMAGE_TEXT_PATTERNS = [
+    re.compile(r'\b(?:porn|porno|nsfw|nude|nudity|naked|loli|pedo|cp|child\s*porn)\b', re.I),
+    re.compile(r'\b(?:gore|violent|violence|blood|kill|execution|beheading)\b', re.I),
+    re.compile(r'\b(?:nazi|white\s*power|kkk|racist|racisme|homophobic|homophobe|misogyny|misogynie|antisemite|antisemitic)\b', re.I),
+]
+
+_NSFW_MODEL_CACHE = None
+_NSFW_MODEL_CACHE_FAILED = False
+
+HARD_NSFW_LABEL_TOKENS = (
+    'nsfw', 'explicit', 'sexual', 'porn', 'nudity', 'nude',
+    'hentai', 'xxx', 'graphic nudity', 'graphic sexual', 'adult content'
+)
+
+SOFT_NSFW_LABEL_TOKENS = (
+    'sexy', 'suggestive', 'adult', 'erotic', 'lingerie', 'bikini'
+)
+
+def _decode_data_url(data_url: str) -> bytes:
+    if not data_url or ',' not in data_url:
+        raise ValueError('Invalid data URL')
+    header, payload = data_url.split(',', 1)
+    if ';base64' not in header:
+        raise ValueError('Unsupported data URL encoding')
+    return base64.b64decode(payload)
+
+def _image_from_data_url(data_url: str):
+    if Image is None:
+        raise RuntimeError('Pillow is required for image processing.')
+    raw = _decode_data_url(data_url)
+    image = Image.open(io.BytesIO(raw))
+    return image
+
+def _normalize_label(label: str) -> str:
+    value = re.sub(r'[^a-z0-9]+', ' ', str(label or '').lower()).strip()
+    return re.sub(r'\s+', ' ', value)
+
+def _get_local_nsfw_classifier():
+    global _NSFW_MODEL_CACHE, _NSFW_MODEL_CACHE_FAILED
+    if _NSFW_MODEL_CACHE is not None:
+        return _NSFW_MODEL_CACHE
+    if _NSFW_MODEL_CACHE_FAILED:
+        return None
+    model_path = os.getenv('GOAT_NSFW_MODEL_PATH', '').strip()
+    if not model_path:
+        _NSFW_MODEL_CACHE_FAILED = True
+        return None
+    try:
+        from transformers import pipeline  # type: ignore
+        _NSFW_MODEL_CACHE = pipeline(
+            'image-classification',
+            model=model_path,
+            image_processor=model_path,
+            local_files_only=True,
+        )
+        return _NSFW_MODEL_CACHE
+    except Exception:
+        _NSFW_MODEL_CACHE_FAILED = True
+        return None
+
+def _classify_with_local_model(image) -> tuple[bool, float] | None:
+    classifier = _get_local_nsfw_classifier()
+    if classifier is None:
+        return None
+    try:
+        results = classifier(image)
+    except Exception:
+        return None
+    hard_risk = 0.0
+    soft_risk = 0.0
+    for item in results or []:
+        label = _normalize_label(item.get('label'))
+        score = float(item.get('score', 0.0) or 0.0)
+        if any(token in label for token in HARD_NSFW_LABEL_TOKENS):
+            hard_risk = max(hard_risk, score)
+        elif any(token in label for token in SOFT_NSFW_LABEL_TOKENS):
+            soft_risk = max(soft_risk, score)
+    safe = hard_risk < 0.62 and soft_risk < 0.92
+    return safe, max(hard_risk, soft_risk)
+
+def _fallback_visual_nsfw_score(image) -> float:
+    sample = image.copy().convert('RGB')
+    sample.thumbnail((256, 256))
+    pixels = sample.load()
+    total = max(1, sample.width * sample.height)
+    skin_like = 0
+    red_dominant = 0
+    dark_dominant = 0
+    pink_like = 0
+    bright_like = 0
+    blue_cyan_like = 0
+    line_dark = 0
+    center_skin = 0
+    center_total = 0
+    top_skin = 0
+    top_total = 0
+    bottom_skin = 0
+    bottom_total = 0
+    for y in range(sample.height):
+        for x in range(sample.width):
+            r, g, b = pixels[x, y]
+            mx, mn = max(r, g, b), min(r, g, b)
+            is_skin = r > 80 and g > 30 and b > 15 and (mx - mn) > 15 and r > g and r > b
+            if is_skin:
+                skin_like += 1
+            if r > 120 and g < 90 and b < 90:
+                red_dominant += 1
+            if r < 45 and g < 45 and b < 45:
+                dark_dominant += 1
+            if r > 150 and 90 < g < 190 and 80 < b < 180:
+                pink_like += 1
+            if (r + g + b) / 3 > 140:
+                bright_like += 1
+            if b > 110 and g > 90 and r < 120:
+                blue_cyan_like += 1
+            if mx < 85 and (mx - mn) < 30:
+                line_dark += 1
+            if sample.width * 0.25 <= x <= sample.width * 0.75 and sample.height * 0.25 <= y <= sample.height * 0.75:
+                center_total += 1
+                if is_skin:
+                    center_skin += 1
+            if y < sample.height * 0.35:
+                top_total += 1
+                if is_skin:
+                    top_skin += 1
+            if y > sample.height * 0.65:
+                bottom_total += 1
+                if is_skin:
+                    bottom_skin += 1
+    skin_ratio = skin_like / total
+    red_ratio = red_dominant / total
+    dark_ratio = dark_dominant / total
+    pink_ratio = pink_like / total
+    bright_ratio = bright_like / total
+    blue_cyan_ratio = blue_cyan_like / total
+    line_dark_ratio = line_dark / total
+    center_skin_ratio = center_skin / max(1, center_total)
+    top_skin_ratio = top_skin / max(1, top_total)
+    bottom_skin_ratio = bottom_skin / max(1, bottom_total)
+    score = 0.0
+    if skin_ratio > 0.52:
+        score += min(0.28, (skin_ratio - 0.52) * 1.0)
+    if center_skin_ratio > 0.68:
+        score += min(0.28, (center_skin_ratio - 0.68) * 0.9)
+    if bottom_skin_ratio > 0.62:
+        score += min(0.25, (bottom_skin_ratio - 0.62) * 0.9)
+    if pink_ratio > 0.26:
+        score += min(0.10, (pink_ratio - 0.26) * 0.6)
+    if bright_ratio > 0.50:
+        score += min(0.06, (bright_ratio - 0.50) * 0.2)
+    if red_ratio > 0.34 and dark_ratio > 0.26:
+        score += 0.18
+    return max(0.0, min(1.0, score))
+
+def _local_image_safety_check(filename: str, data_url: str) -> tuple[bool, str]:
+    lower_name = (filename or '').lower()
+    if any(token in lower_name for token in RISKY_IMAGE_NAME_TOKENS):
+        return False, PROFILE_IMAGE_REJECTION_MESSAGE
+    for pattern in RISKY_IMAGE_TEXT_PATTERNS:
+        if pattern.search(lower_name):
+            return False, PROFILE_IMAGE_REJECTION_MESSAGE
+    if Image is None:
+        return False, "Pillow est requis pour l'analyse locale des images."
+    try:
+        image = _image_from_data_url(data_url).convert('RGB')
+        if image.width < 64 or image.height < 64:
+            return False, 'Image trop petite ou invalide.'
+        classified = _classify_with_local_model(image)
+        if classified is not None:
+            safe, _score = classified
+            return (safe, '' if safe else PROFILE_IMAGE_REJECTION_MESSAGE)
+        heuristic_score = _fallback_visual_nsfw_score(image)
+        if heuristic_score >= 0.28:
+            return False, PROFILE_IMAGE_REJECTION_MESSAGE
+    except Exception:
+        return False, 'Image invalide ou non lisible.'
+    return True, ''
+
+def _sanitize_pdf_filename(value: str) -> str:
+    cleaned = re.sub(r'[^a-zA-Z0-9_-]+', '-', value.strip().lower())
+    cleaned = re.sub(r'-+', '-', cleaned).strip('-')
+    return cleaned or 'profil-goat'
+
+def _wrap_pdf_text(pdf, text: str, max_width: float) -> list[str]:
+    words = str(text or '').split()
+    if not words:
+        return []
+    lines: list[str] = []
+    current = words[0]
+    for word in words[1:]:
+        candidate = current + ' ' + word
+        if pdf.stringWidth(candidate, 'Helvetica', 11) <= max_width:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+    lines.append(current)
+    return lines
+
+def _draw_pdf_image(pdf, data_url: str, x: float, y: float, w: float, h: float) -> None:
+    if not data_url or Image is None or ImageReader is None:
+        return
+    image = _image_from_data_url(data_url)
+    if image.mode not in ('RGB', 'RGBA'):
+        image = image.convert('RGBA')
+    buf = io.BytesIO()
+    image.save(buf, format='PNG')
+    buf.seek(0)
+    pdf.drawImage(ImageReader(buf), x, y, width=w, height=h, mask='auto', preserveAspectRatio=False)
+
+def _build_profile_pdf(profile: dict, chat_count: int, goat_score: int, include_score: bool) -> bytes:
+    if pdf_canvas is None or A4 is None:
+        raise RuntimeError("reportlab est requis pour l'export PDF.")
+    width, height = A4
+    buffer = io.BytesIO()
+    pdf = pdf_canvas.Canvas(buffer, pagesize=A4)
+    margin = 36
+    card_x, card_y = margin, 72
+    card_w, card_h = width - (margin * 2), height - 120
+    banner_h = 130
+    pdf.setFillColorRGB(0.97, 0.98, 1)
+    pdf.roundRect(card_x, card_y, card_w, card_h, 18, fill=1, stroke=0)
+    if profile.get('banner'):
+        _draw_pdf_image(pdf, str(profile.get('banner') or ''), card_x, card_y + card_h - banner_h, card_w, banner_h)
+    else:
+        pdf.setFillColorRGB(0.12, 0.19, 0.34)
+        pdf.roundRect(card_x, card_y + card_h - banner_h, card_w, banner_h, 18, fill=1, stroke=0)
+    avatar_size = 76
+    avatar_x = card_x + 24
+    avatar_y = card_y + card_h - banner_h - (avatar_size / 2)
+    pdf.setFillColorRGB(1, 1, 1)
+    pdf.roundRect(avatar_x - 4, avatar_y - 4, avatar_size + 8, avatar_size + 8, 20, fill=1, stroke=0)
+    if profile.get('avatar'):
+        _draw_pdf_image(pdf, str(profile.get('avatar') or ''), avatar_x, avatar_y, avatar_size, avatar_size)
+    full_name = ' '.join([str(profile.get('firstname') or '').strip(), str(profile.get('lastname') or '').strip()]).strip() or 'Profil Goat'
+    pdf.setFillColorRGB(0.08, 0.11, 0.17)
+    pdf.setFont('Helvetica-Bold', 20)
+    pdf.drawString(card_x + 120, avatar_y + 42, full_name)
+    pdf.setFont('Helvetica', 10)
+    pdf.setFillColorRGB(0.34, 0.38, 0.44)
+    pdf.drawString(card_x + 120, avatar_y + 24, 'Profil exporté depuis Le Goat')
+    current_y = avatar_y - 26
+    pdf.setFillColorRGB(0.08, 0.11, 0.17)
+    pdf.setFont('Helvetica-Bold', 11)
+    pdf.drawString(card_x + 24, current_y, 'Description')
+    current_y -= 18
+    pdf.setFont('Helvetica', 11)
+    pdf.setFillColorRGB(0.18, 0.22, 0.28)
+    bio_lines = _wrap_pdf_text(pdf, str(profile.get('bio') or 'Aucune description renseignée.'), card_w - 48)
+    for line in bio_lines[:6]:
+        pdf.drawString(card_x + 24, current_y, line)
+        current_y -= 15
+    current_y -= 8
+    pdf.setFillColorRGB(0.08, 0.11, 0.17)
+    pdf.setFont('Helvetica-Bold', 11)
+    pdf.drawString(card_x + 24, current_y, f"Chats envoyés à l'IA : {chat_count}")
+    current_y -= 18
+    if include_score:
+        pdf.drawString(card_x + 24, current_y, f'Goat Score : {goat_score}')
+        current_y -= 22
+    else:
+        current_y -= 4
+    socials = [
+        ('Instagram', profile.get('instagram')),
+        ('TikTok', profile.get('tiktok')),
+        ('YouTube', profile.get('youtube')),
+        ('GitHub', profile.get('github')),
+        ('Bluesky', profile.get('bluesky')),
+    ]
+    pdf.setFont('Helvetica-Bold', 11)
+    pdf.drawString(card_x + 24, current_y, 'Réseaux')
+    current_y -= 18
+    pdf.setFont('Helvetica', 10.5)
+    pdf.setFillColorRGB(0.18, 0.22, 0.28)
+    for label, value in socials:
+        value = str(value or '').strip()
+        if not value:
+            continue
+        for idx, line in enumerate(_wrap_pdf_text(pdf, f'{label} : {value}', card_w - 48)[:2]):
+            pdf.drawString(card_x + 24, current_y, line)
+            current_y -= 14
+        current_y -= 2
+    pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()
+
 class GoatWebApp:
     """
     Couche applicative principale — coordonne session et rendu HTML.
@@ -1731,6 +2497,45 @@ class GoatWebApp:
         """Réinitialise la session et retourne un historique vide."""
         self.session.reset()
         return {"ok": True, "messages": self.session.messages}
+
+    def moderate_profile_image(self, filename: str, data_url: str) -> dict:
+        safe, reason = _local_image_safety_check(filename, data_url)
+        return {"ok": True, "safe": safe, "reason": reason}
+
+    def export_profile_pdf(self, payload: dict) -> dict:
+        profile = payload.get('profile', {}) if isinstance(payload, dict) else {}
+        if not isinstance(profile, dict):
+            profile = {}
+        chat_count = int(payload.get('chatCount', 0) or 0)
+        goat_score = int(payload.get('goatScore', 0) or 0)
+        include_score = bool(payload.get('includeScore', False))
+        try:
+            pdf_bytes = _build_profile_pdf(profile, chat_count, goat_score, include_score)
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        full_name = ' '.join([str(profile.get('firstname') or '').strip(), str(profile.get('lastname') or '').strip()]).strip() or 'profil-goat'
+        label = 'profil-complet' if include_score else 'profil-professionnel'
+        filename = f"{_sanitize_pdf_filename(full_name)}-{label}.pdf"
+        return {"ok": True, "data": base64.b64encode(pdf_bytes).decode('ascii'), "filename": filename}
+
+    def trigger_voice_shortcut(self) -> dict:
+        if platform.system().lower() != 'windows':
+            return {"ok": True, "triggered": False}
+        try:
+            import ctypes
+            user32 = ctypes.windll.user32
+            KEYEVENTF_KEYUP = 0x0002
+            VK_LWIN = 0x5B
+            H_KEY = 0x48
+            user32.keybd_event(VK_LWIN, 0, 0, 0)
+            time.sleep(0.02)
+            user32.keybd_event(H_KEY, 0, 0, 0)
+            time.sleep(0.02)
+            user32.keybd_event(H_KEY, 0, KEYEVENTF_KEYUP, 0)
+            user32.keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0)
+            return {"ok": True, "triggered": True}
+        except Exception:
+            return {"ok": True, "triggered": False}
 
 
 class GoatHTTPServer(ThreadingHTTPServer):
@@ -1819,6 +2624,12 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
                                    str(payload.get("mode", ""))
                                ),
             "/api/new_chat":   lambda: self.server.app.new_chat(),
+            "/api/moderate_profile_image": lambda: self.server.app.moderate_profile_image(
+                                   str(payload.get("filename", "")),
+                                   str(payload.get("dataUrl", ""))
+                               ),
+            "/api/export_profile_pdf": lambda: self.server.app.export_profile_pdf(payload),
+            "/api/voice_shortcut": lambda: self.server.app.trigger_voice_shortcut(),
         }
 
         fn = handlers.get(self.path)
