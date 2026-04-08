@@ -122,6 +122,7 @@ class AppConfig:
     DEFAULT_CLICK_SOUND = "on"      # Son des boutons
     DEFAULT_CLICK_STYLE = "bulle"   # Style son boutons : "bulle" | "nebrise"
     DEFAULT_AI_SOUND    = "on"      # Son réponse IA
+    DEFAULT_CALC_TARGET = "default" # Ciblage des calcules : "cpu" | "gpu" | "default"
 
     # ── Préfixe localStorage (évite les collisions entre apps) ─
     STORAGE_PREFIX = "goat"
@@ -134,12 +135,11 @@ class AppConfig:
     MODE_OPTIONS: ClassVar[list] = [
         {"id": "reflection", "icon": "\u25cc"},   # ◌ Reflection — raisonnement approfondi
         {"id": "fast",       "icon": "\u26a1"},   # ⚡ Fast       — réponse rapide, faible coût
+        {"id": "creativity", "icon": "\u2726"},   # ✦ Creativity — style créatif
         # Modes Research — désactivés temporairement (en développement)
         # {"id": "research_in_data",   "icon": "\u25a3"},  # ▣ Research In Data   — RAG sur documents
         # {"id": "research_in_memory", "icon": "\u25cd"},  # ◍ Research In Memory — RAG sur historique
         # {"id": "deep_research",      "icon": "\u2b23"},  # ⬣ Deep Research      — analyse avancée
-        # Mode Creativity — désactivé temporairement
-        # {"id": "creativity", "icon": "\u2726"},          # ✦ Creativity         — style créatif
     ]
     DEFAULT_MODE_ID = ""  # "" = aucun mode sélectionné au démarrage
 
@@ -231,9 +231,9 @@ class TranslationManager:
       Le JS accède aux chaînes via la fonction t('ma_cle').
     """
     STATUS: ClassVar[Dict[str, str]] = {
-        "fr": "Le Goat peut commettre des erreurs. Vérifiez les informations importantes, en particulier si le degré de sûreté affiché est inférieur à 50 %.",
-        "en": "The Goat can make mistakes. Verify important information, especially if the displayed confidence score is below 50%.",
-        "es": "El Goat puede cometer errores. Verifique la información importante, especialmente si el grado de fiabilidad mostrado es inferior al 50%.",
+        "fr": "Le Goat peut commettre des erreurs , vérifier ses réponse avec d'autre ia en cas doute.",
+        "en": "The Goat can make mistakes. Cross-check its answers with other AIs if you have any doubt.",
+        "es": "El Goat puede cometer errores. Verifique sus respuestas con otras IA si tiene dudas.",
     }
     WELCOME: ClassVar[Dict[str, list]] = {
         "fr": ["Par quoi commençons-nous ?", "Que voulez-vous explorer aujourd'hui ?", "Prêt à lancer la prochaine étape ?", "Sur quoi voulez-vous que Le Goat travaille ?", "Que souhaitez-vous vérifier ou rechercher ?", "On commence par quelle mission ?", "Prêt à faire avancer le projet ?"],
@@ -247,7 +247,7 @@ class TranslationManager:
             "tab_general": "Générale", "tab_personalization": "Personnalisation",
             "tab_data_security": "Gestion de donnée et sécurité", "tab_optimization": "Optimisation et Performances",
             "general_language": "Langue", "general_version": "Version", "general_theme": "Thème",
-            "general_text_size": "Taille du texte", "general_keyboard_sounds": "Son du clavier",
+            "general_text_size": "Taille du texte", "general_app_scale": "Taille du logiciel", "general_app_scale_hint": "Agrandit ou réduit toute l'interface.", "tab_appearance": "Apparence", "appearance_color": "Couleur de l'interface", "appearance_wallpaper": "Fond d'écran", "appearance_wallpaper_normal": "Fond d'écran du mode normal", "appearance_wallpaper_coworking": "Fond d'écran de Goat Code", "appearance_change": "Changer", "appearance_remove": "Retirer", "appearance_modal_title": "Fond d'écran", "appearance_import_image": "Importer une image", "appearance_import_video": "Importer une vidéo", "appearance_video_volume": "Volume de la vidéo", "appearance_video_help": "Vidéo en boucle pour l’arrière-plan.", "appearance_video_import_warning": "Plus la vidéo est longue et de bonne qualité, plus l’import prendra du temps et risque de faire laguer le logiciel.", "appearance_preview": "Aperçu", "color_blue": "Bleu", "color_red": "Rouge", "color_green": "Vert", "color_yellow": "Jaune", "color_pink": "Rose", "color_purple": "Violet", "general_keyboard_sounds": "Son du clavier",
             "general_keyboard_sound_style": "Style du son clavier", "general_click_sounds": "Son des boutons",
             "general_click_sound_style": "Style du son boutons", "general_ai_reply_sounds": "Son réponse IA",
             "language_fr": "Français", "language_en": "Anglais", "language_es": "Espagnol",
@@ -262,10 +262,22 @@ class TranslationManager:
             "personalization_placeholder": "Ex. préférences, contraintes, contexte utile…",
             "placeholder_firstname": "Entrez votre prénom", "placeholder_lastname": "Entrez votre nom",
             "placeholder_tone": "Ex. professionnel, détendu, direct…",
+            "perso_how_address": "Comment l'IA s'adresse à vous",
+            "perso_how_address_help": "Prénom, surnom, ou titre que l'IA utilisera.",
+            "perso_ai_tone": "Ton de l'IA",
+            "perso_ai_tone_help": "Décrivez comment vous voulez que l'IA vous parle.",
             "data_security_memory": "Gérer la mémoire", "data_security_history": "Gérer l'historique des discussions",
             "optimization_effects": "Optimiser les effets visuels", "optimization_responses": "Optimiser les réponses",
             "optimization_ram": "Libération de la mémoire vive de l'IA",
             "optimization_ram_hint": "Libère la mémoire de la discussion en cours — l'IA ne se souviendra plus des échanges de cette session.",
+            "optimization_calc_target": "Ciblage des calcules",
+            "optimization_calc_target_hint": "Choisissez le canal de calcul privilégié pour les traitements lourds.",
+            "calc_target_cpu": "CPU (Ram)",
+            "calc_target_gpu": "GPU (Vram)",
+            "calc_target_default": "Par défaut (Utiliser les 2 espaces)",
+            "calc_target_notify_cpu": "Mode CPU activé — L'IA se concentrera uniquement sur le CPU (RAM). Cela bridera les performances et pourra désactiver certains modèles comme Maestro.",
+            "calc_target_notify_gpu": "Mode GPU activé — L'IA se concentrera uniquement sur le GPU (VRAM). Cela bridera les performances et pourra désactiver certains modèles comme Maestro.",
+            "calc_target_notify_default": "Mode par défaut activé — L'intégralité de la puissance du PC sera utilisée sans brider aucun modèle.",
             "state_on": "Activé", "state_off": "Désactivé",
             "mode_active_prefix": "Mode actif :", "no_mode": "Aucun mode",
             "close": "Fermer", "settings_hint": "Astuce : vous pouvez déplacer cette fenêtre avec la souris.",
@@ -372,6 +384,7 @@ class TranslationManager:
             "profile_firstname": "Prénom",
             "profile_lastname": "Nom",
             "profile_bio": "Bio",
+            "profile_bio_help": "Votre bio aide l'IA à mieux vous comprendre.",
             "profile_auto_save": "Sauvegarde automatique locale.",
             "profile_no_name": "Profil sans nom",
             "profile_no_description": "Ajoutez une description pour présenter ce profil.",
@@ -394,7 +407,7 @@ class TranslationManager:
             "tab_general": "General", "tab_personalization": "Personalization",
             "tab_data_security": "Data & Security", "tab_optimization": "Optimization & Performance",
             "general_language": "Language", "general_version": "Version", "general_theme": "Theme",
-            "general_text_size": "Text size", "general_keyboard_sounds": "Keyboard sound",
+            "general_text_size": "Text size", "general_app_scale": "Software size", "general_app_scale_hint": "Enlarge or reduce the whole interface.", "tab_appearance": "Appearance", "appearance_color": "Interface color", "appearance_wallpaper": "Wallpaper", "appearance_wallpaper_normal": "Wallpaper for normal mode", "appearance_wallpaper_coworking": "Wallpaper for Goat Code", "appearance_change": "Change", "appearance_remove": "Remove", "appearance_modal_title": "Wallpaper", "appearance_import_image": "Import an image", "appearance_import_video": "Import a video", "appearance_video_volume": "Video volume", "appearance_video_help": "Looping video for the background.", "appearance_video_import_warning": "The longer and higher-quality the video is, the longer the import will take and it may cause the software to lag.", "appearance_preview": "Preview", "color_blue": "Blue", "color_red": "Red", "color_green": "Green", "color_yellow": "Yellow", "color_pink": "Pink", "color_purple": "Purple", "general_keyboard_sounds": "Keyboard sound",
             "general_keyboard_sound_style": "Keyboard sound style", "general_click_sounds": "Button sounds",
             "general_click_sound_style": "Button sound style", "general_ai_reply_sounds": "AI reply sound",
             "language_fr": "French", "language_en": "English", "language_es": "Spanish",
@@ -409,10 +422,22 @@ class TranslationManager:
             "personalization_placeholder": "e.g., preferences, constraints, useful context…",
             "placeholder_firstname": "Enter your first name", "placeholder_lastname": "Enter your last name",
             "placeholder_tone": "e.g., professional, casual, direct…",
+            "perso_how_address": "How the AI addresses you",
+            "perso_how_address_help": "First name, nickname, or title the AI will use.",
+            "perso_ai_tone": "AI tone",
+            "perso_ai_tone_help": "Describe how you want the AI to talk to you.",
             "data_security_memory": "Manage memory", "data_security_history": "Manage chat history",
             "optimization_effects": "Optimize visual effects", "optimization_responses": "Optimize responses",
             "optimization_ram": "Free AI working memory",
             "optimization_ram_hint": "Clears the current conversation memory — the AI will no longer remember previous exchanges in this session.",
+            "optimization_calc_target": "Compute targeting",
+            "optimization_calc_target_hint": "Choose the preferred compute path for heavy workloads.",
+            "calc_target_cpu": "CPU (Ram)",
+            "calc_target_gpu": "GPU (Vram)",
+            "calc_target_default": "Default (Use both spaces)",
+            "calc_target_notify_cpu": "CPU mode enabled — The AI will focus solely on CPU (RAM). This may limit performance and disable some models like Maestro.",
+            "calc_target_notify_gpu": "GPU mode enabled — The AI will focus solely on GPU (VRAM). This may limit performance and disable some models like Maestro.",
+            "calc_target_notify_default": "Default mode enabled — Full PC power will be used without limiting any model.",
             "state_on": "On", "state_off": "Off",
             "mode_active_prefix": "Active mode:", "no_mode": "No mode",
             "close": "Close", "settings_hint": "Tip: you can move this window with your mouse.",
@@ -519,6 +544,7 @@ class TranslationManager:
             "profile_firstname": "First name",
             "profile_lastname": "Last name",
             "profile_bio": "Bio",
+            "profile_bio_help": "Your bio helps the AI understand you better.",
             "profile_auto_save": "Saved locally automatically.",
             "profile_no_name": "Unnamed profile",
             "profile_no_description": "Add a description to present this profile.",
@@ -541,7 +567,7 @@ class TranslationManager:
             "tab_general": "General", "tab_personalization": "Personalización",
             "tab_data_security": "Datos y seguridad", "tab_optimization": "Optimización y rendimiento",
             "general_language": "Idioma", "general_version": "Versión", "general_theme": "Tema",
-            "general_text_size": "Tamaño del texto", "general_keyboard_sounds": "Sonido del teclado",
+            "general_text_size": "Tamaño del texto", "general_app_scale": "Tamaño del software", "general_app_scale_hint": "Amplía o reduce toda la interfaz.", "tab_appearance": "Apariencia", "appearance_color": "Color de la interfaz", "appearance_wallpaper": "Fondo de pantalla", "appearance_wallpaper_normal": "Fondo del modo normal", "appearance_wallpaper_coworking": "Fondo de Goat Code", "appearance_change": "Cambiar", "appearance_remove": "Quitar", "appearance_modal_title": "Fondo de pantalla", "appearance_import_image": "Importar una imagen", "appearance_import_video": "Importar un vídeo", "appearance_video_volume": "Volumen del vídeo", "appearance_video_help": "Vídeo en bucle para el fondo.", "appearance_video_import_warning": "Cuanto más largo y de mayor calidad sea el vídeo, más tardará la importación y podría hacer que el software vaya lento.", "appearance_preview": "Vista previa", "color_blue": "Azul", "color_red": "Rojo", "color_green": "Verde", "color_yellow": "Amarillo", "color_pink": "Rosa", "color_purple": "Violeta", "general_keyboard_sounds": "Sonido del teclado",
             "general_keyboard_sound_style": "Estilo de sonido del teclado", "general_click_sounds": "Sonido de botones",
             "general_click_sound_style": "Estilo de sonido de botones", "general_ai_reply_sounds": "Sonido de respuesta IA",
             "language_fr": "Francés", "language_en": "Inglés", "language_es": "Español",
@@ -556,10 +582,22 @@ class TranslationManager:
             "personalization_placeholder": "p. ej., preferencias, restricciones, contexto útil…",
             "placeholder_firstname": "Ingrese su nombre", "placeholder_lastname": "Ingrese su apellido",
             "placeholder_tone": "p. ej., profesional, relajado, directo…",
+            "perso_how_address": "Cómo se dirige la IA a usted",
+            "perso_how_address_help": "Nombre, apodo o título que usará la IA.",
+            "perso_ai_tone": "Tono de la IA",
+            "perso_ai_tone_help": "Describa cómo quiere que la IA le hable.",
             "data_security_memory": "Gestionar memoria", "data_security_history": "Gestionar historial de chats",
             "optimization_effects": "Optimizar efectos visuales", "optimization_responses": "Optimizar respuestas",
             "optimization_ram": "Liberar memoria de trabajo de la IA",
             "optimization_ram_hint": "Borra la memoria de la conversación actual — la IA ya no recordará los intercambios anteriores de esta sesión.",
+            "optimization_calc_target": "Objetivo de cálculo",
+            "optimization_calc_target_hint": "Elija la ruta de cálculo preferida para las cargas pesadas.",
+            "calc_target_cpu": "CPU (Ram)",
+            "calc_target_gpu": "GPU (Vram)",
+            "calc_target_default": "Por defecto (Usar ambos espacios)",
+            "calc_target_notify_cpu": "Modo CPU activado — La IA se concentrará únicamente en la CPU (RAM). Esto puede limitar el rendimiento y desactivar algunos modelos como Maestro.",
+            "calc_target_notify_gpu": "Modo GPU activado — La IA se concentrará únicamente en la GPU (VRAM). Esto puede limitar el rendimiento y desactivar algunos modelos como Maestro.",
+            "calc_target_notify_default": "Modo por defecto activado — Se usará toda la potencia del PC sin limitar ningún modelo.",
             "state_on": "Activado", "state_off": "Desactivado",
             "mode_active_prefix": "Modo activo:", "no_mode": "Sin modo",
             "close": "Cerrar", "settings_hint": "Consejo: puede mover esta ventana con el ratón.",
@@ -666,6 +704,7 @@ class TranslationManager:
             "profile_firstname": "Nombre",
             "profile_lastname": "Apellido",
             "profile_bio": "Bio",
+            "profile_bio_help": "Tu bio ayuda a la IA a entenderte mejor.",
             "profile_auto_save": "Guardado local automático.",
             "profile_no_name": "Perfil sin nombre",
             "profile_no_description": "Agregue una descripción para presentar este perfil.",
@@ -886,6 +925,38 @@ class LogoLoader:
             "goatistique_dark":  cls._load_file_as_data_uri(logo_dir / "logo goatistique fond noire.png"),
         }
 
+    @classmethod
+    def get_profile_presets(cls) -> Dict[str, list]:
+        """
+        Charge les images de profil et de bannière depuis les dossiers
+        PhotoProfile/ et Bannière/ et les retourne comme des listes de
+        dicts {id, label, src} prêtes à être injectées en JSON dans le JS.
+        """
+        base = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
+        avatar_dir = base / "PhotoProfile"
+        banner_dir = base / "Bannière"
+        avatars = []
+        banners = []
+        # Chargement des photos de profil
+        if avatar_dir.is_dir():
+            for img_path in sorted(avatar_dir.iterdir()):
+                if img_path.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp'):
+                    data_uri = cls._load_file_as_data_uri(img_path)
+                    if data_uri:
+                        label = img_path.stem  # Nom sans extension
+                        safe_id = re.sub(r'[^a-z0-9]+', '-', label.lower()).strip('-')
+                        avatars.append({"id": safe_id, "label": label, "src": data_uri})
+        # Chargement des bannières
+        if banner_dir.is_dir():
+            for img_path in sorted(banner_dir.iterdir()):
+                if img_path.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp'):
+                    data_uri = cls._load_file_as_data_uri(img_path)
+                    if data_uri:
+                        label = img_path.stem
+                        safe_id = re.sub(r'[^a-z0-9]+', '-', label.lower()).strip('-')
+                        banners.append({"id": safe_id, "label": label, "src": data_uri})
+        return {"avatars": avatars, "banners": banners}
+
     @staticmethod
     def _fallback_svg() -> str:
         """SVG minimaliste généré si aucun fichier logo n'est trouvé."""
@@ -943,18 +1014,25 @@ def _load_html_template() -> str:
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/open-dyslexic" rel="stylesheet">
 <style>
-:root{--text-scale:1;--bg:#fff;--text-primary:#1f2937;--text-secondary:#6b7280;--text-muted:#b8b8b8;--line:rgba(148,163,184,.22);--bubble-user:#f3f4f6;--bubble-assistant:#fafafa;--input-bg:#f3f4f6;--input-placeholder:#9d9d9d;--surface-soft:#f3f4f6;--surface-softer:#fcfcfd;--surface-border:#cfd6df;--surface-border-soft:#eef2f7;--shadow-soft:0 18px 46px rgba(15,23,42,.10);--send-bg:#1f2937;--send-color:#fff;--send-shadow:0 0 0 2px #374151,4px 4px 0 0 rgba(15,23,42,.7),0 8px 18px rgba(0,0,0,.12);--settings-backdrop:rgba(15,23,42,.34);--settings-panel:rgba(255,255,255,.98);--settings-panel-border:rgba(148,163,184,.16);--settings-sidebar:rgba(243,244,246,.88);--settings-tab-hover:rgba(59,130,246,.08);--settings-tab-active:rgba(59,130,246,.14);--settings-row-border:rgba(148,163,184,.18);--menu-bg:rgba(41,41,41,.98);--menu-border:rgba(255,255,255,.08);--menu-text:#f5f5f5;--menu-hover:rgba(255,255,255,.08);--menu-selected:rgba(121,166,255,.18);--status-color:#b8b8b8;--action-bg:rgba(255,255,255,.65);--action-border:rgba(148,163,184,.18);--action-text:#4b5563;--tooltip-bg:rgba(17,24,39,.95);--tooltip-text:#f8fafc;--tooltip-border:rgba(255,255,255,.08)}
-body[data-theme="dark"]{--bg:#161616;--text-primary:#f5f5f5;--text-secondary:#c3c7ce;--text-muted:#9ca3af;--line:rgba(255,255,255,.10);--bubble-user:#262626;--bubble-assistant:#202020;--input-bg:#252525;--input-placeholder:#8a8f98;--surface-soft:#2a2a2a;--surface-softer:#343434;--surface-border:#525867;--surface-border-soft:#2f3440;--shadow-soft:0 20px 48px rgba(0,0,0,.32);--send-bg:#f5f5f5;--send-color:#161616;--send-shadow:0 0 0 2px #d1d5db,4px 4px 0 0 rgba(255,255,255,.3),0 8px 18px rgba(255,255,255,.08);--settings-backdrop:rgba(0,0,0,.52);--settings-panel:rgba(28,28,28,.98);--settings-panel-border:rgba(255,255,255,.06);--settings-sidebar:rgba(38,38,38,.96);--settings-tab-hover:rgba(255,255,255,.06);--settings-tab-active:rgba(121,166,255,.18);--settings-row-border:rgba(255,255,255,.08);--status-color:#9ca3af;--action-bg:rgba(0,0,0,.32);--action-border:rgba(255,255,255,.08);--action-text:rgba(255,255,255,.84)}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Regular"),local("OpenDyslexic Regular"),local("OpenDyslexic"),local("Open Dyslexic"),local("Open-Dyslexic");font-weight:400;font-style:normal;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Italic"),local("OpenDyslexic Italic"),local("Open Dyslexic Italic"),local("OpenDyslexic");font-weight:400;font-style:italic;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Bold"),local("OpenDyslexic Bold"),local("Open Dyslexic Bold"),local("OpenDyslexic");font-weight:700;font-style:normal;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-BoldItalic"),local("OpenDyslexic Bold Italic"),local("Open Dyslexic Bold Italic"),local("OpenDyslexic");font-weight:700;font-style:italic;}
+</style>
+<style>
+:root{--text-scale:1;--ui-scale-factor:1;--accent:#3b82f6;--accent-rgb:59,130,246;--accent-soft:rgba(var(--accent-rgb),.12);--accent-soft-2:rgba(var(--accent-rgb),.08);--accent-border:rgba(var(--accent-rgb),.26);--bg:#fff;--text-primary:#1f2937;--text-secondary:#6b7280;--text-muted:#b8b8b8;--line:rgba(148,163,184,.22);--bubble-user:#f3f4f6;--bubble-assistant:#fafafa;--input-bg:#f3f4f6;--input-placeholder:#9d9d9d;--surface-soft:#f3f4f6;--surface-softer:#fcfcfd;--surface-border:#cfd6df;--surface-border-soft:#eef2f7;--shadow-soft:0 18px 46px rgba(15,23,42,.10);--send-bg:#1f2937;--send-color:#fff;--send-shadow:0 0 0 2px #374151,4px 4px 0 0 rgba(15,23,42,.7),0 8px 18px rgba(0,0,0,.12);--settings-backdrop:rgba(15,23,42,.34);--settings-panel:rgba(255,255,255,.98);--settings-panel-border:rgba(148,163,184,.16);--settings-sidebar:rgba(243,244,246,.88);--settings-tab-hover:rgba(var(--accent-rgb),.08);--settings-tab-active:rgba(var(--accent-rgb),.14);--settings-row-border:rgba(148,163,184,.18);--menu-bg:rgba(41,41,41,.98);--menu-border:rgba(255,255,255,.08);--menu-text:#f5f5f5;--menu-hover:rgba(255,255,255,.08);--menu-selected:rgba(121,166,255,.18);--status-color:#b8b8b8;--action-bg:rgba(255,255,255,.65);--action-border:rgba(148,163,184,.18);--action-text:#4b5563;--tooltip-bg:rgba(17,24,39,.95);--tooltip-text:#f8fafc;--tooltip-border:rgba(255,255,255,.08)}
+body[data-theme="dark"]{--bg:#161616;--text-primary:#f5f5f5;--text-secondary:#c3c7ce;--text-muted:#9ca3af;--line:rgba(255,255,255,.10);--bubble-user:#262626;--bubble-assistant:#202020;--input-bg:#252525;--input-placeholder:#8a8f98;--surface-soft:#2a2a2a;--surface-softer:#343434;--surface-border:#525867;--surface-border-soft:#2f3440;--shadow-soft:0 20px 48px rgba(0,0,0,.32);--send-bg:#f5f5f5;--send-color:#161616;--send-shadow:0 0 0 2px #d1d5db,4px 4px 0 0 rgba(255,255,255,.3),0 8px 18px rgba(255,255,255,.08);--settings-backdrop:rgba(0,0,0,.52);--settings-panel:rgba(28,28,28,.98);--settings-panel-border:rgba(255,255,255,.06);--settings-sidebar:rgba(38,38,38,.96);--settings-tab-hover:rgba(var(--accent-rgb),.08);--settings-tab-active:rgba(var(--accent-rgb),.18);--settings-row-border:rgba(255,255,255,.08);--status-color:#9ca3af;--action-bg:rgba(0,0,0,.32);--action-border:rgba(255,255,255,.08);--action-text:rgba(255,255,255,.84)}
 body[data-textsize="large"]{--text-scale:1.15}
 body[data-effects="off"] *{transition:none!important;animation:none!important}
 body[data-effects="off"] .bubble,body[data-effects="off"] .composer,body[data-effects="off"] .settings-modal,body[data-effects="off"] .settings-ghost-button,body[data-effects="off"] .settings-choice,body[data-effects="off"] .bubble-action{box-shadow:none!important;filter:none!important}
 body[data-effects="off"] .composer,body[data-effects="off"] .settings-backdrop{backdrop-filter:none!important}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"JetBrains Mono","Segoe UI",Arial,sans-serif;font-size:calc(16px * var(--text-scale));background:var(--bg);color:var(--text-primary)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"JetBrains Mono","Segoe UI",Arial,sans-serif;font-size:calc(16px * var(--text-scale));background:transparent;color:var(--text-primary)}
 button,input,textarea,select{font:inherit}
 
 /* ── Goat Coworking visual mode ── */
-body[data-active-tab="coworking"]{background-image:linear-gradient(rgba(59,130,246,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.08) 1px,transparent 1px);background-size:32px 32px;background-position:center center}
-body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gradient(rgba(96,165,250,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(96,165,250,.11) 1px,transparent 1px)}
+body[data-active-tab="coworking"][data-cw-wallpaper="off"] .wallpaper-layer{background-image:linear-gradient(rgba(var(--accent-rgb),.08) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--accent-rgb),.08) 1px,transparent 1px);background-size:32px 32px;background-position:center center}
+body[data-theme="dark"][data-active-tab="coworking"][data-cw-wallpaper="off"] .wallpaper-layer{background-image:linear-gradient(rgba(var(--accent-rgb),.11) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--accent-rgb),.11) 1px,transparent 1px)}
+body[data-active-tab="chat"] .wallpaper-layer,body[data-active-tab="coworking"][data-cw-wallpaper="on"] .wallpaper-layer{background-image:none}
 
 /* ── Top Tab Bar (Chat / Goat Coworking) ── */
 .top-tab-bar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:center;z-index:55;background:var(--bg);border-bottom:1px solid var(--line);padding:0 16px}
@@ -987,17 +1065,17 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .model-dd-action:hover{background:var(--menu-hover)}
 
 /* ── Private chat button ── */
-.private-chat-btn{position:fixed;top:9px;right:16px;z-index:56;height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.8rem;font-weight:600;font-family:"JetBrains Mono","Segoe UI",sans-serif;box-shadow:var(--shadow-soft);transition:transform .14s,background .16s,color .16s}
+.private-chat-btn{position:fixed;top:73px;right:18px;z-index:56;height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.8rem;font-weight:600;font-family:"JetBrains Mono","Segoe UI",sans-serif;box-shadow:var(--shadow-soft);transition:transform .14s,background .16s,color .16s}
 .private-chat-btn:hover{transform:translateY(-1px)}
-.private-chat-btn .pc-tooltip{display:none;position:fixed;top:52px;right:16px;background:var(--tooltip-bg);color:var(--tooltip-text);padding:10px 14px;border-radius:12px;font-size:.8rem;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:100}
+.private-chat-btn .pc-tooltip{display:none;position:fixed;top:116px;right:18px;background:var(--tooltip-bg);color:var(--tooltip-text);padding:10px 14px;border-radius:12px;font-size:.8rem;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:100}
 .private-chat-btn .pc-tooltip .pc-title{font-weight:700;margin-bottom:3px}
 .private-chat-btn .pc-tooltip .pc-desc{opacity:.7;font-size:.75rem}
 .private-chat-btn:hover .pc-tooltip{display:block}
-.private-chat-btn.active{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.3);color:#3b82f6}
+.private-chat-btn.active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
 .top-tab-btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 
-.shell{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:72px 16px 40px}
-.shell.has-messages{justify-content:flex-start;padding-top:82px}
+.shell{min-height:calc(100vh - 52px);width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:96px 16px 96px}
+.shell.has-messages{justify-content:flex-start;padding-top:96px;padding-bottom:48px}
 .brand-stack{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:1;transform:translateY(0) scale(1);max-height:260px;overflow:hidden;transition:opacity .26s,transform .26s,max-height .32s,margin .26s}
 .shell.has-messages .brand-stack{opacity:0;transform:translateY(-14px) scale(.92);max-height:0;margin:0;pointer-events:none}
 .logo-card{width:auto;height:auto;background:none;display:grid;place-items:center;box-shadow:none;border:none;overflow:visible}
@@ -1024,7 +1102,7 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 .bubble-actions{display:inline-flex;gap:10px;padding-left:6px}
 .bubble-action{border:1px solid var(--action-border);background:var(--action-bg);color:var(--action-text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:.75rem;box-shadow:0 10px 24px rgba(15,23,42,.06);transition:transform .14s,box-shadow .14s}
 .bubble-action:hover{transform:translateY(-1px)}
-.composer-wrap{width:min(760px,calc(100vw - 32px));position:relative}
+.composer-wrap{width:min(760px,calc(100vw - 32px));position:relative;margin:0 auto;display:flex;flex-direction:column}
 .composer{width:100%;background:var(--input-bg);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow-soft);padding:16px 18px;display:flex;align-items:flex-end;gap:12px;backdrop-filter:blur(14px)}
 .composer textarea{flex:1;resize:none;border:none;outline:none;background:transparent;color:var(--text-primary);font-size:1rem;line-height:1.5;min-height:28px;max-height:180px;padding:2px 2px 4px 2px;overflow-y:auto}
 .composer textarea::placeholder{color:var(--input-placeholder)}
@@ -1067,21 +1145,18 @@ body[data-theme="dark"][data-active-tab="coworking"]{background-image:linear-gra
 
 /* ── Send button pixel style ── */
 .send-button,.voice-input-button{width:42px;height:42px;border:none;border-radius:0;background:var(--send-bg);color:var(--send-color);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:var(--send-shadow);transition:transform .12s,opacity .12s,filter .12s;font-size:.95rem;font-weight:700;font-family:"JetBrains Mono","Courier New",monospace;clip-path:polygon(18% 0%,82% 0%,82% 9%,91% 9%,91% 18%,100% 18%,100% 82%,91% 82%,91% 91%,82% 91%,82% 100%,18% 100%,18% 91%,9% 91%,9% 82%,0% 82%,0% 18%,9% 18%,9% 9%,18% 9%)}
-.voice-input-button{background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);color:#2563eb;box-shadow:0 0 0 1px rgba(37,99,235,.16),0 10px 22px rgba(37,99,235,.12)}
-.voice-input-button svg{width:18px;height:18px;stroke-width:2.25}
-body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#111c35 0%,#172554 100%);color:#93c5fd;box-shadow:0 0 0 1px rgba(147,197,253,.18),0 12px 26px rgba(0,0,0,.28)}
+.voice-input-button{background:rgba(var(--accent-rgb),.08);color:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.30),3px 3px 0 0 rgba(var(--accent-rgb),.15),0 8px 18px rgba(var(--accent-rgb),.10)}
+.voice-input-button svg{width:18px;height:18px;stroke-width:2.25;display:block}
+body[data-theme="dark"] .voice-input-button{background:rgba(var(--accent-rgb),.18);color:rgba(var(--accent-rgb),1);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.32),3px 3px 0 0 rgba(var(--accent-rgb),.18),0 8px 18px rgba(0,0,0,.28)}
 .send-button:hover,.voice-input-button:hover{transform:translateY(-1px);filter:brightness(1.04)}.send-button:disabled,.voice-input-button:disabled{cursor:default;opacity:.55;transform:none;filter:none}
-.voice-input-button{background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);color:#1d4ed8;box-shadow:0 0 0 2px rgba(29,78,216,.35),3px 3px 0 0 rgba(29,78,216,.18),0 8px 18px rgba(29,78,216,.12)}
-body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1e3a8a 0%,#1d4ed8 100%);color:#eff6ff;box-shadow:0 0 0 2px rgba(147,197,253,.38),3px 3px 0 0 rgba(59,130,246,.22),0 8px 18px rgba(37,99,235,.28)}
-.voice-input-button svg{width:18px;height:18px;display:block}
 
 /* ── Mode + Style rows ── */
 .controls-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .mode-panel,.style-panel{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-.mode-trigger,.style-trigger{min-height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-soft);color:#2563eb;box-shadow:var(--shadow-soft);display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.8125rem;font-weight:600;transition:transform .14s,box-shadow .14s,background .14s}
+.mode-trigger,.style-trigger{min-height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-soft);color:var(--accent);box-shadow:var(--shadow-soft);display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.8125rem;font-weight:600;transition:transform .14s,box-shadow .14s,background .14s}
 .mode-trigger:hover,.style-trigger:hover{transform:translateY(-1px)}
-.mode-trigger[aria-expanded="true"],.style-trigger[aria-expanded="true"]{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.26)}
-.trigger-icon{font-size:1rem;color:#3b82f6}.trigger-chevron{color:var(--text-secondary);font-size:.875rem}
+.mode-trigger[aria-expanded="true"],.style-trigger[aria-expanded="true"]{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.26)}
+.trigger-icon{font-size:1rem;color:var(--accent)}.trigger-chevron{color:var(--text-secondary);font-size:.875rem}
 .dropdown-menu{position:absolute;top:calc(100% + 10px);left:0;min-width:280px;padding:10px;border-radius:20px;background:var(--menu-bg);border:1px solid var(--menu-border);box-shadow:0 28px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:4px;z-index:20;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:opacity .16s,transform .16s}
 .dropdown-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 .dropdown-menu-item{width:100%;border:none;border-radius:14px;background:transparent;color:var(--menu-text);display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;text-align:left;transition:background .14s,transform .12s}
@@ -1099,22 +1174,22 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .settings-button-label,.newchat-button-label{padding:0 12px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-secondary);display:inline-flex;align-items:center;font-size:.8125rem;box-shadow:var(--shadow-soft);opacity:0;transform:translateX(-4px);pointer-events:none;transition:opacity .14s,transform .14s}
 .settings-anchor:hover .settings-button-label,.newchat-anchor:hover .newchat-button-label{opacity:1;transform:translateX(0)}
 .settings-backdrop{position:fixed;inset:0;background:var(--settings-backdrop);backdrop-filter:blur(6px);z-index:60;opacity:0;transition:opacity .18s}.settings-backdrop.open{opacity:1}
-.settings-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1080px,calc(100vw - 32px));min-height:560px;max-height:calc(100vh - 36px);border-radius:26px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.32);z-index:70;display:grid;grid-template-columns:250px 1fr;opacity:0;transition:opacity .18s,transform .18s}
+.settings-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1080px,calc(100vw - 32px));height:min(760px,calc(100vh - 36px));min-height:560px;max-height:calc(100vh - 36px);border-radius:26px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.32);z-index:70;display:grid;grid-template-columns:250px 1fr;opacity:0;transition:opacity .18s,transform .18s}
 .settings-modal.open{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.settings-sidebar{background:var(--settings-sidebar);border-right:1px solid var(--settings-panel-border);padding:18px;display:flex;flex-direction:column;gap:8px;overflow:hidden;position:relative;padding-bottom:104px}
+.settings-sidebar{background:var(--settings-sidebar);border-right:1px solid var(--settings-panel-border);border-radius:26px 0 0 26px;padding:18px;display:flex;flex-direction:column;gap:8px;overflow:hidden;position:relative}
 .settings-close-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.settings-close-row strong{color:var(--text-primary);font-size:.9375rem}
 .settings-close{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.25rem}
 .settings-tab{width:100%;min-height:46px;border:none;border-radius:14px;background:transparent;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:12px;padding:0 14px;text-align:left;transition:background .14s}
-.settings-tab:hover{background:var(--settings-tab-hover)}.settings-tab.active{background:var(--settings-tab-active);color:#3b82f6}
+.settings-tab:hover{background:var(--settings-tab-hover)}.settings-tab.active{background:var(--settings-tab-active);color:var(--accent)}
 .settings-tab-icon{width:18px;text-align:center;opacity:.9;flex:0 0 18px}
-.settings-main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.settings-main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;max-height:100%}
 .settings-header{padding:20px 24px 12px;border-bottom:1px solid var(--settings-row-border);cursor:grab;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .settings-header:active{cursor:grabbing}
 .settings-header h2{margin:0;font-size:1.5rem;font-weight:600;color:var(--text-primary)}
 .settings-header p{margin:6px 0 0;font-size:.8125rem;color:var(--text-secondary)}
 .settings-hint{font-size:.75rem;color:var(--text-secondary);text-align:right;max-width:260px}
-.settings-content{padding:12px 24px 24px;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;scroll-behavior:smooth;overscroll-behavior:contain}
-.settings-section{display:none;flex-direction:column;gap:18px}.settings-section.active{display:flex}
+.settings-content{padding:12px 24px 24px;overflow-y:scroll;overflow-x:hidden;flex:1;min-height:0;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}
+.settings-section{display:none;flex-direction:column;gap:18px;min-height:0}.settings-section.active{display:flex;min-height:100%}
 .settings-block{border-bottom:1px solid var(--settings-row-border);padding-bottom:18px}.settings-block:last-child{border-bottom:none;padding-bottom:0}
 .settings-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0}
 .settings-row-stack{display:flex;flex-direction:column;gap:6px}
@@ -1124,16 +1199,16 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .settings-ghost-button{min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-user);color:var(--text-primary);cursor:pointer;box-shadow:var(--shadow-soft)}
 .settings-choice-group{display:inline-flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
 .settings-choice{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-primary);cursor:pointer}
-.settings-choice.active{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.26);color:#3b82f6}
+.settings-choice.active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
 .settings-input,.settings-textarea{width:min(420px,100%);border-radius:16px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-primary);padding:12px 14px;box-shadow:var(--shadow-soft);outline:none}
 .settings-textarea{min-height:110px;resize:vertical}
 .settings-state{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:.75rem;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-secondary);min-width:92px;text-align:center}
 
 /* ── Profile tab ── */
-.profile-shell{display:flex;justify-content:center;padding:4px 0 16px}
+.profile-shell{display:flex;justify-content:center;padding:4px 0 16px;min-height:0}
 .profile-stack{width:min(760px,100%);display:flex;flex-direction:column;gap:18px}
 .profile-card{border:1px solid var(--settings-row-border);border-radius:24px;overflow:hidden;background:var(--bubble-assistant);box-shadow:var(--shadow-soft)}
-.profile-banner{height:180px;background:linear-gradient(135deg,#1f2937 0%,#3b82f6 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
+.profile-banner{height:180px;background:linear-gradient(135deg,#1f2937 0%,var(--accent) 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
 .profile-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.08),rgba(15,23,42,.34))}
 .profile-card-body{padding:0 26px 26px;display:flex;flex-direction:column;gap:18px}
 .profile-avatar-wrap{margin-top:-54px;position:relative;z-index:1}
@@ -1156,7 +1231,7 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .profile-share-actions{display:flex;flex-wrap:wrap;gap:12px}
 .profile-share-actions .settings-ghost-button{border-radius:14px}
 .profile-share-actions .settings-ghost-button.primary{background:var(--send-bg);color:var(--send-color)}
-.profile-editor{border:1px solid var(--settings-row-border);border-radius:24px;padding:18px;background:var(--surface-softer);display:flex;flex-direction:column;gap:16px}
+.profile-editor{border:1px solid var(--settings-row-border);border-radius:24px;padding:18px;background:var(--surface-softer);display:flex;flex-direction:column;gap:16px;max-height:min(560px,calc(100vh - 280px));overflow-y:scroll;scrollbar-gutter:stable}
 .profile-editor-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .profile-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .profile-editor-grid .profile-span-2{grid-column:1 / -1}
@@ -1170,12 +1245,16 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .profile-helper{font-size:.8rem;color:var(--text-secondary)}
 .profile-hidden-input{display:none}
 
-.settings-tab-profile-footer{min-height:66px;padding:10px 12px;border:1px solid var(--settings-row-border);background:color-mix(in srgb,var(--surface-soft) 88%,transparent);display:grid;grid-template-columns:42px minmax(0,1fr);justify-content:flex-start;align-items:center;gap:12px;position:absolute;left:18px;right:18px;bottom:18px;z-index:4;backdrop-filter:blur(8px)}
+.settings-tab-profile-footer{min-height:46px;padding:0 14px;border:none;border-radius:14px;background:transparent;display:flex;justify-content:flex-start;align-items:center;gap:12px;position:static;left:auto;right:auto;bottom:auto;z-index:auto;backdrop-filter:none;margin-top:auto}
 .settings-tab-profile-footer.active{background:var(--settings-tab-active)}
 .settings-profile-tab-avatar{width:42px;height:42px;border-radius:14px;object-fit:cover;object-position:center center;border:1px solid var(--line);background:var(--surface-soft);flex:0 0 42px}
 .settings-profile-tab-copy{display:flex;flex-direction:column;min-width:0}
 .settings-profile-tab-label{font-size:.92rem;font-weight:600;color:inherit}
-.settings-profile-tab-name{font-size:.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.settings-profile-tab-name{font-size:.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.settings-content::-webkit-scrollbar,.profile-editor::-webkit-scrollbar{width:12px}.settings-content::-webkit-scrollbar-thumb,.profile-editor::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--text-secondary) 34%,transparent);border-radius:999px;border:3px solid transparent;background-clip:padding-box}.settings-content::-webkit-scrollbar-track,.profile-editor::-webkit-scrollbar-track{background:transparent}
+.brand-actions{display:none}.brand-add-button{width:auto;height:44px;padding:0 18px;gap:10px;border-radius:14px;clip-path:none;font-size:.9rem;font-weight:700}.brand-add-button .brand-add-icon{font-size:1rem;line-height:1}.brand-add-button .brand-add-label{line-height:1}.brand-plus-menu{top:calc(100% + 10px);bottom:auto;left:50%;transform:translateX(-50%)}.brand-plus-menu.open{transform:translateX(-50%)}
+.settings-stepper{display:inline-flex;align-items:center;gap:10px;justify-content:flex-end}
+.settings-stepper-value{min-width:82px;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-primary);display:inline-flex;align-items:center;justify-content:center;font-weight:600}
 .profile-inline-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--settings-row-border);border-radius:18px;background:var(--bubble-assistant)}
 .profile-inline-toggle-text{display:flex;flex-direction:column;gap:4px}
 .profile-inline-toggle-text strong{font-size:.95rem;color:var(--text-primary)}
@@ -1184,7 +1263,7 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .profile-switch input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .profile-switch-track{width:54px;height:30px;border-radius:999px;background:var(--surface-soft);border:1px solid var(--line);transition:background .14s,border-color .14s;display:block}
 .profile-switch-track::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.22);transition:transform .14s}
-.profile-switch input:checked + .profile-switch-track{background:#2563eb;border-color:#2563eb}
+.profile-switch input:checked + .profile-switch-track{background:var(--accent);border-color:var(--accent)}
 .profile-switch input:checked + .profile-switch-track::after{transform:translateX(24px)}
 .profile-security-note{font-size:.78rem;color:var(--text-secondary)}
 .profile-avatar.is-logo,.settings-profile-tab-avatar.is-logo,.message-user-avatar img.is-logo,#profile-avatar-hover-image.is-logo,.profile-upload-preview img.is-logo{object-fit:contain;padding:6px;background:var(--surface-softer);box-sizing:border-box}
@@ -1210,7 +1289,7 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 @media(max-width:760px){.profile-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-picker-section-title{font-size:1.65rem}}
 .profile-avatar-hover-card{position:fixed;z-index:125;display:flex;flex-direction:column;gap:0;border-radius:22px;overflow:hidden;background:var(--settings-panel);border:1px solid var(--settings-row-border);box-shadow:0 24px 64px rgba(0,0,0,.28);width:min(288px,calc(100vw - 24px));opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);transition:opacity .16s,transform .16s}
 .profile-avatar-hover-card.show{opacity:1;transform:translateY(0) scale(1)}
-.profile-avatar-hover-banner{height:86px;background:linear-gradient(135deg,#1f2937 0%,#3b82f6 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
+.profile-avatar-hover-banner{height:86px;background:linear-gradient(135deg,#1f2937 0%,var(--accent) 55%,#8b5cf6 100%);background-size:cover;background-position:center;position:relative}
 .profile-avatar-hover-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.06),rgba(15,23,42,.28))}
 .profile-avatar-hover-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
 .profile-avatar-hover-head{display:flex;align-items:flex-end;gap:10px;margin-top:-28px;position:relative;z-index:1}
@@ -1237,8 +1316,11 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 .tooltip{position:fixed;z-index:999;max-width:360px;padding:10px 12px;border-radius:12px;background:var(--tooltip-bg);color:var(--tooltip-text);border:1px solid var(--tooltip-border);box-shadow:0 24px 60px rgba(0,0,0,.28);font-size:.8125rem;line-height:1.35;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
 .tooltip.show{opacity:1;transform:translateY(0)}
 [hidden]{display:none!important}
-.thanks-text{text-align:center;font-size:1rem;font-weight:600;padding:18px 0 6px;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899,#3b82f6);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
-@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.calc-target-panel{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+#calc-target-menu{position:fixed;top:auto;left:auto;z-index:90}
+.calc-target-notification{margin-top:-8px;padding:14px 16px;border-radius:14px;border:1px solid rgba(var(--accent-rgb),.22);background:rgba(var(--accent-rgb),.06);color:var(--text-primary);font-size:.86rem;line-height:1.5;animation:fadeSlideIn .3s ease}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.thanks-text{text-align:center;font-size:1rem;font-weight:600;padding:18px 0 6px;color:var(--text-secondary)}
 @media(max-width:900px){.settings-modal{width:min(1080px,calc(100vw - 18px));grid-template-columns:1fr}.settings-sidebar{border-right:none;border-bottom:1px solid var(--settings-panel-border)}.settings-header{cursor:default}.settings-hint{display:none}}
 @media(max-width:640px){.composer{padding:14px;border-radius:22px}.bubble{max-width:92%}.controls-row{flex-wrap:wrap}.mode-announcement{padding-left:0}.dropdown-menu{min-width:min(280px,calc(100vw - 32px))}.settings-anchor{left:12px;bottom:12px}.newchat-anchor{left:12px;top:58px}.settings-modal{min-height:auto;max-height:calc(100vh - 24px)}.settings-header h2{font-size:1.25rem}.settings-row{flex-direction:column;align-items:flex-start}.settings-choice-group{justify-content:flex-start}.profile-metrics,.profile-editor-grid,.profile-upload-grid{grid-template-columns:1fr}.profile-card-body{padding:0 18px 18px}.voice-input-button{order:1}}
 
@@ -1283,12 +1365,50 @@ body[data-theme="dark"] .voice-input-button{background:linear-gradient(180deg,#1
 
 /* ── Font classes for AI responses ── */
 body[data-aifont="arial"] .message-row.assistant .bubble{font-family:Arial,Helvetica,sans-serif}
-body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"Open Dyslexic","OpenDyslexic",sans-serif}
+body[data-aifont="opendyslexic"] .message-row.assistant .bubble{font-family:"OpenDyslexicCustom","OpenDyslexic-Regular","OpenDyslexic","Open Dyslexic",sans-serif;font-style:normal;font-weight:400;letter-spacing:.01em}
 body[data-userfont="arial"] .message-row.user .bubble{font-family:Arial,Helvetica,sans-serif}
-body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open Dyslexic","OpenDyslexic",sans-serif}
+body[data-userfont="opendyslexic"] .message-row.user .bubble,body[data-userfont="opendyslexic"] textarea{font-family:"OpenDyslexicCustom","OpenDyslexic-Regular","OpenDyslexic","Open Dyslexic",sans-serif;font-style:normal;font-weight:400;letter-spacing:.01em}
+
+.wallpaper-layer{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--bg)}
+.wallpaper-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.wallpaper-media.show{display:block}
+.wallpaper-tint{position:absolute;inset:0;background:transparent;pointer-events:none}
+body[data-wallpaper-active="on"] .wallpaper-tint{background:rgba(255,255,255,.68)}
+body[data-theme="dark"][data-wallpaper-active="on"] .wallpaper-tint{background:rgba(22,22,22,.58)}
+body[data-accent="blue"]{--accent:#3b82f6;--accent-rgb:59,130,246}
+body[data-accent="red"]{--accent:#ef4444;--accent-rgb:239,68,68}
+body[data-accent="green"]{--accent:#22c55e;--accent-rgb:34,197,94}
+body[data-accent="yellow"]{--accent:#eab308;--accent-rgb:234,179,8}
+body[data-accent="pink"]{--accent:#ec4899;--accent-rgb:236,72,153}
+body[data-accent="purple"]{--accent:#8b5cf6;--accent-rgb:139,92,246}
+.settings-tab-active-fallback,.settings-tab:hover{background:rgba(var(--accent-rgb),.08)}
+.settings-tab.active{background:rgba(var(--accent-rgb),.14)}
+.profile-social-link:hover{background:rgba(var(--accent-rgb),.08)}
+.appearance-swatch-group{display:inline-flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.appearance-swatch{width:42px;height:42px;border-radius:999px;border:2px solid transparent;cursor:pointer;position:relative;box-shadow:var(--shadow-soft)}
+.appearance-swatch.active{border-color:var(--text-primary);transform:scale(1.04)}
+.appearance-swatch::after{content:"";position:absolute;inset:7px;border-radius:999px;background:var(--swatch,#3b82f6)}
+.wallpaper-preview-card{border:1px solid var(--settings-row-border);border-radius:18px;background:var(--bubble-assistant);padding:16px;display:flex;flex-direction:column;gap:14px}
+.wallpaper-preview-box{height:124px;border-radius:16px;border:1px solid var(--line);background:var(--surface-soft);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.82rem}
+.wallpaper-preview-box img,.wallpaper-preview-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wallpaper-preview-box .label{position:relative;z-index:1;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.7);color:#111827}
+body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.72);color:#f8fafc}
+.wallpaper-actions{display:flex;flex-wrap:wrap;gap:10px}
+.wallpaper-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:97;display:none;align-items:center;justify-content:center;padding:20px}
+.wallpaper-backdrop.open{display:flex}
+.wallpaper-modal{width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;border-radius:26px;background:var(--settings-panel);border:1px solid var(--settings-panel-border);box-shadow:0 32px 80px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.wallpaper-modal-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--settings-row-border)}
+.wallpaper-modal-header strong{font-size:1.15rem;color:var(--text-primary)}
+.wallpaper-modal-header button{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer;font-size:1.2rem}
+.wallpaper-modal-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+.wallpaper-modal-target{font-size:.88rem;color:var(--text-secondary)}
+.wallpaper-url-row{display:flex;gap:10px;flex-wrap:wrap}
+.wallpaper-url-row .settings-input{flex:1;min-width:260px;width:auto}
+
 </style>
 </head>
-<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat">
+<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off">
+<div class="wallpaper-layer" id="wallpaper-layer" aria-hidden="true"><img class="wallpaper-media" id="wallpaper-image" alt=""><video class="wallpaper-media" id="wallpaper-video" autoplay muted loop playsinline></video><div class="wallpaper-tint"></div></div>
 
 <!-- Top Tab Bar -->
 <div class="top-tab-bar">
@@ -1309,25 +1429,18 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
 <button type="button" class="private-chat-btn" id="private-chat-btn">🔒<span id="pc-label">Chat Privé</span><div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
 
 <main class="shell" id="shell">
-  <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div></section>
+  <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div><div class="brand-actions"><button type="button" class="composer-plus brand-add-button" id="composer-plus" data-tooltip-key="tooltip_plus_btn"><span class="brand-add-icon">＋</span><span class="brand-add-label" data-i18n="sheet_add">Ajouter</span></button><div class="plus-menu brand-plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div></div></section>
   <section class="messages" id="messages" aria-live="polite"></section>
   <section class="composer-wrap">
-    <!-- Sheets system désactivé
     <div class="sheets-row" id="sheets-row"></div>
-    -->
     <form class="composer" id="chat-form">
-      <!-- Plus button désactivé
-      <button type="button" class="composer-plus" id="composer-plus" data-tooltip-key="tooltip_plus_btn">+</button>
-      -->
       <textarea id="message-input" rows="1"></textarea>
       <button type="button" class="voice-input-button" id="voice-input-btn" aria-label="Voice input">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V6a2 2 0 0 1 2-2Z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><path d="M12 16v4"/><path d="M9 20h6"/></svg>
       </button>
       <button type="submit" class="send-button" id="send-button" data-tooltip-key="tooltip_send">↑</button>
       <button type="button" class="stop-button" id="stop-button" hidden>■</button>
-      <!-- Plus menu désactivé
-      <div class="plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div>
-      -->
+
     </form>
     <div style="display:flex;justify-content:flex-end;width:100%;padding:0 4px;position:relative">
       <div class="char-counter" id="char-counter"><span id="char-counter-text">0 / 10 000</span><div class="char-counter-tip" id="char-counter-tip"></div></div>
@@ -1354,6 +1467,7 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
   <aside class="settings-sidebar">
     <div class="settings-close-row"><strong data-i18n="settings_label">Paramètres</strong><button type="button" class="settings-close" id="settings-close">×</button></div>
     <button type="button" class="settings-tab active" data-settings-tab="general"><span class="settings-tab-icon">⚙</span><span data-i18n="tab_general">Générale</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="appearance"><span class="settings-tab-icon">🎨</span><span data-i18n="tab_appearance">Apparence</span></button>
     <button type="button" class="settings-tab" data-settings-tab="personalization"><span class="settings-tab-icon">✦</span><span data-i18n="tab_personalization">Personnalisation</span></button>
     <button type="button" class="settings-tab" data-settings-tab="data_security"><span class="settings-tab-icon">☑</span><span data-i18n="tab_data_security">Données</span></button>
     <button type="button" class="settings-tab" data-settings-tab="optimization"><span class="settings-tab-icon">⚡</span><span data-i18n="tab_optimization">Optimisation</span></button>
@@ -1375,6 +1489,7 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_language">Langue</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-language-value="fr" data-i18n="language_fr">Français</button><button type="button" class="settings-choice" data-language-value="en" data-i18n="language_en">Anglais</button><button type="button" class="settings-choice" data-language-value="es" data-i18n="language_es">Espagnol</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_theme">Thème</div><div class="settings-row-subtitle" data-i18n="theme_description"></div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-theme-value="light" data-i18n="theme_light">Claire</button><button type="button" class="settings-choice" data-theme-value="dark" data-i18n="theme_dark">Sombre</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_text_size">Taille</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-textsize-value="default" data-i18n="text_size_default">Par défaut</button><button type="button" class="settings-choice" data-textsize-value="large" data-i18n="text_size_large">Grand</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_app_scale">Taille du logiciel</div><div class="settings-row-subtitle" data-i18n="general_app_scale_hint"></div></div><div class="settings-stepper"><button type="button" class="settings-ghost-button" id="scale-down-button">−</button><span class="settings-stepper-value" id="ui-scale-value">100%</span><button type="button" class="settings-ghost-button" id="scale-up-button">+</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_keyboard_sounds">Son clavier</div></div><div class="settings-choice-group" id="keyboard-sound-toggle"><button type="button" class="settings-choice" data-kb-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-kb-sound="off" data-i18n="sound_off">Désactiver</button></div></div><div class="settings-row" id="keyboard-style-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_keyboard_sound_style">Style</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-kb-style="bulle" data-i18n="sound_style_bulle">Bulle</button><button type="button" class="settings-choice" data-kb-style="aurela" data-i18n="sound_style_aurela">Aurela</button><button type="button" class="settings-choice" data-kb-style="verdrock" data-i18n="sound_style_verdrock">Verdrock</button><button type="button" class="settings-choice" data-kb-style="feryn" data-i18n="sound_style_feryn">Feryn</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sounds">Son boutons</div></div><div class="settings-choice-group" id="click-sound-toggle"><button type="button" class="settings-choice" data-click-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-click-sound="off" data-i18n="sound_off">Désactiver</button></div></div><div class="settings-row" id="click-style-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sound_style">Style</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-click-style="bulle" data-i18n="sound_style_bulle">Bulle</button><button type="button" class="settings-choice" data-click-style="nebrise" data-i18n="sound_style_nebrise">Nebrise</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_ai_reply_sounds">Son IA</div></div><div class="settings-choice-group" id="ai-sound-toggle"><button type="button" class="settings-choice" data-ai-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-ai-sound="off" data-i18n="sound_off">Désactiver</button></div></div></div>
@@ -1382,21 +1497,40 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_user_label">Police utilisateur</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-userfont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-userfont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-userfont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
         <div class="thanks-text" id="thanks-text" data-i18n="thanks_message">Designed and coded in France</div>
       </section>
+
+      <section class="settings-section" data-settings-content="appearance">
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_color">Couleur de l'interface</div></div><div class="appearance-swatch-group"><button type="button" class="appearance-swatch" data-accent-value="blue" style="--swatch:#3b82f6" title="Bleu"></button><button type="button" class="appearance-swatch" data-accent-value="red" style="--swatch:#ef4444" title="Rouge"></button><button type="button" class="appearance-swatch" data-accent-value="green" style="--swatch:#22c55e" title="Vert"></button><button type="button" class="appearance-swatch" data-accent-value="yellow" style="--swatch:#eab308" title="Jaune"></button><button type="button" class="appearance-swatch" data-accent-value="pink" style="--swatch:#ec4899" title="Rose"></button><button type="button" class="appearance-swatch" data-accent-value="purple" style="--swatch:#8b5cf6" title="Violet"></button></div></div></div>
+        <div class="wallpaper-preview-card">
+          <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_wallpaper_normal">Fond d'écran du mode normal</div></div><div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="change-normal-wallpaper" data-i18n="appearance_change">Changer</button><button type="button" class="settings-ghost-button" id="remove-normal-wallpaper" data-i18n="appearance_remove">Retirer</button></div></div>
+          <div class="wallpaper-preview-box" id="normal-wallpaper-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+        </div>
+        <div class="wallpaper-preview-card">
+          <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_wallpaper_coworking">Fond d'écran de Goat Code</div></div><div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="change-coworking-wallpaper" data-i18n="appearance_change">Changer</button><button type="button" class="settings-ghost-button" id="remove-coworking-wallpaper" data-i18n="appearance_remove">Retirer</button></div></div>
+          <div class="wallpaper-preview-box" id="coworking-wallpaper-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+        </div>
+      </section>
       <section class="settings-section" data-settings-content="personalization"><div class="settings-block">
-        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="personalization_name">Prénom</div></div><input class="settings-input" id="user-firstname" data-placeholder-key="placeholder_firstname"></div>
-        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="personalization_surname">Nom</div></div><input class="settings-input" id="user-lastname" data-placeholder-key="placeholder_lastname"></div>
-        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="personalization_tone">Ton</div></div><input class="settings-input" id="user-tone" data-placeholder-key="placeholder_tone"></div>
-        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="personalization_info">Infos</div></div><textarea class="settings-textarea" id="user-info" data-placeholder-key="personalization_placeholder"></textarea></div>
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_how_address">Comment l'IA s'adresse à vous</div><div class="settings-row-subtitle" data-i18n="perso_how_address_help">Prénom, surnom, ou titre que l'IA utilisera.</div></div><input class="settings-input" id="user-tone" data-placeholder-key="placeholder_tone"></div>
+        <div class="settings-row" style="flex-direction:column;align-items:stretch"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_ai_tone">Ton de l'IA</div><div class="settings-row-subtitle" data-i18n="perso_ai_tone_help">Décrivez comment vous voulez que l'IA vous parle.</div></div><textarea class="settings-textarea" id="user-info" data-placeholder-key="personalization_placeholder" style="width:100%;min-height:160px"></textarea></div>
+        <input type="hidden" id="user-firstname"><input type="hidden" id="user-lastname">
       </div></section>
       <section class="settings-section" data-settings-content="data_security"><div class="settings-block">
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="data_security_memory">Mémoire</div></div><button type="button" class="settings-ghost-button" id="manage-memory-button" data-i18n="data_security_memory"></button></div>
+        <!-- Option masquée temporairement : historique des discussions
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="data_security_history">Historique</div></div><button type="button" class="settings-ghost-button" id="manage-history-button" data-i18n="data_security_history"></button></div>
+        -->
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="migrate_data">Migration</div></div><button type="button" class="settings-ghost-button" id="migrate-data-button" data-i18n="migrate_data"></button></div>
       </div></section>
       <section class="settings-section" data-settings-content="optimization">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
+        <!-- Option masquée temporairement : ciblage des calcules
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calcules</div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
+        <div class="calc-target-notification" id="calc-target-notification" hidden></div>
+        -->
+        <!-- Option masquée temporairement : libération de la mémoire vive de l'IA
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
+        -->
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
       </section>
       <!-- Goat Developer -->
@@ -1421,14 +1555,20 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
                 <p class="profile-description" id="profile-description-preview"></p>
                 <div class="profile-metrics">
                   <div class="profile-metric"><span data-i18n="profile_chats_sent">Chats envoyés à l'IA</span><strong id="profile-chat-count">0</strong></div>
+                  <!-- Option masquée temporairement : Goat Score
                   <div class="profile-metric"><span data-i18n="profile_goat_score">Goat Score</span><strong id="profile-goat-score">0</strong></div>
+                  -->
                 </div>
+                <!-- Option masquée temporairement : réseaux sociaux
                 <div>
                   <div class="profile-section-title" data-i18n="profile_social_links">Réseaux sociaux</div>
                   <div class="profile-socials" id="profile-socials-preview"></div>
                 </div>
+                -->
                 <div class="profile-share-actions">
+                  <!-- Option masquée temporairement : partage du profil professionnel
                   <button type="button" class="settings-ghost-button" id="profile-share-pro-btn" data-i18n="profile_share_pro">Envoyer le profil professionnel</button>
+                  -->
                   <button type="button" class="settings-ghost-button primary" id="profile-share-full-btn" data-i18n="profile_share_full">Envoyer le profil complet</button>
                 </div>
               </div>
@@ -1470,12 +1610,14 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
               <div class="profile-editor-grid">
                 <div><div class="settings-row-title" data-i18n="profile_firstname">Prénom</div><input class="settings-input" id="profile-firstname-input" placeholder="Prénom"></div>
                 <div><div class="settings-row-title" data-i18n="profile_lastname">Nom</div><input class="settings-input" id="profile-lastname-input" placeholder="Nom"></div>
-                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bio">Bio</div><textarea class="settings-textarea" id="profile-bio-input" placeholder="Bio"></textarea></div>
+                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bio">Bio</div><div class="settings-row-subtitle" data-i18n="profile_bio_help" style="margin-bottom:6px">Votre bio aide l'IA à mieux vous comprendre.</div><textarea class="settings-textarea" id="profile-bio-input" placeholder="Bio" maxlength="1000"></textarea><div class="char-counter" id="profile-bio-counter"><span id="profile-bio-count">0</span>/1000</div></div>
+                <!-- Option masquée temporairement : réseaux sociaux en édition
                 <div><div class="settings-row-title" data-i18n="profile_instagram">Instagram</div><input class="settings-input" id="profile-instagram-input" placeholder="https://instagram.com/... ou @pseudo"></div>
                 <div><div class="settings-row-title" data-i18n="profile_tiktok">TikTok</div><input class="settings-input" id="profile-tiktok-input" placeholder="https://tiktok.com/... ou @pseudo"></div>
                 <div><div class="settings-row-title" data-i18n="profile_youtube">YouTube</div><input class="settings-input" id="profile-youtube-input" placeholder="https://youtube.com/... ou @chaîne"></div>
                 <div><div class="settings-row-title" data-i18n="profile_github">GitHub</div><input class="settings-input" id="profile-github-input" placeholder="https://github.com/... ou pseudo"></div>
                 <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bluesky">BleuSky</div><input class="settings-input" id="profile-bluesky-input" placeholder="https://bsky.app/... ou handle"></div>
+                -->
               </div>
               <input class="profile-hidden-input" type="file" id="profile-avatar-file" accept="image/*">
               <input class="profile-hidden-input" type="file" id="profile-banner-file" accept="image/*">
@@ -1528,10 +1670,29 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
     </div>
   </div>
 </div>
+
+<div class="wallpaper-backdrop" id="wallpaper-backdrop">
+  <div class="wallpaper-modal" role="dialog" aria-modal="true">
+    <div class="wallpaper-modal-header"><strong id="wallpaper-modal-title">Fond d'écran</strong><button type="button" id="wallpaper-close-btn">×</button></div>
+    <div class="wallpaper-modal-body">
+      <div class="wallpaper-modal-target" id="wallpaper-modal-target"></div>
+      <div class="wallpaper-preview-box" id="wallpaper-modal-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+      <div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="wallpaper-import-image-btn" data-i18n="appearance_import_image">Importer une image</button><button type="button" class="settings-ghost-button" id="wallpaper-import-video-btn" data-i18n="appearance_import_video">Importer une vidéo</button><button type="button" class="settings-ghost-button" id="wallpaper-remove-btn" data-i18n="appearance_remove">Retirer</button></div>
+      <input type="file" id="wallpaper-file-input" class="profile-hidden-input" accept="image/*">
+      <input type="file" id="wallpaper-video-file-input" class="profile-hidden-input" accept="video/*">
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_video_volume">Volume de la vidéo</div><div class="settings-row-subtitle" data-i18n="appearance_video_help">Vidéo en boucle pour l’arrière-plan.</div></div><div class="settings-stepper"><input type="range" id="wallpaper-volume-input" min="0" max="100" step="1" value="35" style="width:180px"><span class="settings-stepper-value" id="wallpaper-volume-value">35%</span></div></div>
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">FPS</div><div class="settings-row-subtitle">Images par seconde de la vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-fps="30">30 fps</button><button type="button" class="settings-choice" data-video-fps="60">60 fps</button></div></div>
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">Qualité</div><div class="settings-row-subtitle">Résolution de rendu vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-quality="1080p">1080p</button><button type="button" class="settings-choice" data-video-quality="4k">4K</button></div></div>
+    </div>
+  </div>
+</div>
+
 <!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
 <div hidden>
-  <button id="composer-plus"></button><div id="plus-menu"></div><button id="plus-add-sheet"></button><div id="sheets-row"></div>
   <button id="toggle-uiopt-button"></button><span id="uiopt-state"></span>
+  <div id="calc-target-panel"></div><button id="calc-target-trigger"></button><span id="calc-target-label"></span><span id="calc-target-icon"></span><div id="calc-target-menu"></div><div id="calc-target-notification"></div>
+  <div id="profile-socials-preview"></div>
+  <input id="profile-instagram-input"><input id="profile-tiktok-input"><input id="profile-youtube-input"><input id="profile-github-input"><input id="profile-bluesky-input">
 </div>
 <script>
 // ─────────────────────────────────────────────────────────────────
@@ -1556,9 +1717,9 @@ body[data-userfont="opendyslexic"] .message-row.user .bubble{font-family:"Open D
 // ─────────────────────────────────────────────────────────────────
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
-const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%;
-const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,aifont:'default',userfont:'default',overclock:'off'};
-const ls=(k,v)=>{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)};
+const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%,localProfilePresets=%%PROFILE_PRESETS_JSON%%;
+const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p'};
+const ls=(k,v)=>{try{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)}catch(err){console.warn('Local storage unavailable for',k,err);return v!==undefined?v:null}};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
 const controlsRow=$('controls-row'),modePanel=$('mode-panel');
 const modeTrigger=$('mode-trigger'),modeMenu=$('mode-menu'),modeLbl=$('selected-mode-label'),modeIcn=$('mode-icon'),modeAnn=$('mode-announcement');
@@ -1579,6 +1740,10 @@ const stopBtn=$('stop-button');
 const voiceInputBtn=$('voice-input-btn');
 const contractionTag=$('contraction-tag'),contractionTip=$('contraction-tip');
 const overclockToggle=$('overclock-toggle'),ocBackdrop=$('overclock-backdrop'),ocWarningText=$('oc-warning-text'),ocConfirmBtn=$('oc-confirm-btn'),ocCancelBtn=$('oc-cancel-btn');
+const uiScaleValue=$('ui-scale-value'),scaleDownButton=$('scale-down-button'),scaleUpButton=$('scale-up-button');
+const wallpaperLayer=$('wallpaper-layer'),wallpaperImage=$('wallpaper-image'),wallpaperVideo=$('wallpaper-video'),normalWallpaperPreview=$('normal-wallpaper-preview'),coworkingWallpaperPreview=$('coworking-wallpaper-preview');
+const wallpaperBackdrop=$('wallpaper-backdrop'),wallpaperModalTitle=$('wallpaper-modal-title'),wallpaperModalTarget=$('wallpaper-modal-target'),wallpaperModalPreview=$('wallpaper-modal-preview'),wallpaperImportImageBtn=$('wallpaper-import-image-btn'),wallpaperImportVideoBtn=$('wallpaper-import-video-btn'),wallpaperRemoveBtn=$('wallpaper-remove-btn'),wallpaperFileInput=$('wallpaper-file-input'),wallpaperVideoFileInput=$('wallpaper-video-file-input'),wallpaperVolumeInput=$('wallpaper-volume-input'),wallpaperVolumeValue=$('wallpaper-volume-value'),wallpaperCloseBtn=$('wallpaper-close-btn');
+const calcTargetTrigger=$('calc-target-trigger'),calcTargetMenu=$('calc-target-menu'),calcTargetLabel=$('calc-target-label'),calcTargetIcon=$('calc-target-icon'),calcTargetNotification=$('calc-target-notification');
 const profileEditToggle=$('profile-edit-toggle'),profileEditor=$('profile-editor'),profileNamePreview=$('profile-name-preview'),profileDescriptionPreview=$('profile-description-preview'),profileChatCount=$('profile-chat-count'),profileGoatScore=$('profile-goat-score'),profileSocialsPreview=$('profile-socials-preview'),profileAvatarPreview=$('profile-avatar-preview'),profileBannerPreview=$('profile-banner-preview');
 const profileAvatarUploadPreview=$('profile-avatar-upload-preview'),profileBannerUploadPreview=$('profile-banner-upload-preview');
 const profileFirstnameInput=$('profile-firstname-input'),profileLastnameInput=$('profile-lastname-input'),profileBioInput=$('profile-bio-input'),profileInstagramInput=$('profile-instagram-input'),profileTikTokInput=$('profile-tiktok-input'),profileYouTubeInput=$('profile-youtube-input'),profileGitHubInput=$('profile-github-input'),profileBlueskyInput=$('profile-bluesky-input');
@@ -1590,10 +1755,11 @@ const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBa
 const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality};
 // ── Variables runtime (non persistées) ───────────────────────────
 let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
 let cropState=null;
+let wallpaperTarget='normal';
 let sheets=[];          // Feuilles d'écriture attachées à la requête courante
 let isGenerating=false; // Vrai pendant qu'une réponse IA est en cours
 let abortController=null; // Contrôleur pour interrompre la génération
@@ -1802,7 +1968,38 @@ function updateThemedLogos(){const isDark=S.theme==='dark';const mainLogo=$('mai
 function applyTheme(v,snd){if(S.privateChat)return;apply('theme',v==='dark'?'dark':'light','theme',snd);document.body.dataset.theme=S.theme;$$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue===S.theme));updateThemedLogos()}
 function applyEffects(v,snd){apply('effects',v==='off'?'off':'on','effects',snd);document.body.dataset.effects=S.effects;updatePerf()}
 function applyTextSize(v,snd){apply('textSize',v==='large'?'large':'default','textsize',snd);document.body.dataset.textsize=S.textSize;$$('[data-textsize-value]').forEach(b=>b.classList.toggle('active',b.dataset.textsizeValue===S.textSize))}
+function normalizeUIScale(v){const n=parseInt(v,10)||100;return Math.max(70,Math.min(130,n))}
+function updateUIScaleUI(){S.uiScale=normalizeUIScale(S.uiScale);if(uiScaleValue)uiScaleValue.textContent=S.uiScale+'%';const scale=S.uiScale/100;document.documentElement.style.setProperty('--ui-scale-factor',String(scale));document.documentElement.style.fontSize='';document.body.style.zoom=String(scale);document.body.style.transformOrigin='top center';window.requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))}
+function applyUIScale(v,snd){S.uiScale=normalizeUIScale(v);ls('ui-scale',String(S.uiScale));if(snd)playClick();updateUIScaleUI();window.dispatchEvent(new Event('resize'))}
+function normalizeAccent(v){return['blue','red','green','yellow','pink','purple'].includes(v)?v:'blue'}
+function applyAccent(v,snd){S.accent=normalizeAccent(v);ls('accent',S.accent);if(snd)playClick();document.body.dataset.accent=S.accent;$$('[data-accent-value]').forEach(b=>b.classList.toggle('active',b.dataset.accentValue===S.accent));updateThemedLogos();updateWallpaperPreviews()}
+function normalizeWallpaperVolume(v){const n=parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):35}
+function wallpaperStateFor(target){return target==='coworking'?{type:S.wallpaperCoworkingType,src:S.wallpaperCoworkingSrc,volume:normalizeWallpaperVolume(S.wallpaperCoworkingVolume)}:{type:S.wallpaperNormalType,src:S.wallpaperNormalSrc,volume:normalizeWallpaperVolume(S.wallpaperNormalVolume)}}
+function setWallpaperVolume(target,volume){const safeVolume=normalizeWallpaperVolume(volume);if(target==='coworking'){S.wallpaperCoworkingVolume=safeVolume;ls('wallpaper-coworking-volume',String(safeVolume))}else{S.wallpaperNormalVolume=safeVolume;ls('wallpaper-normal-volume',String(safeVolume))}if(activeTab===target){wallpaperVideo.volume=safeVolume/100;wallpaperVideo.muted=safeVolume<=0}if(wallpaperVolumeValue)wallpaperVolumeValue.textContent=safeVolume+'%'}
+function setWallpaperState(target,type,src){const safeType=(type==='image'||type==='video')?type:'none';const safeSrc=src||'';if(target==='coworking'){S.wallpaperCoworkingType=safeType;S.wallpaperCoworkingSrc=safeSrc;ls('wallpaper-coworking-type',safeType);ls('wallpaper-coworking-src',safeSrc)}else{S.wallpaperNormalType=safeType;S.wallpaperNormalSrc=safeSrc;ls('wallpaper-normal-type',safeType);ls('wallpaper-normal-src',safeSrc)}applyWallpaper();updateWallpaperPreviews()}
+function tryPlayWallpaperVideo(){if(!wallpaperVideo||!wallpaperVideo.classList.contains('show'))return;const p=wallpaperVideo.play();if(p&&typeof p.catch==='function')p.catch(()=>{})}
+function applyWallpaper(){const activeTarget=activeTab==='coworking'?'coworking':'normal';const data=wallpaperStateFor(activeTarget);const has=data.type!=='none'&&!!data.src;document.body.dataset.wallpaperActive=has?'on':'off';document.body.dataset.cwWallpaper=(S.wallpaperCoworkingType!=='none'&&S.wallpaperCoworkingSrc)?'on':'off';wallpaperImage.classList.remove('show');wallpaperVideo.classList.remove('show');wallpaperImage.removeAttribute('src');wallpaperVideo.pause();wallpaperVideo.removeAttribute('src');wallpaperVideo.load();if(!has)return;if(data.type==='image'){wallpaperImage.src=data.src;wallpaperImage.classList.add('show');return}wallpaperVideo.preload='auto';wallpaperVideo.src=data.src;wallpaperVideo.classList.add('show');wallpaperVideo.loop=true;wallpaperVideo.playsInline=true;wallpaperVideo.volume=data.volume/100;wallpaperVideo.muted=data.volume<=0;const maxW=S.videoQuality==='4k'?3840:1920;wallpaperVideo.style.maxWidth=maxW+'px';wallpaperVideo.style.maxHeight=(maxW===3840?2160:1080)+'px';tryPlayWallpaperVideo()}
+function renderWallpaperPreviewBox(box,data){if(!box)return;const label=box.querySelector('.label');box.innerHTML='';if(data.type==='image'&&data.src){const img=document.createElement('img');img.src=data.src;img.alt='';box.appendChild(img)}else if(data.type==='video'&&data.src){const vid=document.createElement('video');vid.src=data.src;vid.muted=true;vid.loop=true;vid.autoplay=true;vid.playsInline=true;vid.addEventListener('canplay',()=>{vid.play().catch(()=>{})},{once:true});box.appendChild(vid)}if(label)box.appendChild(label);else{const span=document.createElement('span');span.className='label';span.textContent=t('appearance_preview');box.appendChild(span)}}
+function updateWallpaperPreviews(){renderWallpaperPreviewBox(normalWallpaperPreview,wallpaperStateFor('normal'));renderWallpaperPreviewBox(coworkingWallpaperPreview,wallpaperStateFor('coworking'));renderWallpaperPreviewBox(wallpaperModalPreview,wallpaperStateFor(wallpaperTarget))}
+function openWallpaperModal(target){wallpaperTarget=target==='coworking'?'coworking':'normal';wallpaperModalTitle.textContent=t('appearance_modal_title');wallpaperModalTarget.textContent=wallpaperTarget==='coworking'?t('appearance_wallpaper_coworking'):t('appearance_wallpaper_normal');const state=wallpaperStateFor(wallpaperTarget);if(wallpaperVolumeInput)wallpaperVolumeInput.value=String(state.volume);if(wallpaperVolumeValue)wallpaperVolumeValue.textContent=state.volume+'%';updateWallpaperPreviews();wallpaperBackdrop.classList.add('open')}
+function closeWallpaperModal(){wallpaperBackdrop.classList.remove('open');wallpaperFileInput.value='';wallpaperVideoFileInput.value=''}
+async function handleWallpaperImage(file){if(!file||!file.type.startsWith('image/'))return;try{const dataUrl=await readFileAsDataURL(file);const moderation=await apiModerateProfileImage(file.name||'wallpaper',dataUrl);if(!moderation.safe){alert(moderation.reason||"Cette image ne respecte pas nos règles d'utilisation.");return}setWallpaperState(wallpaperTarget,'image',dataUrl);updateWallpaperPreviews()}catch(err){alert("Impossible de vérifier l'image. Veuillez réessayer.")}}
+async function handleWallpaperVideo(file){if(!file||!file.type.startsWith('video/'))return;const reader=new FileReader();reader.onload=()=>{setWallpaperState(wallpaperTarget,'video',String(reader.result||''));setWallpaperVolume(wallpaperTarget,wallpaperVolumeInput?wallpaperVolumeInput.value:35);updateWallpaperPreviews();tryPlayWallpaperVideo()};reader.readAsDataURL(file)}
+
 function applyOptResp(v,snd){apply('optResp',v==='on'?'on':'off','optresp',snd);enforceMode();renderModes();updateModeUI();updatePerf()}
+function applyCalcTarget(v,snd,showNotif){const next=['cpu','gpu','default'].includes(v)?v:defs.calcTarget;apply('calcTarget',next,'calc-target',snd);updateCalcTargetUI();if(showNotif){const key='calc_target_notify_'+next;calcTargetNotification.textContent=t(key);calcTargetNotification.hidden=false;setTimeout(()=>{calcTargetNotification.hidden=true},6000)}}
+const calcTargetOptions=[{id:'cpu',icon:'🖥️',labelKey:'calc_target_cpu'},{id:'gpu',icon:'🎮',labelKey:'calc_target_gpu'},{id:'default',icon:'⚡',labelKey:'calc_target_default'}];
+function updateCalcTargetUI(){const current=calcTargetOptions.find(o=>o.id===S.calcTarget)||calcTargetOptions[2];calcTargetLabel.textContent=t(current.labelKey);calcTargetIcon.textContent=current.icon;renderCalcTargetMenu()}
+function renderCalcTargetMenu(){calcTargetMenu.innerHTML=calcTargetOptions.map(o=>'<button type="button" class="dropdown-menu-item'+(o.id===S.calcTarget?' selected':'')+'" data-ct-value="'+esc(o.id)+'" role="menuitemradio"><span class="dm-icon">'+o.icon+'</span><span class="dm-label">'+esc(t(o.labelKey))+'</span><span class="dm-check">✓</span></button>').join('')}
+function openCalcTargetMenu(){
+  const rect=calcTargetTrigger.getBoundingClientRect();
+  calcTargetMenu.style.top=(rect.bottom+8)+'px';
+  calcTargetMenu.style.left=Math.max(12,rect.left)+'px';
+  calcTargetMenu.style.minWidth=Math.max(280,rect.width)+'px';
+  calcTargetMenu.classList.add('open');
+  calcTargetTrigger.setAttribute('aria-expanded','true');
+}
+function closeCalcTargetMenu(){calcTargetMenu.classList.remove('open');calcTargetTrigger.setAttribute('aria-expanded','false')}
 function applyUiOpt(v,snd){apply('uiOpt',v==='on'?'on':'off','uiopt',snd);if(S.uiOpt==='on'){applyEffects('off',false);applyKbSound('off',false);applyClickSound('off',false);applyAiSound('off',false)}updatePerf()}
 function applyKbSound(v,snd){apply('kbSound',v==='on'?'on':'off','kb-sound',snd);$$('[data-kb-sound]').forEach(b=>b.classList.toggle('active',b.dataset.kbSound===S.kbSound));updateSndVis();if(v==='on')checkUiOptOff()}
 function applyKbStyle(v,snd){apply('kbStyle',['bulle','aurela','verdrock','feryn'].includes(v)?v:'bulle','kb-style',snd);$$('[data-kb-style]').forEach(b=>b.classList.toggle('active',b.dataset.kbStyle===S.kbStyle))}
@@ -1810,7 +2007,7 @@ function applyClickSound(v,snd){apply('clickSound',v==='on'?'on':'off','click-so
 function applyClickStyle(v,snd){apply('clickStyle',['bulle','nebrise'].includes(v)?v:'bulle','click-style',snd);$$('[data-click-style]').forEach(b=>b.classList.toggle('active',b.dataset.clickStyle===S.clickStyle))}
 function applyAiSound(v,snd){apply('aiSound',v==='on'?'on':'off','ai-sound',snd);$$('[data-ai-sound]').forEach(b=>b.classList.toggle('active',b.dataset.aiSound===S.aiSound));if(v==='on')checkUiOptOff()}
 function updateSndVis(){const kr=$('keyboard-style-row'),cr=$('click-style-row');if(kr)kr.hidden=S.kbSound!=='on';if(cr)cr.hidden=S.clickSound!=='on'}
-function updatePerf(){$('effects-state').textContent=S.effects==='off'?t('state_on'):t('state_off');$('responses-state').textContent=S.optResp==='on'?t('state_on'):t('state_off');$('uiopt-state').textContent=S.uiOpt==='on'?t('state_on'):t('state_off')}
+function updatePerf(){$('effects-state').textContent=S.effects==='off'?t('state_on'):t('state_off');$('responses-state').textContent=S.optResp==='on'?t('state_on'):t('state_off');const uiOptState=$('uiopt-state');if(uiOptState)uiOptState.textContent=S.uiOpt==='on'?t('state_on'):t('state_off');updateCalcTargetUI()}
 function getCoworkingContent(){return coworkingContent[S.lang]||coworkingContent[defs.lang]||coworkingContent.fr}
 function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function refreshWelcomeContent(){
@@ -1838,6 +2035,7 @@ function updateTabUI(){
   if(modeAnn)modeAnn.hidden=activeTab==='coworking';
   ta.placeholder=activeTab==='coworking'?getCoworkingContent().placeholder:t('placeholder');
   statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
+  applyWallpaper();
   refreshWelcomeContent();
 }
 async function switchTabWithReset(targetTab){
@@ -1856,7 +2054,7 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
@@ -1868,19 +2066,41 @@ function computeGoatScore(count){return Math.floor((count*10)+(Math.sqrt(Math.ma
 function getProfileData(){return{firstname:profileGet('firstname'),lastname:profileGet('lastname'),bio:profileGet('bio'),avatar:profileGet('avatar'),banner:profileGet('banner'),instagram:profileGet('instagram'),tiktok:profileGet('tiktok'),youtube:profileGet('youtube'),github:profileGet('github'),bluesky:profileGet('bluesky'),showMessageAvatar:profileGet('showMessageAvatar','off')}}
 function getProfileFullName(data){const full=[data.firstname,data.lastname].filter(Boolean).join(' ').trim();return full||t('profile_no_name')}
 function normalizeSocialUrl(platform,value){const raw=String(value||'').trim();if(!raw)return'';if(/^https?:\/\//i.test(raw))return raw;const clean=raw.replace(/^@+/,'');const bases={instagram:'https://www.instagram.com/',tiktok:'https://www.tiktok.com/@',youtube:'https://www.youtube.com/@',github:'https://github.com/',bluesky:'https://bsky.app/profile/'};return(bases[platform]||'https://')+clean}
-function socialEntries(data){return[{id:'instagram',label:t('profile_instagram'),value:data.instagram},{id:'tiktok',label:t('profile_tiktok'),value:data.tiktok},{id:'youtube',label:t('profile_youtube'),value:data.youtube},{id:'github',label:t('profile_github'),value:data.github},{id:'bluesky',label:t('profile_bluesky'),value:data.bluesky}]}
+function socialEntries(data){return[]}
 function svgDataUri(svg){return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg)}
 function makeGoatAvatarPreset(id,title,c1,c2,accent){return{id,label:title,src:svgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="${id}-bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="512" height="512" rx="120" fill="url(#${id}-bg)"/><circle cx="256" cy="208" r="124" fill="rgba(255,255,255,.15)"/><path d="M168 352c28-36 59-54 88-54s60 18 88 54" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="28" stroke-linecap="round"/><text x="256" y="246" text-anchor="middle" font-family="JetBrains Mono, Arial" font-size="132" font-weight="800" fill="${accent}">G</text><text x="256" y="424" text-anchor="middle" font-family="JetBrains Mono, Arial" font-size="52" font-weight="700" fill="rgba(255,255,255,.92)">GOAT</text><!-- goat-preset --></svg>`)} }
 function makeGoatBannerPreset(id,title,c1,c2,accent){return{id,label:title,src:svgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500"><defs><linearGradient id="${id}-bg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="1600" height="500" rx="42" fill="url(#${id}-bg)"/><circle cx="1250" cy="120" r="190" fill="rgba(255,255,255,.08)"/><circle cx="1340" cy="340" r="220" fill="rgba(255,255,255,.06)"/><path d="M0 360c170-50 280-66 430-36s260 56 410 10 320-84 760 24v142H0z" fill="rgba(10,15,35,.18)"/><text x="120" y="188" font-family="JetBrains Mono, Arial" font-size="150" font-weight="800" fill="${accent}">LE GOAT</text><text x="124" y="260" font-family="JetBrains Mono, Arial" font-size="46" font-weight="600" fill="rgba(255,255,255,.88)">Designed and coded in France</text><path d="M1048 214c40-40 74-60 102-60 30 0 60 20 100 60" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="22" stroke-linecap="round"/><circle cx="1084" cy="170" r="18" fill="rgba(255,255,255,.92)"/><circle cx="1164" cy="170" r="18" fill="rgba(255,255,255,.92)"/><!-- goat-banner-preset --></svg>`)} }
 let profilePresetLibrary=null;
-function getProfilePresetLibrary(){if(profilePresetLibrary)return profilePresetLibrary;const logo=$('main-logo')?$('main-logo').getAttribute('src'):'';profilePresetLibrary={avatar:[logo?{id:'goat-logo',label:'Logo Le Goat',src:logo}:makeGoatAvatarPreset('goat-logo','Logo Le Goat','#f8fafc','#e5e7eb','#111827'),makeGoatAvatarPreset('goat-midnight','Goat Midnight','#0f172a','#2563eb','#ffffff'),makeGoatAvatarPreset('goat-ultra','Goat Ultra','#0b1020','#7c3aed','#e0f2fe'),makeGoatAvatarPreset('goat-frost','Goat Frost','#eff6ff','#93c5fd','#1d4ed8')],banner:[makeGoatBannerPreset('goat-banner-core','Goat Core','#111827','#2563eb','#ffffff'),makeGoatBannerPreset('goat-banner-neon','Goat Neon','#0f172a','#7c3aed','#f8fafc'),makeGoatBannerPreset('goat-banner-light','Goat Horizon','#1e3a8a','#60a5fa','#ffffff')]};return profilePresetLibrary}
+function getProfilePresetLibrary(){
+  if(profilePresetLibrary)return profilePresetLibrary;
+  const logo=$('main-logo')?$('main-logo').getAttribute('src'):'';
+  // Utilise les images locales si disponibles, sinon fallback sur les presets SVG
+  const localAvatars=(localProfilePresets&&localProfilePresets.avatars)||[];
+  const localBanners=(localProfilePresets&&localProfilePresets.banners)||[];
+  const fallbackAvatars=[
+    logo?{id:'goat-logo',label:'Logo Le Goat',src:logo}:makeGoatAvatarPreset('goat-logo','Logo Le Goat','#f8fafc','#e5e7eb','#111827'),
+    makeGoatAvatarPreset('goat-midnight','Goat Midnight','#0f172a','#2563eb','#ffffff'),
+    makeGoatAvatarPreset('goat-ultra','Goat Ultra','#0b1020','#7c3aed','#e0f2fe'),
+    makeGoatAvatarPreset('goat-frost','Goat Frost','#eff6ff','#93c5fd','#1d4ed8')
+  ];
+  const fallbackBanners=[
+    makeGoatBannerPreset('goat-banner-core','Goat Core','#111827','#2563eb','#ffffff'),
+    makeGoatBannerPreset('goat-banner-neon','Goat Neon','#0f172a','#7c3aed','#f8fafc'),
+    makeGoatBannerPreset('goat-banner-light','Goat Horizon','#1e3a8a','#60a5fa','#ffffff')
+  ];
+  profilePresetLibrary={
+    avatar: localAvatars.length>0 ? localAvatars : fallbackAvatars,
+    banner: localBanners.length>0 ? localBanners : fallbackBanners
+  };
+  return profilePresetLibrary;
+}
 function isLogoStyleAvatarSrc(src){const logo=$('main-logo')?$('main-logo').getAttribute('src'):'';return!!src&&(src===logo||src.indexOf('goat-preset')!==-1)}
 function applyAvatarFitMode(el,src){if(!el)return;el.classList.toggle('is-logo',isLogoStyleAvatarSrc(src))}
 function setUploadPreview(box,src,fallbackLabel,kind){if(!box)return;box.innerHTML=src?'<img class="'+((kind==='avatar'&&isLogoStyleAvatarSrc(src))?'is-logo':'')+'" src="'+esc(src)+'" alt="preview">':'<span>'+esc(fallbackLabel)+'</span>'}
 function toggleProfileEditor(force){const open=typeof force==='boolean'?force:profileEditor.hidden;profileEditor.hidden=!open;profileEditToggle.textContent=open?t('profile_close_edit'):t('profile_edit')}
 function loadProfileForm(){const data=getProfileData();profileFirstnameInput.value=data.firstname;profileLastnameInput.value=data.lastname;profileBioInput.value=data.bio;profileInstagramInput.value=data.instagram;profileTikTokInput.value=data.tiktok;profileYouTubeInput.value=data.youtube;profileGitHubInput.value=data.github;profileBlueskyInput.value=data.bluesky;if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');updateProfileUI()}
 function persistProfileForm(){profileSet('firstname',profileFirstnameInput.value.trim());profileSet('lastname',profileLastnameInput.value.trim());profileSet('bio',profileBioInput.value.trim());profileSet('instagram',profileInstagramInput.value.trim());profileSet('tiktok',profileTikTokInput.value.trim());profileSet('youtube',profileYouTubeInput.value.trim());profileSet('github',profileGitHubInput.value.trim());profileSet('bluesky',profileBlueskyInput.value.trim());updateProfileUI()}
-function updateProfileUI(){if(!profileNamePreview)return;const data=getProfileData();const count=getChatCount();const score=computeGoatScore(count);const fullName=getProfileFullName(data);const fallbackAvatar=$('main-logo')?$('main-logo').getAttribute('src'):'';const avatarSrc=data.avatar||fallbackAvatar;profileNamePreview.textContent=fullName;profileDescriptionPreview.textContent=data.bio||t('profile_no_description');profileDescriptionPreview.classList.toggle('empty',!data.bio);profileChatCount.textContent=count.toLocaleString('fr-FR');profileGoatScore.textContent=score.toLocaleString('fr-FR');profileAvatarPreview.src=avatarSrc;applyAvatarFitMode(profileAvatarPreview,avatarSrc);profileBannerPreview.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';if(settingsProfileTabAvatar){settingsProfileTabAvatar.src=avatarSrc;applyAvatarFitMode(settingsProfileTabAvatar,avatarSrc)}if(settingsProfileTabName)settingsProfileTabName.textContent=fullName;setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';const socials=socialEntries(data).filter(item=>item.value.trim());if(!socials.length){profileSocialsPreview.innerHTML='<span class="profile-social-empty">'+esc(t('profile_share_hint'))+'</span>'}else{profileSocialsPreview.innerHTML=socials.map(item=>'<a class="profile-social-link" href="'+esc(normalizeSocialUrl(item.id,item.value))+'" target="_blank" rel="noreferrer noopener">'+esc(item.label)+'</a>').join('')}}
+function updateProfileUI(){if(!profileNamePreview)return;const data=getProfileData();const count=getChatCount();const score=computeGoatScore(count);const fullName=getProfileFullName(data);const fallbackAvatar=$('main-logo')?$('main-logo').getAttribute('src'):'';const avatarSrc=data.avatar||fallbackAvatar;profileNamePreview.textContent=fullName;profileDescriptionPreview.textContent=data.bio||t('profile_no_description');profileDescriptionPreview.classList.toggle('empty',!data.bio);if(profileChatCount)profileChatCount.textContent=count.toLocaleString('fr-FR');if(profileGoatScore)profileGoatScore.textContent=score.toLocaleString('fr-FR');profileAvatarPreview.src=avatarSrc;applyAvatarFitMode(profileAvatarPreview,avatarSrc);profileBannerPreview.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';if(settingsProfileTabAvatar){settingsProfileTabAvatar.src=avatarSrc;applyAvatarFitMode(settingsProfileTabAvatar,avatarSrc)}if(settingsProfileTabName)settingsProfileTabName.textContent=fullName;setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';const socials=socialEntries(data).filter(item=>item.value.trim());if(!socials.length){profileSocialsPreview.innerHTML='<span class="profile-social-empty">'+esc(t('profile_share_hint'))+'</span>'}else{profileSocialsPreview.innerHTML=socials.map(item=>'<a class="profile-social-link" href="'+esc(normalizeSocialUrl(item.id,item.value))+'" target="_blank" rel="noreferrer noopener">'+esc(item.label)+'</a>').join('')}}
 function closeProfilePicker(){if(!profilePickerBackdrop)return;profilePickerBackdrop.classList.remove('open')}
 function renderProfilePicker(){if(!profilePickerGrid)return;const library=getProfilePresetLibrary()[profilePickerMode]||[];if(profilePickerTitle)profilePickerTitle.textContent=profilePickerMode==='banner'?t('profile_picker_title_banner'):t('profile_picker_title');if(profilePickerSectionTitle)profilePickerSectionTitle.textContent=t('profile_picker_category_goat');profilePickerGrid.innerHTML='';profilePickerGrid.classList.toggle('banner-mode',profilePickerMode==='banner');library.forEach(item=>{const btn=document.createElement('button');btn.type='button';btn.className='profile-picker-card';const thumb=document.createElement('div');thumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');const img=document.createElement('img');img.src=item.src;if(profilePickerMode==='avatar')applyAvatarFitMode(img,item.src);thumb.appendChild(img);const label=document.createElement('span');label.className='profile-picker-card-label';label.textContent=item.label;btn.appendChild(thumb);btn.appendChild(label);btn.addEventListener('click',()=>{playClick();profileSet(profilePickerMode,item.src);loadProfileForm();closeProfilePicker();renderMessages()});profilePickerGrid.appendChild(btn)});const importBtn=document.createElement('button');importBtn.type='button';importBtn.className='profile-picker-card import';const importThumb=document.createElement('div');importThumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');importThumb.innerHTML='<div>+</div><span>'+esc(profilePickerMode==='banner'?t('profile_picker_import_banner'):t('profile_picker_import_avatar'))+'</span>';const importLabel=document.createElement('span');importLabel.className='profile-picker-card-label';importLabel.textContent=profilePickerMode==='banner'?t('profile_choose_banner'):t('profile_choose_avatar');importBtn.appendChild(importThumb);importBtn.appendChild(importLabel);importBtn.addEventListener('click',()=>{playClick();closeProfilePicker();(profilePickerMode==='banner'?profileBannerFile:profileAvatarFile).click()});profilePickerGrid.appendChild(importBtn)}
 function openProfilePicker(mode){profilePickerMode=mode||'avatar';renderProfilePicker();if(profilePickerBackdrop)profilePickerBackdrop.classList.add('open')}
@@ -1898,13 +2118,14 @@ async function handleProfileImage(file,key){if(!file)return;try{const dataUrl=aw
 function formatProfileText(includeScore){const data=getProfileData();const count=getChatCount();const lines=[getProfileFullName(data)];if(data.bio)lines.push(data.bio);lines.push(t('profile_chats_sent')+' : '+count);if(includeScore)lines.push(t('profile_goat_score')+' : '+computeGoatScore(count));socialEntries(data).forEach(item=>{if(item.value.trim())lines.push(item.label+' : '+normalizeSocialUrl(item.id,item.value))});return lines.filter(Boolean).join('\n')}
 function sanitizeFilename(value){return String(value||'profil-goat').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').toLowerCase()||'profil-goat'}
 async function apiExportProfilePdf(includeScore){const payload={includeScore,chatCount:getChatCount(),goatScore:computeGoatScore(getChatCount()),profile:getProfileData()};const r=await fetch('/api/export_profile_pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Export PDF impossible');return p}
-async function shareProfile(includeScore){playClick();alert(t('profile_share_dev'))}
+async function apiProfileScreenshot(){const r=await fetch('/api/profile_screenshot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Profile screenshot unavailable');return p}
+async function shareProfile(includeScore){playClick();if(includeScore){try{const p=await apiProfileScreenshot();if(p.triggered)return}catch(e){}window.open('https://screenrec.com/fr/','_blank','noopener');return}alert(t('profile_share_dev'))}
 async function apiVoiceShortcut(){const r=await fetch('/api/voice_shortcut',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Voice shortcut unavailable');return p}
 async function triggerVoiceInput(){playClick();try{const p=await apiVoiceShortcut();if(p.triggered)return}catch(e){}window.open('https://wisprflow.ai/','_blank','noopener')}
 // ── API HTTP — communication avec le backend Python ──────────────
 // Toutes les requêtes sont en POST JSON vers localhost.
 // Les endpoints sont définis dans GoatRequestHandler (Python).
-async function apiSend(msg,signal){const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');incrementChatCount();return p}
+async function apiSend(msg,signal){const bio=($('profile-bio-input')||{}).value||'';const tone=($('user-tone')||{}).value||'';const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode,userBio:bio,userTone:tone}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');incrementChatCount();return p}
 async function apiRegen(signal){const r=await fetch('/api/regenerate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 
@@ -1929,14 +2150,36 @@ $$('[data-click-style]').forEach(b=>b.addEventListener('click',()=>applyClickSty
 $$('[data-ai-sound]').forEach(b=>b.addEventListener('click',()=>applyAiSound(b.dataset.aiSound)));
 $$('[data-aifont-value]').forEach(b=>b.addEventListener('click',()=>applyAiFont(b.dataset.aifontValue)));
 $$('[data-userfont-value]').forEach(b=>b.addEventListener('click',()=>applyUserFont(b.dataset.userfontValue)));
+$$('[data-accent-value]').forEach(b=>b.addEventListener('click',()=>applyAccent(b.dataset.accentValue,true)));
+$('change-normal-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('normal')});
+$('change-coworking-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('coworking')});
+$('remove-normal-wallpaper').addEventListener('click',()=>{playClick();setWallpaperState('normal','none','')});
+$('remove-coworking-wallpaper').addEventListener('click',()=>{playClick();setWallpaperState('coworking','none','')});
+wallpaperImportImageBtn.addEventListener('click',()=>{playClick();wallpaperFileInput.click()});
+wallpaperImportVideoBtn.addEventListener('click',()=>{playClick();alert(t('appearance_video_import_warning'));wallpaperVideoFileInput.click()});
+wallpaperRemoveBtn.addEventListener('click',()=>{playClick();setWallpaperState(wallpaperTarget,'none','');updateWallpaperPreviews()});
+wallpaperCloseBtn.addEventListener('click',()=>{playClick();closeWallpaperModal()});
+wallpaperBackdrop.addEventListener('click',e=>{if(e.target===wallpaperBackdrop)closeWallpaperModal()});
+wallpaperFileInput.addEventListener('change',async()=>{if(wallpaperFileInput.files&&wallpaperFileInput.files[0])await handleWallpaperImage(wallpaperFileInput.files[0]);wallpaperFileInput.value=''})
+wallpaperVideoFileInput.addEventListener('change',async()=>{if(wallpaperVideoFileInput.files&&wallpaperVideoFileInput.files[0])await handleWallpaperVideo(wallpaperVideoFileInput.files[0]);wallpaperVideoFileInput.value=''})
+if(wallpaperVolumeInput)wallpaperVolumeInput.addEventListener('input',()=>{setWallpaperVolume(wallpaperTarget,wallpaperVolumeInput.value);if(activeTab===wallpaperTarget)tryPlayWallpaperVideo()});
+function applyVideoFps(v){S.videoFps=v==='60'?'60':'30';ls('video-fps',S.videoFps);$$('[data-video-fps]').forEach(b=>b.classList.toggle('active',b.dataset.videoFps===S.videoFps));applyWallpaper()}
+function applyVideoQuality(v){S.videoQuality=v==='4k'?'4k':'1080p';ls('video-quality',S.videoQuality);$$('[data-video-quality]').forEach(b=>b.classList.toggle('active',b.dataset.videoQuality===S.videoQuality));applyWallpaper()}
+$$('[data-video-fps]').forEach(b=>b.addEventListener('click',()=>{playClick();applyVideoFps(b.dataset.videoFps)}));
+$$('[data-video-quality]').forEach(b=>b.addEventListener('click',()=>{playClick();applyVideoQuality(b.dataset.videoQuality)}));
+$$('[data-video-fps]').forEach(b=>b.classList.toggle('active',b.dataset.videoFps===S.videoFps));
+$$('[data-video-quality]').forEach(b=>b.classList.toggle('active',b.dataset.videoQuality===S.videoQuality));
 $('toggle-effects-button').addEventListener('click',()=>applyEffects(S.effects==='on'?'off':'on'));
 $('toggle-responses-button').addEventListener('click',()=>applyOptResp(S.optResp==='on'?'off':'on'));
 $('toggle-uiopt-button').addEventListener('click',()=>applyUiOpt(S.uiOpt==='on'?'off':'on'));
 ['user-firstname','user-lastname','user-tone','user-info'].forEach(id=>$(id).addEventListener('input',persistPerso));
 ['profile-firstname-input','profile-lastname-input','profile-bio-input','profile-instagram-input','profile-tiktok-input','profile-youtube-input','profile-github-input','profile-bluesky-input'].forEach(id=>$(id).addEventListener('input',persistProfileForm));
+(function(){const bioIn=$('profile-bio-input'),bioCount=$('profile-bio-count'),bioCounter=$('profile-bio-counter');if(!bioIn||!bioCount)return;function updateBioCounter(){const len=bioIn.value.length;bioCount.textContent=String(len);bioCounter.classList.remove('warning','danger');if(len>900)bioCounter.classList.add('danger');else if(len>750)bioCounter.classList.add('warning')}bioIn.addEventListener('input',updateBioCounter);updateBioCounter()})();
 profileEditToggle.addEventListener('click',()=>toggleProfileEditor());
-profileShareProBtn.addEventListener('click',()=>shareProfile(false));
-profileShareFullBtn.addEventListener('click',()=>shareProfile(true));
+calcTargetTrigger.addEventListener('click',()=>{playClick();calcTargetMenu.classList.contains('open')?closeCalcTargetMenu():openCalcTargetMenu()});
+calcTargetMenu.addEventListener('click',e=>{const btn=e.target.closest('[data-ct-value]');if(!btn)return;playClick();applyCalcTarget(btn.dataset.ctValue,false,true);closeCalcTargetMenu()});
+if(profileShareProBtn)profileShareProBtn.addEventListener('click',()=>shareProfile(false));
+if(profileShareFullBtn)profileShareFullBtn.addEventListener('click',()=>shareProfile(true));
 if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.addEventListener('change',()=>{profileSet('showMessageAvatar',profileAvatarMessagesToggle.checked?'on':'off');updateProfileUI();renderMessages()});
 voiceInputBtn.addEventListener('click',triggerVoiceInput);
 profileAvatarUploadBtn.addEventListener('click',()=>openProfilePicker('avatar'));
@@ -1960,17 +2203,22 @@ cropCanvas.addEventListener('pointercancel',releaseCropPointer);
 window.addEventListener('resize',()=>{if(cropState)initCropState();hideProfileAvatarHover(true)});
 msgBox.addEventListener('scroll',()=>hideProfileAvatarHover(true));
 // Boutons paramètres — fonctionnalités à venir (alertes temporaires)
-$('manage-memory-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
-$('manage-history-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
-$('release-ram-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
-$('update-info-button').addEventListener('click',()=>{playClick();alert(t('soon'))});
+const manageMemoryButton=$('manage-memory-button'),manageHistoryButton=$('manage-history-button'),releaseRamButton=$('release-ram-button'),updateInfoButton=$('update-info-button');
+if(manageMemoryButton)manageMemoryButton.addEventListener('click',()=>{playClick();alert(t('soon'))});
+if(manageHistoryButton)manageHistoryButton.addEventListener('click',()=>{playClick();alert(t('soon'))});
+if(releaseRamButton)releaseRamButton.addEventListener('click',()=>{playClick();alert(t('soon'))});
+if(updateInfoButton)updateInfoButton.addEventListener('click',()=>{playClick();alert(t('soon'))});
+if(scaleDownButton)scaleDownButton.addEventListener('click',()=>applyUIScale(S.uiScale-10,true));
+if(scaleUpButton)scaleUpButton.addEventListener('click',()=>applyUIScale(S.uiScale+10,true));
+['pointerdown','keydown','touchstart'].forEach(evt=>document.addEventListener(evt,tryPlayWallpaperVideo,{passive:true}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tryPlayWallpaperVideo()});
 $('goat-dev-news-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('goat-dev-about-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('migrate-data-button').addEventListener('click',()=>{playClick();closeSettings();setTimeout(openMigrate,200)});
 // Fermeture des dropdowns au clic en dehors
-document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open')});
+document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open');if(!calcTargetMenu.contains(e.target)&&!calcTargetTrigger.contains(e.target))closeCalcTargetMenu()});
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeSettings();closeMigrate();closeOverclockModal();closeCropper();hideProfileAvatarHover(true);hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();hideProfileAvatarHover(true);hideTip()}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
@@ -1982,13 +2230,13 @@ bindTip(voiceInputBtn,'Micro vocal : Win + H sur Windows, sinon ouverture de Wis
 // Ordre important : charger les préférences AVANT d'appliquer les traductions
 // pour que la langue correcte soit déjà dans S.lang lors du premier rendu.
 loadPerso();loadProfileForm();toggleProfileEditor(false);showTab(ls('settings-tab')||'general');
-document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;document.body.dataset.textsize=S.textSize;document.body.dataset.aifont=S.aifont;document.body.dataset.userfont=S.userfont;
-applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);
-applyOptResp(S.optResp,false);applyUiOpt(S.uiOpt,false);
+document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;document.body.dataset.textsize=S.textSize;document.body.dataset.aifont=S.aifont;document.body.dataset.userfont=S.userfont;document.body.dataset.accent=normalizeAccent(S.accent);
+applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);applyUIScale(S.uiScale,false);applyAccent(S.accent,false);
+applyOptResp(S.optResp,false);applyCalcTarget(S.calcTarget,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
-applyAiFont(S.aifont,false);applyUserFont(S.userfont,false);updateOverclockUI();updateCharCounter();
-setActiveTab(activeTab,false);ta.focus(); // Focus textarea au démarrage
+applyAiFont(S.aifont,false);applyUserFont(S.userfont,false);updateOverclockUI();updateCharCounter();updateWallpaperPreviews();
+setActiveTab(activeTab,false);applyWallpaper();ta.focus(); // Focus textarea au démarrage
 
 // ── Top Tab Bar (Chat / Goat Code) ──
 if(tabChat){
@@ -2064,6 +2312,7 @@ def build_index_html(logo_uri: str, messages: Iterable[Message], themed_logos: O
         "%%SHEET_LIMITS_JSON%%": json.dumps(cfg.SHEET_LIMITS, ensure_ascii=False),
         "%%STORAGE_PREFIX_JSON%%": json.dumps(cfg.STORAGE_PREFIX),
         "%%MESSAGES_JSON%%": json.dumps(list(messages), ensure_ascii=False),
+        "%%PROFILE_PRESETS_JSON%%": json.dumps(LogoLoader.get_profile_presets(), ensure_ascii=False),
     }
     for k, v in replacements.items():
         tpl = tpl.replace(k, v)
@@ -2144,11 +2393,13 @@ def build_index_html(
         "%%DEFAULT_MODEL_JSON%%":      json.dumps(cfg.DEFAULT_MODEL),
         "%%DEFAULT_WSTYLE_JSON%%":     json.dumps(cfg.DEFAULT_WRITING_STYLE),
         "%%DEFAULT_GADGET_JSON%%":     json.dumps(cfg.DEFAULT_GADGET),
+        "%%DEFAULT_CALC_TARGET_JSON%%":json.dumps(cfg.DEFAULT_CALC_TARGET),
 
         # ── Divers ────────────────────────────────────────────────
         "%%MIGRATION_PROMPT_JSON%%": json.dumps(cfg.MIGRATION_PROMPT, ensure_ascii=False),
         "%%STORAGE_PREFIX_JSON%%":   json.dumps(cfg.STORAGE_PREFIX),
         "%%MESSAGES_JSON%%":         json.dumps(list(messages), ensure_ascii=False),
+        "%%PROFILE_PRESETS_JSON%%":  json.dumps(LogoLoader.get_profile_presets(), ensure_ascii=False),
     }
 
     # Remplacement séquentiel — chaque marqueur ne peut apparaître qu'une fois
@@ -2166,31 +2417,92 @@ def build_index_html(
 
 PROFILE_IMAGE_REJECTION_MESSAGE = "Désolé, nous ne pouvons pas mettre votre photo de profil en raison de nos règles d'utilisation."
 
+# ── Tokens de noms de fichiers à risque ──
+# Tout fichier contenant l'un de ces tokens (en minuscule) dans son nom
+# sera immédiatement rejeté AVANT même l'analyse d'image.
 RISKY_IMAGE_NAME_TOKENS = {
-    'porn', 'porno', 'nsfw', 'sex', 'sexe', 'nude', 'nudity', 'naked',
-    'loli', 'pedo', 'cp', 'childporn', 'child_porn', 'gore',
-    'violence', 'violent', 'blood', 'execution', 'beheading', 'hate',
-    'racist', 'racisme', 'racist meme', 'naz', 'nazi', 'ss', 'whitepower',
-    'homophobe', 'homophobic', 'misogyny', 'misogynie', 'misogynist',
-    'antisemite', 'antisemitic', 'antisemitisme'
+    # Contenu pornographique / sexuel explicite
+    'porn', 'porno', 'pornography', 'pornographique', 'nsfw',
+    'sex', 'sexe', 'sexual', 'sexuel', 'sexuelle',
+    'nude', 'nudity', 'nudes', 'naked', 'nu', 'nue',
+    'xxx', 'hentai', 'rule34', 'r34', 'onlyfans', 'fansly',
+    'lewd', 'explicit', 'fetish', 'fetiche', 'orgasm', 'orgasme',
+    'erotic', 'erotique', 'masturbat', 'ejaculat', 'penetrat',
+    'gangbang', 'blowjob', 'handjob', 'creampie', 'cumshot',
+    'stripteuse', 'stripper', 'escort', 'prostitut',
+    # Contenu pédopornographique (TOLÉRANCE ZÉRO)
+    'loli', 'lolicon', 'shotacon', 'shota', 'pedo', 'pedophil',
+    'cp', 'childporn', 'child_porn', 'childabuse', 'child_abuse',
+    'minors', 'underage', 'preteen', 'jailbait',
+    'pedoporno', 'pedopornograph',
+    # Violence / gore
+    'gore', 'guro', 'snuff', 'violence', 'violent',
+    'blood', 'bloody', 'execution', 'beheading', 'decapitat',
+    'torture', 'mutilat', 'dismember', 'stabbing', 'shooting',
+    'massacre', 'carnage', 'cadavre', 'corpse',
+    # Haine / extrémisme
+    'hate', 'racist', 'racisme', 'racism',
+    'nazi', 'naz', 'whitepower', 'white_power', 'kkk',
+    'homophobe', 'homophobic', 'homophobie',
+    'misogyny', 'misogynie', 'misogynist',
+    'antisemite', 'antisemitic', 'antisemitisme',
+    'supremacist', 'terroris',
 }
 
+# ── Patterns regex appliqués au nom de fichier ──
+# Complètent les tokens ci-dessus avec des formes composées
+# et des variantes orthographiques.
 RISKY_IMAGE_TEXT_PATTERNS = [
-    re.compile(r'\b(?:porn|porno|nsfw|nude|nudity|naked|loli|pedo|cp|child\s*porn)\b', re.I),
-    re.compile(r'\b(?:gore|violent|violence|blood|kill|execution|beheading)\b', re.I),
-    re.compile(r'\b(?:nazi|white\s*power|kkk|racist|racisme|homophobic|homophobe|misogyny|misogynie|antisemite|antisemitic)\b', re.I),
+    # Porno / sexuel explicite
+    re.compile(
+        r'\b(?:porn|porno|pornograph|nsfw|nude|nudity|nudes|naked|xxx|hentai'
+        r'|rule\s*34|r34|onlyfans|fansly|lewd|explicit|fetish|fetiche'
+        r'|erotic|erotique|orgasm|masturbat|ejaculat|penetrat'
+        r'|gangbang|blowjob|handjob|creampie|cumshot|stripteuse|stripper'
+        r'|escort|prostitut)\b', re.I
+    ),
+    # Pédopornographie (TOLÉRANCE ZÉRO)
+    re.compile(
+        r'\b(?:loli|lolicon|shotacon|shota|pedo|pedophil|pedoporno'
+        r'|child\s*porn|child\s*abuse|cp|jailbait|underage|preteen'
+        r'|minors?\s*(?:sex|nude|naked|porn))\b', re.I
+    ),
+    # Violence / gore
+    re.compile(
+        r'\b(?:gore|guro|snuff|violen(?:t|ce)|blood(?:y)?|execution'
+        r'|beheading|decapitat|torture|mutilat|dismember|stabbing'
+        r'|massacre|carnage|cadavre|corpse)\b', re.I
+    ),
+    # Haine / extrémisme
+    re.compile(
+        r'\b(?:nazi|white\s*power|kkk|racist|racis(?:m|me)|homophob'
+        r'|misogyn|antisemit|supremacist|terroris)\b', re.I
+    ),
 ]
 
 _NSFW_MODEL_CACHE = None
 _NSFW_MODEL_CACHE_FAILED = False
 
+# Labels durs — nudité/pornographie explicite → rejet si score > seuil
 HARD_NSFW_LABEL_TOKENS = (
-    'nsfw', 'explicit', 'sexual', 'porn', 'nudity', 'nude',
-    'hentai', 'xxx', 'graphic nudity', 'graphic sexual', 'adult content'
+    'nsfw', 'explicit', 'sexual', 'porn', 'pornography', 'nudity', 'nude',
+    'hentai', 'xxx', 'graphic nudity', 'graphic sexual', 'adult content',
+    'exposed genitalia', 'exposed breast', 'full nudity',
+    'gore', 'violence', 'blood', 'disturbing',
 )
 
+# Labels doux — contenu suggestif mais potentiellement tolérable
+# Bikini/maillot de bain sont TOLÉRES (ne figurent pas dans les labels doux)
 SOFT_NSFW_LABEL_TOKENS = (
-    'sexy', 'suggestive', 'adult', 'erotic', 'lingerie', 'bikini'
+    'sexy', 'suggestive', 'adult', 'erotic', 'lingerie',
+    'provocative', 'seductive', 'risque', 'racy',
+)
+
+# Labels TOLÉRES — ne déclenchent PAS de rejet même avec un score élevé
+# Ceci couvre les femmes en bikini et les hommes en maillot de bain
+TOLERATED_LABEL_TOKENS = (
+    'bikini', 'swimsuit', 'swimwear', 'maillot', 'bathing suit',
+    'beachwear', 'beach', 'pool', 'swimming',
 )
 
 def _decode_data_url(data_url: str) -> bytes:
@@ -2236,6 +2548,15 @@ def _get_local_nsfw_classifier():
         return None
 
 def _classify_with_local_model(image) -> tuple[bool, float] | None:
+    """
+    Classification via modèle local (transformers pipeline).
+
+    Seuils de décision :
+      - hard_risk >= 0.45 → REJET (nudité, porno, violence)
+      - soft_risk >= 0.80 → REJET (suggestif/érotique)
+      - SAUF si le label dominant est toléré (bikini, maillot)
+        → dans ce cas on relâche le soft_risk
+    """
     classifier = _get_local_nsfw_classifier()
     if classifier is None:
         return None
@@ -2245,6 +2566,7 @@ def _classify_with_local_model(image) -> tuple[bool, float] | None:
         return None
     hard_risk = 0.0
     soft_risk = 0.0
+    tolerated_score = 0.0
     for item in results or []:
         label = _normalize_label(item.get('label'))
         score = float(item.get('score', 0.0) or 0.0)
@@ -2252,10 +2574,31 @@ def _classify_with_local_model(image) -> tuple[bool, float] | None:
             hard_risk = max(hard_risk, score)
         elif any(token in label for token in SOFT_NSFW_LABEL_TOKENS):
             soft_risk = max(soft_risk, score)
-    safe = hard_risk < 0.62 and soft_risk < 0.92
+        if any(token in label for token in TOLERATED_LABEL_TOKENS):
+            tolerated_score = max(tolerated_score, score)
+    # Si le contenu est principalement de type bikini/maillot et que
+    # le risque dur est bas, on tolère
+    if tolerated_score > 0.5 and hard_risk < 0.30:
+        safe = True
+        return safe, max(hard_risk, soft_risk)
+    safe = hard_risk < 0.45 and soft_risk < 0.80
     return safe, max(hard_risk, soft_risk)
 
 def _fallback_visual_nsfw_score(image) -> float:
+    """
+    Heuristique visuelle de dernier recours quand aucun modèle ML n'est
+    disponible. Analyse la distribution de couleurs (peau, rouge, rose,
+    zones sombres) pour estimer un score de risque entre 0 et 1.
+
+    Un score >= 0.24 provoque le rejet de l'image.
+    Ce seuil est volontairement conservateur : mieux vaut rejeter un
+    faux positif que laisser passer du contenu interdit.
+
+    Détection spécifique pour les illustrations anime/dessin :
+    Les contenus anime suggestifs ont des caractéristiques visuelles
+    distinctes (couleurs très uniformes, contours nets, saturation élevée)
+    qui permettent un malus supplémentaire.
+    """
     sample = image.copy().convert('RGB')
     sample.thumbnail((256, 256))
     pixels = sample.load()
@@ -2273,13 +2616,48 @@ def _fallback_visual_nsfw_score(image) -> float:
     top_total = 0
     bottom_skin = 0
     bottom_total = 0
+    # Compteurs spécifiques anime/illustration
+    high_saturation = 0      # Pixels avec saturation très élevée (aplats)
+    uniform_skin_blocks = 0  # Zones de peau très uniformes (sans texture)
+    prev_skin = False
+    skin_run = 0
     for y in range(sample.height):
         for x in range(sample.width):
             r, g, b = pixels[x, y]
             mx, mn = max(r, g, b), min(r, g, b)
-            is_skin = r > 80 and g > 30 and b > 15 and (mx - mn) > 15 and r > g and r > b
+            # Détection peau humaine :
+            # - r dominant, écart r-g > 25 (exclut sable/beige/bois)
+            # - écart r-b > 35 (exclut gris/pastel)
+            # - pas trop lumineux uniformément (exclut blanc cassé)
+            is_skin = (r > 100 and g > 50 and b > 20
+                       and r > g and r > b
+                       and (r - g) > 25
+                       and (r - b) > 35
+                       and (r + g + b) < 650)
             if is_skin:
                 skin_like += 1
+                # Détection peau anime : très peu de texture (écart r-g faible)
+                if abs(r - g) < 40 and abs(g - b) < 50 and r > 160:
+                    if prev_skin:
+                        skin_run += 1
+                    else:
+                        skin_run = 1
+                    prev_skin = True
+                else:
+                    if skin_run > 12:
+                        uniform_skin_blocks += skin_run
+                    skin_run = 0
+                    prev_skin = False
+            else:
+                if skin_run > 12:
+                    uniform_skin_blocks += skin_run
+                skin_run = 0
+                prev_skin = False
+            # Saturation élevée = illustration / anime
+            if mx > 60 and mn < mx:
+                sat = (mx - mn) / mx
+                if sat > 0.45:
+                    high_saturation += 1
             if r > 120 and g < 90 and b < 90:
                 red_dominant += 1
             if r < 45 and g < 45 and b < 45:
@@ -2314,19 +2692,52 @@ def _fallback_visual_nsfw_score(image) -> float:
     center_skin_ratio = center_skin / max(1, center_total)
     top_skin_ratio = top_skin / max(1, top_total)
     bottom_skin_ratio = bottom_skin / max(1, bottom_total)
+    high_sat_ratio = high_saturation / total
+    uniform_skin_ratio = uniform_skin_blocks / total
+
+    # ── Détection anime/illustration ──
+    # Les illustrations ont beaucoup de pixels très saturés et des zones
+    # de peau très uniformes (aplats sans texture photographique)
+    is_likely_anime = high_sat_ratio > 0.20 and uniform_skin_ratio > 0.04
+
     score = 0.0
-    if skin_ratio > 0.52:
-        score += min(0.28, (skin_ratio - 0.52) * 1.0)
-    if center_skin_ratio > 0.68:
-        score += min(0.28, (center_skin_ratio - 0.68) * 0.9)
-    if bottom_skin_ratio > 0.62:
-        score += min(0.25, (bottom_skin_ratio - 0.62) * 0.9)
-    if pink_ratio > 0.26:
-        score += min(0.10, (pink_ratio - 0.26) * 0.6)
-    if bright_ratio > 0.50:
-        score += min(0.06, (bright_ratio - 0.50) * 0.2)
-    if red_ratio > 0.34 and dark_ratio > 0.26:
+
+    # Peau globale élevée → risque
+    if skin_ratio > 0.42:
+        score += min(0.32, (skin_ratio - 0.42) * 1.2)
+    # Peau concentrée au centre → risque plus élevé
+    if center_skin_ratio > 0.55:
+        score += min(0.32, (center_skin_ratio - 0.55) * 1.1)
+    # Peau concentrée en bas → risque élevé (zone intime)
+    if bottom_skin_ratio > 0.50:
+        score += min(0.30, (bottom_skin_ratio - 0.50) * 1.1)
+    # Peau concentrée en haut aussi → corps entier exposé
+    if top_skin_ratio > 0.55 and bottom_skin_ratio > 0.45:
+        score += 0.10
+    # Beaucoup de rose → potentiel suggestif
+    if pink_ratio > 0.20:
+        score += min(0.12, (pink_ratio - 0.20) * 0.7)
+    # Image très lumineuse avec beaucoup de peau → suggestif
+    if bright_ratio > 0.40 and skin_ratio > 0.35:
+        score += min(0.10, (bright_ratio - 0.40) * 0.3)
+    # Rouge dominant + sombre → violence potentielle
+    if red_ratio > 0.28 and dark_ratio > 0.20:
+        score += 0.24
+
+    # ── Malus anime/illustration suggestif ──
+    # Les images anime avec beaucoup de peau sont presque toujours
+    # du contenu suggestif/ecchi → pénalité forte
+    if is_likely_anime and skin_ratio > 0.30:
         score += 0.18
+    if is_likely_anime and center_skin_ratio > 0.45:
+        score += 0.12
+
+    # ── Tolérance photos plage/piscine ──
+    # UNIQUEMENT pour les photos réalistes (pas anime)
+    # et seulement si le bleu/cyan est significatif dans l'image
+    if not is_likely_anime and blue_cyan_ratio > 0.12:
+        score -= min(0.20, (blue_cyan_ratio - 0.12) * 0.6)
+
     return max(0.0, min(1.0, score))
 
 def _local_image_safety_check(filename: str, data_url: str) -> tuple[bool, str]:
@@ -2347,7 +2758,7 @@ def _local_image_safety_check(filename: str, data_url: str) -> tuple[bool, str]:
             safe, _score = classified
             return (safe, '' if safe else PROFILE_IMAGE_REJECTION_MESSAGE)
         heuristic_score = _fallback_visual_nsfw_score(image)
-        if heuristic_score >= 0.28:
+        if heuristic_score >= 0.24:
             return False, PROFILE_IMAGE_REJECTION_MESSAGE
     except Exception:
         return False, 'Image invalide ou non lisible.'
@@ -2518,6 +2929,29 @@ class GoatWebApp:
         filename = f"{_sanitize_pdf_filename(full_name)}-{label}.pdf"
         return {"ok": True, "data": base64.b64encode(pdf_bytes).decode('ascii'), "filename": filename}
 
+    def trigger_profile_screenshot(self) -> dict:
+        """Déclenche l'outil de capture Windows (Win + Shift + S)."""
+        if platform.system().lower() != 'windows':
+            return {"ok": True, "triggered": False}
+        try:
+            import ctypes
+            user32 = ctypes.windll.user32
+            KEYEVENTF_KEYUP = 0x0002
+            VK_LWIN = 0x5B
+            VK_SHIFT = 0x10
+            S_KEY = 0x53
+            user32.keybd_event(VK_LWIN, 0, 0, 0)
+            user32.keybd_event(VK_SHIFT, 0, 0, 0)
+            time.sleep(0.02)
+            user32.keybd_event(S_KEY, 0, 0, 0)
+            time.sleep(0.02)
+            user32.keybd_event(S_KEY, 0, KEYEVENTF_KEYUP, 0)
+            user32.keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0)
+            user32.keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0)
+            return {"ok": True, "triggered": True}
+        except Exception:
+            return {"ok": True, "triggered": False}
+
     def trigger_voice_shortcut(self) -> dict:
         if platform.system().lower() != 'windows':
             return {"ok": True, "triggered": False}
@@ -2629,6 +3063,7 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
                                    str(payload.get("dataUrl", ""))
                                ),
             "/api/export_profile_pdf": lambda: self.server.app.export_profile_pdf(payload),
+            "/api/profile_screenshot": lambda: self.server.app.trigger_profile_screenshot(),
             "/api/voice_shortcut": lambda: self.server.app.trigger_voice_shortcut(),
         }
 
