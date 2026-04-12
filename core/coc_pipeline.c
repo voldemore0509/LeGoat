@@ -3,226 +3,233 @@
 #include <string.h>
 #include "../models/optimisationModelsLLM.h"  // ← accès à tout
 
+struct coc_pipeline
+{
+    char *answer;
+    int number_caracter;
+    int caracter_autorized;
+
+};
+
+/*
+    count_characters() — parcourt la requête de l'utilisateur
+    caractère par caractère et stocke le total dans le struct.
+
+    On évite strlen() volontairement ici : vous voyez exactement
+    ce qui se passe en mémoire. La boucle avance case par case
+    dans le tableau jusqu'à tomber sur '\0', le marqueur de fin
+    de chaîne en C.
+
+    Paramètre : struct coc_pipeline *coc — le contexte du pipeline
+                char *request            — la requête à analyser
+*/
+void count_characters(struct coc_pipeline *coc, char *request)
+{
+    // Sécurité : si l'un des deux pointeurs est NULL,
+    // on initialise number_caracter à 0 et on sort proprement.
+    if (coc == NULL || request == NULL)
+    {
+        if (coc != NULL)
+            coc->number_caracter = 0;
+        return;
+    }
+
+    // On initialise le compteur avant de parcourir
+    coc->number_caracter = 0;
+
+    // On parcourt le tableau caractère par caractère.
+    // request[i] != '\0' : tant qu'on n'a pas atteint la fin
+    // de la chaîne, on continue d'avancer.
+    int i = 0;
+    while (request[i] != '\0')
+    {
+        coc->number_caracter++;
+        i++;
+    }
+}
+
 void initialisation_coc() 
 {
     struct model_config *config = init_contraction_of_chat();
-    free(config);  // ← manque
+    (void)config; // ← dit explicitement au compilateur "oui je sais, c'est voulu"
 }
 
-int contraction_percent(int number_caracter)
+void contraction_percent(struct coc_pipeline *coc)
 {
-    if(number_caracter <= 5000)
+    if(coc->number_caracter <= 5000)
     {
-        return 255;
+        coc->caracter_autorized = 255;
     }
-    else if(number_caracter <= 10000)
+    else if(coc->number_caracter <= 10000)
     {
-        return 500;
+        coc->caracter_autorized = 500;
     }
     else
     {
-       return 800; 
+       coc->caracter_autorized = 800; 
     }
 }
 
-char* generation_reponse(const char *question_utilisateur)
+/*
+    generation_reponse_coc() — génère la réponse contractée de l'IA.
+
+    Cette fonction fait trois choses dans l'ordre :
+    1) Elle alloue la bonne quantité de mémoire pour coc->answer
+       en fonction de coc->caracter_autorized (255, 500 ou 800).
+    2) Elle construit le prompt système en y incluant la contrainte
+       de caractères, pour que l'IA sache exactement jusqu'où elle
+       peut aller.
+    3) Elle place le résultat dans coc->answer.
+       (Pour l'instant en mode MOCK — le vrai appel Ollama viendra ici.)
+
+    Paramètres : struct coc_pipeline *coc — le contexte complet du pipeline
+                 char *request            — la requête originale de l'utilisateur
+*/
+void generation_reponse_coc(struct coc_pipeline *coc, char *request)
 {
     /*
-        1) Vérification de sécurité :
-        si la question n'existe pas ou qu'elle est vide,
-        on retourne directement un message d'erreur.
+        Sécurité d'entrée : si l'un des pointeurs est invalide,
+        on sort immédiatement sans rien faire.
     */
-    if (question_utilisateur == NULL || question_utilisateur[0] == '\0')
+    if (coc == NULL || request == NULL)
     {
-        char *erreur = malloc(50 * sizeof(char));
-        if (erreur != NULL)
-        {
-            strcpy(erreur, "Erreur : question utilisateur vide.");
-        }
-        return erreur;
+        return;
     }
 
     /*
-        2) On initialise la configuration du modèle COC.
-        Cette fonction vient de votre fichier optimisationModelsLLM.c
-        et renvoie un struct model_config*.
-    */
-    struct model_config *config = init_contraction_of_chat();
+        ÉTAPE 1 — Allocation mémoire de coc->answer.
 
-    /*
-        Si l'initialisation échoue, on retourne une erreur.
+        On alloue exactement coc->caracter_autorized + 1 octets.
+        Le +1 est obligatoire en C pour le caractère '\0' de fin de chaîne.
+        Sans lui, on déborde en mémoire et le comportement est indéfini.
+
+        Selon ce que contraction_percent() a calculé :
+        - 255  → on alloue 256 octets  (réponse légère)
+        - 500  → on alloue 501 octets  (réponse moyenne)
+        - 800  → on alloue 801 octets  (réponse longue)
+
+        L'IA ne pourra physiquement pas écrire au-delà de cette limite
+        puisque c'est tout ce qu'on lui donne comme espace.
     */
-    if (config == NULL)
+    coc->answer = malloc((coc->caracter_autorized + 1) * sizeof(char));
+
+    if (coc->answer == NULL)
     {
-        char *erreur = malloc(70 * sizeof(char));
-        if (erreur != NULL)
-        {
-            strcpy(erreur, "Erreur : impossible d'initialiser le modele COC.");
-        }
-        return erreur;
+        /*
+            Si malloc échoue (mémoire insuffisante), on sort proprement.
+            Aucun crash, aucune donnée corrompue.
+        */
+        return;
     }
 
     /*
-        3) On calcule le nombre de caractères de la question.
-        Cela va servir à savoir quel niveau de contraction appliquer.
+        On initialise le tableau avec '\0' sur toute sa longueur.
+        C'est une bonne pratique : ça garantit qu'aucun octet résiduel
+        en mémoire ne vient polluer la chaîne si l'IA ne remplit pas tout.
     */
-    int nombre_caracteres = strlen(question_utilisateur);
+    memset(coc->answer, '\0', coc->caracter_autorized + 1);
 
     /*
-        4) On récupère le "niveau de contraction" à partir de votre fonction.
-        Dans votre code actuel :
-        - <= 5000  -> 255
-        - <= 10000 -> 500
-        - sinon    -> 800
-    */
-    int niveau_contraction = contraction_percent(nombre_caracteres);
+        ÉTAPE 2 — Construction du prompt système.
 
-    /*
-        5) Comme vous ne voulez pas utiliser snprintf,
-        on va éviter de construire une phrase avec un entier dedans.
-        À la place, on transforme le niveau en texte simple.
+        On transforme coc->caracter_autorized en texte lisible
+        pour l'intégrer dans le prompt sans utiliser snprintf.
+        On couvre les trois cas possibles issus de contraction_percent().
     */
-    char niveau_texte[30];
+    char limite_texte[10];
 
-    if (niveau_contraction == 255)
+    if (coc->caracter_autorized == 255)
     {
-        strcpy(niveau_texte, "contraction_legere");
+        strcpy(limite_texte, "255");
     }
-    else if (niveau_contraction == 500)
+    else if (coc->caracter_autorized == 500)
     {
-        strcpy(niveau_texte, "contraction_moyenne");
+        strcpy(limite_texte, "500");
     }
     else
     {
-        strcpy(niveau_texte, "contraction_forte");
+        strcpy(limite_texte, "800");
     }
 
     /*
-        6) On prépare le prompt système.
-        Ce prompt dit au modèle ce qu'il doit faire.
-
-        Ici, le but n'est PAS de répondre à l'utilisateur.
-        Le but est de CONTRACTER son message.
-    */
-    char prompt_systeme[500];
-
-    strcpy(prompt_systeme,
-        "Tu dois contracter le message utilisateur. "
-        "Tu conserves uniquement l'objectif, les contraintes, "
-        "le contexte important et les informations utiles. "
-        "Tu ne reponds pas a la question. "
-        "Tu produis une version plus courte, claire et exploitable.");
-
-    /*
-        7) Maintenant, on doit fabriquer le prompt final envoyé au modèle.
-
-        Comme on utilise strcpy/strcat, il faut réserver assez de mémoire.
-        On additionne la taille :
-        - du prompt système
-        - du niveau de contraction
-        - de la question utilisateur
-        - de quelques textes fixes
-        - +1 pour le caractère de fin '\0'
+        On calcule la taille totale du prompt avant de l'allouer.
+        C'est important : un malloc trop petit → buffer overflow,
+        un malloc trop grand → gaspillage. On additionne tout
+        ce qu'on va coller ensemble via strcat().
     */
     int taille_prompt =
-        strlen(prompt_systeme)
-        + strlen(niveau_texte)
-        + strlen(question_utilisateur)
-        + 200;
+        strlen(request)
+        + strlen(limite_texte)
+        + 300; /* marge pour les textes fixes du prompt */
 
-    char *prompt_final = malloc((taille_prompt + 1) * sizeof(char));
+    char *prompt = malloc((taille_prompt + 1) * sizeof(char));
 
-    /*
-        Si malloc échoue, on libère config avant de quitter.
-    */
-    if (prompt_final == NULL)
+    if (prompt == NULL)
     {
-        free(config);
-        return NULL;
+        /*
+            Si malloc du prompt échoue, on libère answer
+            pour ne pas laisser de fuite mémoire et on sort.
+        */
+        free(coc->answer);
+        coc->answer = NULL;
+        return;
     }
 
     /*
-        8) On construit le prompt morceau par morceau.
+        On construit le prompt morceau par morceau.
 
-        D'abord, on met une chaîne vide pour partir proprement.
+        L'idée ici c'est que l'IA reçoit deux informations claires :
+        - la contrainte de caractères (elle sait jusqu'où aller)
+        - la requête originale de l'utilisateur (ce qu'elle doit contracter)
+
+        Ce prompt sera remplacé par le vrai appel HTTP vers Ollama
+        une fois que le pipeline de communication sera en place.
     */
-    prompt_final[0] = '\0';
+    prompt[0] = '\0';
+    strcat(prompt, "Tu es un assistant de contraction de texte. ");
+    strcat(prompt, "Tu dois resumer la requete suivante en ");
+    strcat(prompt, limite_texte);
+    strcat(prompt, " caracteres maximum. ");
+    strcat(prompt, "Tu ne depasses jamais cette limite. ");
+    strcat(prompt, "Tu conserves l'objectif, les contraintes et le contexte essentiel.\n\n");
+    strcat(prompt, "Requete :\n");
+    strcat(prompt, request);
+    strcat(prompt, "\n\nContraction :\n");
 
     /*
-        Puis on ajoute les différentes parties.
+        ÉTAPE 3 — Appel au modèle (MOCK pour l'instant).
+
+        Ici viendra le vrai appel à Ollama via HTTP ou subprocess.
+        Pour le moment on copie le prompt dans answer pour vérifier
+        que le pipeline entier fonctionne de bout en bout.
+
+        ATTENTION : on ne copie que caracter_autorized caractères max.
+        strncpy garantit qu'on ne déborde jamais dans coc->answer,
+        quelle que soit la longueur du prompt.
     */
-    strcat(prompt_final, prompt_systeme);
-    strcat(prompt_final, "\n\n");
-    strcat(prompt_final, "Niveau de contraction : ");
-    strcat(prompt_final, niveau_texte);
-    strcat(prompt_final, "\n\n");
-    strcat(prompt_final, "Message utilisateur :\n");
-    strcat(prompt_final, question_utilisateur);
-    strcat(prompt_final, "\n\n");
-    strcat(prompt_final, "Contraction :\n");
+    strncpy(coc->answer, prompt, coc->caracter_autorized);
 
     /*
-        9) À CET ENDROIT, plus tard, vous remplacerez le "mock"
-        par le vrai appel au modèle local.
-
-        Par exemple :
-        - appel HTTP vers Ollama
-        - appel via subprocess
-        - appel via une fonction core/llm_client.c
-
-        Pour l'instant, on simule juste une réponse
-        afin de tester si le pipeline fonctionne.
+        strncpy ne garantit pas le '\0' final si la source est plus longue
+        que la destination. On le force manuellement pour être safe.
     */
+    coc->answer[coc->caracter_autorized] = '\0';
 
     /*
-        10) On prépare la réponse de test.
-        Ici, on retourne quelque chose de visible dans la console
-        pour vérifier que le pipeline marche.
+        Nettoyage : le prompt a servi, il n'a plus sa place en mémoire.
+        coc->answer lui, reste alloué — c'est le caller qui le libérera.
     */
-    int taille_reponse =
-        strlen(prompt_final)
-        + strlen(config->model)
-        + 100;
-
-    char *reponse = malloc((taille_reponse + 1) * sizeof(char));
-
-    if (reponse == NULL)
-    {
-        free(prompt_final);
-        free(config);
-        return NULL;
-    }
-
-    /*
-        On construit la réponse de test.
-    */
-    reponse[0] = '\0';
-    strcat(reponse, "[MOCK COC]\n");
-    strcat(reponse, "Modele utilise : ");
-    strcat(reponse, config->model);
-    strcat(reponse, "\n\n");
-    strcat(reponse, "Prompt envoye au modele :\n");
-    strcat(reponse, prompt_final);
-
-    /*
-        11) Nettoyage mémoire :
-        - prompt_final n'est plus nécessaire
-        - config non plus
-    */
-    free(prompt_final);
-    free(config);
-
-    /*
-        12) On retourne la réponse.
-        Le code qui appelle cette fonction devra faire free(reponse).
-    */
-    return reponse;
+    free(prompt);
 }
 
-char* run_coc(char* reponse,int number_caracter)
+char* run_coc(char* request)
 {
-    int result = contraction_percent(number_caracter);
-    //on envoie à l'ia avec le prompt pour pouvoir contracter la demande de l'utilisateur
-    //elle renvoie sa réponse dans un ficher ou autre
-    //ATTENTION A BIEN RETURN LES VARIABLE  
+    struct coc_pipeline *coc = malloc(sizeof (struct coc_pipeline));
+    initialisation_coc();
+    count_characters(coc, request);
+    contraction_percent(coc);
+    generation_reponse_coc(coc, request);
+    char *resultat = coc->answer;
+    free(coc);
+    return resultat;
 }

@@ -153,6 +153,7 @@ class AppConfig:
     #   3. Ajoutez sa limite de feuille dans SHEET_LIMITS.
     #   4. Gérez-le dans generate_reply() selon son id.
     MODELS: ClassVar[list] = [
+        {"id": "sukoshi", "label_key": "model_sukoshi", "desc_key": "model_sukoshi_desc"},
         {"id": "goat",    "label_key": "model_goat",    "desc_key": "model_goat_desc"},
         {"id": "maestro", "label_key": "model_maestro", "desc_key": "model_maestro_desc"},
     ]
@@ -161,6 +162,7 @@ class AppConfig:
     # ── Limites de contexte par modèle (feuilles d'écriture) ────
     # Ajustez ces valeurs selon la fenêtre de contexte réelle de chaque modèle.
     SHEET_LIMITS: ClassVar[Dict[str, int]] = {
+        "sukoshi":   4   * 1024,   # ~4 Ko  — modèle compact
         "goat":      6   * 1024,   # ~6 Ko  — modèle léger
         "maestro":   350 * 1024,   # ~350 Ko — modèle lourd, large contexte
     }
@@ -288,8 +290,9 @@ class TranslationManager:
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
-            "model_goat": "Goat", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
-            "model_goat_desc": "Modèle par défaut, rapide et polyvalent.",
+            "model_sukoshi": "Sukoshi", "model_goat": "Traditionnel", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
+            "model_sukoshi_desc": "Modèle compact et rapide.",
+            "model_goat_desc": "Modèle traditionnel, équilibré et polyvalent.",
             "model_maestro_desc": "IA plus lourde, apte à traiter des tâches complexes et de grande envergure.",
             "model_goat_code_desc": "Modèle fait pour la génération de code, correction de code et analyse de code.",
             "model_label": "Modèle", "model_recent": "Le plus récent",
@@ -448,8 +451,9 @@ class TranslationManager:
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
-            "model_goat": "Goat", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
-            "model_goat_desc": "Default model, fast and versatile.",
+            "model_sukoshi": "Sukoshi", "model_goat": "Traditional", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
+            "model_sukoshi_desc": "Compact and fast model.",
+            "model_goat_desc": "Traditional model, balanced and versatile.",
             "model_maestro_desc": "Heavier AI, capable of handling complex and large-scale tasks.",
             "model_goat_code_desc": "Model built for code generation, code correction and code analysis.",
             "model_label": "Model", "model_recent": "Most recent",
@@ -608,8 +612,9 @@ class TranslationManager:
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
-            "model_goat": "Goat", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
-            "model_goat_desc": "Modelo por defecto, rápido y versátil.",
+            "model_sukoshi": "Sukoshi", "model_goat": "Tradicional", "model_maestro": "Maestro", "model_goat_code": "Goat Code",
+            "model_sukoshi_desc": "Modelo compacto y rápido.",
+            "model_goat_desc": "Modelo tradicional, equilibrado y versátil.",
             "model_maestro_desc": "IA más pesada, capaz de manejar tareas complejas y de gran envergadura.",
             "model_goat_code_desc": "Modelo hecho para generación de código, corrección de código y análisis de código.",
             "model_label": "Modelo", "model_recent": "Más reciente",
