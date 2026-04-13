@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "../core/coc_pipeline.h"
 
 void written_commande() // fonction pour initier la demande de l'utilisateur
 {
@@ -18,6 +19,7 @@ void written_commande() // fonction pour initier la demande de l'utilisateur
 
 int main(void)
 {
-    written_commande();
+    run_coc();
+    //written_commande();
     return 0;
 }
