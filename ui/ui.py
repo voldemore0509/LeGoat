@@ -403,6 +403,14 @@ class TranslationManager:
             "profile_picker_category_goat": "Goat",
             "profile_picker_import_avatar": "Importer une image",
             "profile_picker_import_banner": "Importer une bannière",
+            "tab_aide": "Aide",
+            "aide_contact_title": "Contacter le développeur",
+            "aide_contact_desc": "Une question, un bug, une idée ? Écrivez-nous.",
+            "aide_contact_btn": "Contacter",
+            "aide_contact_modal_title": "Nous contacter",
+            "aide_contact_modal_desc": "Choisissez votre moyen de contact préféré.",
+            "aide_close": "Fermer",
+            "aide_beta_label": "BÊTA",
         },
         "en": {
             "placeholder": "Ask The Goat...", "settings_label": "Settings", "settings_title": "Settings",
@@ -564,6 +572,14 @@ class TranslationManager:
             "profile_picker_category_goat": "Goat",
             "profile_picker_import_avatar": "Import an image",
             "profile_picker_import_banner": "Import a banner",
+            "tab_aide": "Help",
+            "aide_contact_title": "Contact the developer",
+            "aide_contact_desc": "A question, a bug, an idea? Write to us.",
+            "aide_contact_btn": "Contact",
+            "aide_contact_modal_title": "Contact us",
+            "aide_contact_modal_desc": "Choose your preferred way to reach us.",
+            "aide_close": "Close",
+            "aide_beta_label": "BETA",
         },
         "es": {
             "placeholder": "Pregunte a El Goat...", "settings_label": "Ajustes", "settings_title": "Ajustes",
@@ -725,6 +741,14 @@ class TranslationManager:
             "profile_picker_category_goat": "Goat",
             "profile_picker_import_avatar": "Importar una imagen",
             "profile_picker_import_banner": "Importar un banner",
+            "tab_aide": "Ayuda",
+            "aide_contact_title": "Contactar al desarrollador",
+            "aide_contact_desc": "¿Una pregunta, un error, una idea? Escríbanos.",
+            "aide_contact_btn": "Contactar",
+            "aide_contact_modal_title": "Contáctenos",
+            "aide_contact_modal_desc": "Elija su forma de contacto preferida.",
+            "aide_close": "Cerrar",
+            "aide_beta_label": "BETA",
         },
     }
 
@@ -1397,6 +1421,26 @@ body[data-accent="purple"]{--accent:#8b5cf6;--accent-rgb:139,92,246}
 .wallpaper-preview-box{height:124px;border-radius:16px;border:1px solid var(--line);background:var(--surface-soft);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.82rem}
 .wallpaper-preview-box img,.wallpaper-preview-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .wallpaper-preview-box .label{position:relative;z-index:1;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.7);color:#111827}
+
+/* ── Badge BÊTA ── */
+.beta-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#ca8a04;font-size:.65rem;font-weight:700;letter-spacing:.06em;margin-left:8px;vertical-align:middle;user-select:none}
+body[data-theme="dark"] .beta-badge{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.32);color:#fbbf24}
+
+/* ── Modal contact développeur ── */
+.aide-contact-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:95;display:none;align-items:center;justify-content:center;padding:20px}
+.aide-contact-backdrop.open{display:flex}
+.aide-contact-modal{width:min(480px,calc(100vw - 40px));background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.34);padding:32px;display:flex;flex-direction:column;gap:24px;align-items:center}
+.aide-contact-modal h3{margin:0;font-size:1.25rem;font-weight:700;color:var(--text-primary);text-align:center}
+.aide-contact-modal p{margin:0;font-size:.9rem;color:var(--text-secondary);text-align:center;line-height:1.5}
+.aide-contact-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%}
+.aide-contact-card{flex:1;min-width:140px;max-width:180px;border:1px solid var(--settings-row-border);border-radius:20px;background:var(--bubble-assistant);padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;transition:transform .14s,box-shadow .14s,background .14s;text-decoration:none;color:var(--text-primary)}
+.aide-contact-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.14);background:var(--settings-tab-hover)}
+.aide-contact-card.disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.aide-contact-card svg{width:44px;height:44px;flex:0 0 44px}
+.aide-contact-card-label{font-size:.9rem;font-weight:600;color:var(--text-primary)}
+.aide-contact-card-sub{font-size:.75rem;color:var(--text-secondary);text-align:center}
+.aide-contact-close{min-height:42px;padding:0 24px;border-radius:14px;border:1px solid var(--line);background:var(--surface-soft);color:var(--text-primary);cursor:pointer;font-size:.9rem;font-weight:600;font-family:inherit;transition:transform .14s}
+.aide-contact-close:hover{transform:translateY(-1px)}
 body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.72);color:#f8fafc}
 .wallpaper-actions{display:flex;flex-wrap:wrap;gap:10px}
 .wallpaper-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:97;display:none;align-items:center;justify-content:center;padding:20px}
@@ -1477,6 +1521,7 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
     <button type="button" class="settings-tab" data-settings-tab="data_security"><span class="settings-tab-icon">☑</span><span data-i18n="tab_data_security">Données</span></button>
     <button type="button" class="settings-tab" data-settings-tab="optimization"><span class="settings-tab-icon">⚡</span><span data-i18n="tab_optimization">Optimisation</span></button>
     <button type="button" class="settings-tab" data-settings-tab="goat_dev"><span class="settings-tab-icon">🐐</span><span data-i18n="tab_goat_dev">Goat Developer</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="aide"><span class="settings-tab-icon">💬</span><span data-i18n="tab_aide">Aide</span></button>
     <button type="button" class="settings-tab settings-tab-profile-footer" data-settings-tab="profile">
       <img class="settings-profile-tab-avatar" id="settings-profile-tab-avatar" alt="Avatar profil">
       <div class="settings-profile-tab-copy">
@@ -1529,15 +1574,60 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
       <section class="settings-section" data-settings-content="optimization">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
-        <!-- Option masquée temporairement : ciblage des calcules
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calcules</div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calculs<span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
         <div class="calc-target-notification" id="calc-target-notification" hidden></div>
-        -->
         <!-- Option masquée temporairement : libération de la mémoire vive de l'IA
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
         -->
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
       </section>
+      <!-- ── Section Aide ── -->
+      <section class="settings-section" data-settings-content="aide"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="aide_contact_title">Contacter le développeur</div><div class="settings-row-subtitle" data-i18n="aide_contact_desc">Une question, un bug, une idée ? Écrivez-nous.</div></div><button type="button" class="settings-ghost-button" id="aide-contact-btn" data-i18n="aide_contact_btn">Contacter</button></div>
+      </div></section>
+
+      <!-- ── Modal contact développeur ── -->
+      <div class="aide-contact-backdrop" id="aide-contact-backdrop" role="dialog" aria-modal="true">
+        <div class="aide-contact-modal">
+          <h3 data-i18n="aide_contact_modal_title">Nous contacter</h3>
+          <p data-i18n="aide_contact_modal_desc">Choisissez votre moyen de contact préféré.</p>
+          <div class="aide-contact-cards">
+            <!-- Mail — ouvre Gmail ou l'application Mail Windows -->
+            <a class="aide-contact-card" id="aide-mail-card" href="mailto:contact@legoat.fr" title="Envoyer un e-mail">
+              <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="44" height="44" rx="12" fill="#EA4335"/>
+                <path d="M8 14h28v18H8V14z" fill="white" opacity=".15"/>
+                <path d="M8 14l14 11L36 14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="8" y="14" width="28" height="18" rx="2" stroke="white" stroke-width="2" fill="none"/>
+              </svg>
+              <span class="aide-contact-card-label">Mail</span>
+              <span class="aide-contact-card-sub">contact@legoat.fr</span>
+            </a>
+            <!-- Instagram — désactivé pour l'instant -->
+            <div class="aide-contact-card disabled" title="Instagram — bientôt disponible">
+              <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="ig-grad" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#f09433"/>
+                    <stop offset="25%" stop-color="#e6683c"/>
+                    <stop offset="50%" stop-color="#dc2743"/>
+                    <stop offset="75%" stop-color="#cc2366"/>
+                    <stop offset="100%" stop-color="#bc1888"/>
+                  </linearGradient>
+                </defs>
+                <rect width="44" height="44" rx="12" fill="url(#ig-grad)"/>
+                <rect x="11" y="11" width="22" height="22" rx="6" stroke="white" stroke-width="2.2" fill="none"/>
+                <circle cx="22" cy="22" r="5.5" stroke="white" stroke-width="2.2" fill="none"/>
+                <circle cx="29" cy="15" r="1.5" fill="white"/>
+              </svg>
+              <span class="aide-contact-card-label">Instagram</span>
+              <span class="aide-contact-card-sub">Bientôt disponible</span>
+            </div>
+          </div>
+          <button type="button" class="aide-contact-close" id="aide-contact-close" data-i18n="aide_close">Fermer</button>
+        </div>
+      </div>
+
       <!-- Goat Developer -->
       <section class="settings-section" data-settings-content="goat_dev"><div class="settings-block">
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="goat_dev_news">Nouveautés</div><div class="settings-row-subtitle" data-i18n="goat_dev_news_desc"></div></div><button type="button" class="settings-ghost-button" id="goat-dev-news-btn" data-i18n="goat_dev_news"></button></div>
@@ -2220,10 +2310,20 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)tryPlayWal
 $('goat-dev-news-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('goat-dev-about-btn').addEventListener('click',()=>{playClick();alert(t('soon'))});
 $('migrate-data-button').addEventListener('click',()=>{playClick();closeSettings();setTimeout(openMigrate,200)});
+
+// ── Modal contact développeur (onglet Aide) ──────────────────
+const aideContactBackdrop=$('aide-contact-backdrop');
+function openAideContact(){aideContactBackdrop.classList.add('open');document.body.style.overflow='hidden'}
+function closeAideContact(){aideContactBackdrop.classList.remove('open');document.body.style.overflow=''}
+$('aide-contact-btn').addEventListener('click',()=>{playClick();openAideContact()});
+$('aide-contact-close').addEventListener('click',()=>{playClick();closeAideContact()});
+// Clic sur le fond pour fermer
+aideContactBackdrop.addEventListener('click',e=>{if(e.target===aideContactBackdrop)closeAideContact()});
+
 // Fermeture des dropdowns au clic en dehors
 document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open');if(!calcTargetMenu.contains(e.target)&&!calcTargetTrigger.contains(e.target))closeCalcTargetMenu()});
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();hideProfileAvatarHover(true);hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
@@ -3028,13 +3128,10 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         """Gère toutes les requêtes GET."""
         if self.path == "/":
-            # Page principale — regenerée à chaque requête avec l'état courant
             self._send(self.server.app.render_index())
         elif self.path == "/api/history":
-            # Endpoint optionnel pour récupérer l'historique en JSON
             self._json({"ok": True, "messages": self.server.app.session.messages})
         elif self.path in {"/favicon.ico", "/favicon.png"}:
-            # Évite les erreurs 404 dans les logs pour le favicon
             self.send_response(204)
             self.end_headers()
         else:
@@ -3042,7 +3139,6 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         """Gère toutes les requêtes POST via un dispatch par chemin."""
-        # Lecture et décodage du corps de la requête
         length = int(self.headers.get("Content-Length", "0"))
         raw = self.rfile.read(length) if length > 0 else b"{}"
         try:
@@ -3053,7 +3149,6 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
             self._json({"ok": False, "error": "JSON invalide."}, 400)
             return
 
-        # Table de dispatch — associe chaque route à sa méthode GoatWebApp
         handlers = {
             "/api/send":       lambda: self.server.app.submit_message(
                                    str(payload.get("message", "")),
@@ -3088,13 +3183,11 @@ class TestChatSession(unittest.TestCase):
     """Tests de la logique de session de chat."""
 
     def test_normalize(self):
-        """Les espaces multiples doivent être collapsés en un seul espace."""
         s = ChatSession()
         s.submit("  Bonjour   Le Goat  ")
         self.assertEqual(s.messages[0], ("Vous", "Bonjour Le Goat"))
 
     def test_empty_ignored(self):
-        """Un message vide ou uniquement composé d'espaces ne doit rien ajouter."""
         s = ChatSession()
         self.assertEqual(s.submit("   "), "")
 
@@ -3103,13 +3196,11 @@ class TestLogo(unittest.TestCase):
     """Tests du chargement des ressources graphiques."""
 
     def test_fallback(self):
-        """Si aucun fichier logo n'existe, un SVG de secours doit être retourné."""
         uri = LogoLoader.get_data_uri([Path("/no/such/file")])
         self.assertTrue(uri.startswith("data:image/svg+xml,"))
 
 
 def run_tests() -> None:
-    """Lance la suite de tests et quitte avec code 1 si un test échoue."""
     suite = unittest.TestSuite()
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestChatSession))
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestLogo))
@@ -3130,49 +3221,41 @@ def main() -> None:
     ------------------
     (défaut)      Fenêtre native pywebview
     --browser     Ouvre dans le navigateur système
-    --no-browser  Serveur HTTP pur (headless), utile pour le dev ou l'API
+    --no-browser  Serveur HTTP pur (headless)
     --test        Lance la suite de tests unitaires et quitte
-    --host HOST   Adresse d'écoute (défaut : 127.0.0.1)
-    --port PORT   Port d'écoute (défaut : 8765)
     """
     parser = argparse.ArgumentParser(description="Le Goat — Interface desktop native")
     parser.add_argument("--host",       default=AppConfig.HOST)
     parser.add_argument("--port",       type=int, default=AppConfig.PORT)
-    parser.add_argument("--no-browser", action="store_true", help="Mode serveur pur (pas de fenêtre)")
-    parser.add_argument("--browser",    action="store_true", help="Ouvrir dans le navigateur")
-    parser.add_argument("--test",       action="store_true", help="Lancer les tests unitaires")
+    parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--browser",    action="store_true")
+    parser.add_argument("--test",       action="store_true")
     args = parser.parse_args()
 
-    # Mode test — exécute les tests et quitte immédiatement
     if args.test:
         run_tests()
         return
 
-    # Initialisation de l'application et du serveur HTTP
     app    = GoatWebApp()
     server = GoatHTTPServer((args.host, args.port), GoatRequestHandler, app)
     url    = f"http://{args.host}:{args.port}"
     print(f"Le Goat lancé sur {url}")
 
-    # Le serveur tourne dans un thread daemon — il s'arrête avec le processus principal
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
 
     if args.no_browser:
-        # ── Mode headless — utile pour tester l'API ou faire du dev ──
         try:
-            server_thread.join()  # Bloque jusqu'à Ctrl+C
+            server_thread.join()
         except KeyboardInterrupt:
             print("Arrêt du serveur Le Goat.")
         finally:
             server.server_close()
 
     elif args.browser or webview is None:
-        # ── Fallback navigateur — si pywebview n'est pas installé ────
         import webbrowser
         if webview is None:
-            print("⚠ pywebview non installé — ouverture dans le navigateur.")
-            print("  Pour la fenêtre native : pip install pywebview")
+            print("pywebview non installé — ouverture dans le navigateur.")
         webbrowser.open(url)
         try:
             server_thread.join()
@@ -3182,7 +3265,6 @@ def main() -> None:
             server.server_close()
 
     else:
-        # ── Mode fenêtre native pywebview (recommandé) ───────────────
         webview.create_window(
             AppConfig.DEFAULT_TITLE,
             url,
@@ -3190,15 +3272,14 @@ def main() -> None:
             height=820,
             min_size=(800, 500),
             resizable=True,
-            text_select=True,   # Permet la sélection de texte dans la fenêtre
+            text_select=True,
         )
-        # Cherche le logo pour l'icône de la taskbar Windows
         icon_path = LogoLoader.get_icon_path()
+        if icon_path and not icon_path.lower().endswith('.ico'):
+            icon_path = None
         try:
-            # webview.start() bloque jusqu'à la fermeture de la fenêtre
             webview.start(debug=False, icon=icon_path)
         except TypeError:
-            # Ancienne version de pywebview sans paramètre icon
             webview.start(debug=False)
         except KeyboardInterrupt:
             pass
