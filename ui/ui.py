@@ -298,6 +298,7 @@ class TranslationManager:
             "model_label": "Modèle", "model_recent": "Le plus récent",
             "tooltip_send": "Envoyer le message (Entrée).", "tooltip_settings": "Ouvrir les paramètres.",
             "tooltip_new_chat": "Démarrer une nouvelle discussion (supprime l'actuelle).",
+            "tooltip_sidebar": "Ouvrir / fermer le panneau latéral.",
             "tooltip_regenerate": "Relancer la réponse de l'IA.",
             "tooltip_mode_fast": "Réponse rapide, faible coût.",
             "tooltip_mode_reflection": "Réflexion plus profonde (plus lent).",
@@ -467,6 +468,7 @@ class TranslationManager:
             "model_label": "Model", "model_recent": "Most recent",
             "tooltip_send": "Send message (Enter).", "tooltip_settings": "Open settings.",
             "tooltip_new_chat": "Start a new chat (deletes current).",
+            "tooltip_sidebar": "Open / close the sidebar panel.",
             "tooltip_regenerate": "Regenerate the AI answer.",
             "tooltip_mode_fast": "Fast answer, low cost.",
             "tooltip_mode_reflection": "Deeper thinking (slower).",
@@ -636,6 +638,7 @@ class TranslationManager:
             "model_label": "Modelo", "model_recent": "Más reciente",
             "tooltip_send": "Enviar mensaje (Enter).", "tooltip_settings": "Abrir ajustes.",
             "tooltip_new_chat": "Iniciar un nuevo chat (borra el actual).",
+            "tooltip_sidebar": "Abrir / cerrar el panel lateral.",
             "tooltip_regenerate": "Regenerar la respuesta de la IA.",
             "tooltip_mode_fast": "Respuesta rápida, bajo coste.",
             "tooltip_mode_reflection": "Reflexión más profunda (más lento).",
@@ -948,10 +951,12 @@ class LogoLoader:
         base = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
         logo_dir = base / "Logo"
         return {
-            "legoat_light":      cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondBlanc.png"),
-            "legoat_dark":       cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondNoire.png"),
-            "goatistique_light": cls._load_file_as_data_uri(logo_dir / "Logo Goatistique fond blanc.png"),
-            "goatistique_dark":  cls._load_file_as_data_uri(logo_dir / "logo goatistique fond noire.png"),
+            "legoat_light":       cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondBlanc.png"),
+            "legoat_dark":        cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_FondNoire.png"),
+            "legoat_pixel_light": cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_Pixel_FondBlanc.png"),
+            "legoat_pixel_dark":  cls._load_file_as_data_uri(logo_dir / "Image_LeGoat_Pixel_FondNoir.png"),
+            "goatistique_light":  cls._load_file_as_data_uri(logo_dir / "Logo Goatistique fond blanc.png"),
+            "goatistique_dark":   cls._load_file_as_data_uri(logo_dir / "logo goatistique fond noire.png"),
         }
 
     @classmethod
@@ -1109,6 +1114,7 @@ body[data-active-tab="chat"] .wallpaper-layer,body[data-active-tab="coworking"][
 .shell.has-messages .brand-stack{opacity:0;transform:translateY(-14px) scale(.92);max-height:0;margin:0;pointer-events:none}
 .logo-card{width:auto;height:auto;background:none;display:grid;place-items:center;box-shadow:none;border:none;overflow:visible}
 .logo-card img{width:110px;height:110px;object-fit:contain;display:block;filter:none}
+body[data-active-tab="coworking"] .logo-card{display:none}
 .goatistique-badge{position:fixed;bottom:18px;right:20px;z-index:50;pointer-events:none;opacity:.65;transition:opacity .3s}
 .goatistique-badge img{height:80px;width:auto;object-fit:contain;display:block}
 .brand-text{display:none}
@@ -1454,6 +1460,55 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 .wallpaper-url-row{display:flex;gap:10px;flex-wrap:wrap}
 .wallpaper-url-row .settings-input{flex:1;min-width:260px;width:auto}
 
+/* ── Barre latérale (sidebar) ── */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.22);backdrop-filter:blur(3px);z-index:44;opacity:0;pointer-events:none;transition:opacity .26s cubic-bezier(.4,0,.2,1)}
+.sidebar-overlay.open{opacity:1;pointer-events:auto}
+.sidebar-panel{position:fixed;top:0;left:0;height:100vh;width:280px;background:var(--settings-panel);border-right:1px solid var(--settings-panel-border);box-shadow:4px 0 32px rgba(0,0,0,.13);z-index:45;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar-panel.open{transform:translateX(0)}
+/* ── Topbar : brand + close ── */
+.sidebar-topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 14px 10px;gap:8px}
+.sidebar-brand{font-size:.87rem;font-weight:700;color:var(--text-primary);letter-spacing:-.01em;flex:1;padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-close-btn{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;transition:background .14s,color .14s}
+.sidebar-close-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary)}
+/* ── Bouton Nouvelle discussion — pleine largeur, accent ── */
+.sidebar-new-chat-wrap{padding:2px 12px 8px}
+.sidebar-new-chat-btn{width:100%;height:38px;border-radius:11px;border:1px solid var(--accent-border);background:var(--accent-soft);color:var(--accent);cursor:pointer;font-size:.82rem;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:8px;padding:0 14px;transition:background .16s,transform .13s,box-shadow .16s;box-shadow:0 1px 4px rgba(var(--accent-rgb),.07)}
+.sidebar-new-chat-btn:hover{background:rgba(var(--accent-rgb),.18);transform:translateY(-1px);box-shadow:0 4px 12px rgba(var(--accent-rgb),.16)}
+.sidebar-new-chat-btn:active{transform:translateY(0);box-shadow:none}
+.sidebar-new-chat-icon{font-size:1rem;flex-shrink:0}
+/* ── Barre de recherche avec icône ── */
+.sidebar-search-wrap{padding:0 12px 8px}
+.sidebar-search-inner{position:relative;display:flex;align-items:center}
+.sidebar-search-icon{position:absolute;left:10px;color:var(--text-muted);font-size:.88rem;pointer-events:none;line-height:1;user-select:none}
+.sidebar-search{width:100%;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text-primary);padding:0 12px 0 32px;font-size:.8rem;outline:none;font-family:inherit;transition:border-color .14s,box-shadow .14s}
+.sidebar-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.10)}
+.sidebar-search::placeholder{color:var(--input-placeholder)}
+/* ── Onglets ── */
+.sidebar-tabs{display:flex;padding:0 12px;gap:2px;border-bottom:1px solid var(--line);margin-top:2px}
+.sidebar-tab{flex:1;height:33px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .14s,border-color .14s}
+.sidebar-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.sidebar-tab:hover:not(.active){color:var(--text-primary)}
+/* ── Contenu scrollable ── */
+.sidebar-content{flex:1;overflow-y:auto;padding:8px 8px 4px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.sidebar-section-label{padding:10px 12px 4px;font-size:.68rem;font-weight:700;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;user-select:none}
+.sidebar-action-item{width:100%;border:none;background:transparent;color:var(--text-primary);text-align:left;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:.81rem;font-family:inherit;display:flex;align-items:center;gap:9px;transition:background .14s;line-height:1.4}
+.sidebar-action-item:hover{background:var(--settings-tab-hover)}
+.sidebar-action-item .item-icon{font-size:.95rem;flex-shrink:0;width:20px;text-align:center;display:inline-flex;align-items:center;justify-content:center}
+.sidebar-empty{padding:28px 14px;color:var(--text-muted);font-size:.8rem;text-align:center;line-height:1.7}
+/* ── Footer ── */
+.sidebar-footer{padding:10px 12px 14px;border-top:1px solid var(--line)}
+.sidebar-settings-btn{width:100%;height:38px;border-radius:11px;border:1px solid var(--action-border);background:transparent;color:var(--text-primary);cursor:pointer;font-size:.81rem;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:9px;padding:0 12px;transition:background .14s}
+.sidebar-settings-btn:hover{background:var(--settings-tab-hover)}
+.sidebar-settings-btn .item-icon{font-size:.95rem;width:20px;text-align:center;display:inline-flex;align-items:center;justify-content:center}
+
+/* ── Boutons gauche Apple-style quasi-transparent ── */
+.left-buttons-anchor{position:fixed;left:16px;top:62px;z-index:40;display:flex;flex-direction:column;align-items:center;gap:7px}
+.sidebar-toggle-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--action-border);background:var(--action-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--text-primary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.05rem;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .14s,background .14s}
+.sidebar-toggle-btn:hover{transform:translateY(-1px);background:var(--settings-tab-hover)}
+/* Override newchat-button and settings-button to Apple style */
+.newchat-button{width:40px!important;height:40px!important;border-radius:12px!important;border:1px solid var(--action-border)!important;background:var(--action-bg)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;box-shadow:0 2px 10px rgba(0,0,0,.07)!important;font-size:1.1rem!important}
+.settings-button{width:40px!important;height:40px!important;border-radius:12px!important;border:1px solid var(--action-border)!important;background:var(--action-bg)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;box-shadow:0 2px 10px rgba(0,0,0,.07)!important;font-size:1.05rem!important}
+
 </style>
 </head>
 <body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off">
@@ -1478,7 +1533,7 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 <button type="button" class="private-chat-btn" id="private-chat-btn">🔒<span id="pc-label">Chat Privé</span><div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
 
 <main class="shell" id="shell">
-  <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div><div class="brand-actions"><button type="button" class="composer-plus brand-add-button" id="composer-plus" data-tooltip-key="tooltip_plus_btn"><span class="brand-add-icon">＋</span><span class="brand-add-label" data-i18n="sheet_add">Ajouter</span></button><div class="plus-menu brand-plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div></div></section>
+  <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" data-pixel-light="%%LEGOAT_PIXEL_LIGHT_URI%%" data-pixel-dark="%%LEGOAT_PIXEL_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div><div class="brand-actions"><button type="button" class="composer-plus brand-add-button" id="composer-plus" data-tooltip-key="tooltip_plus_btn"><span class="brand-add-icon">＋</span><span class="brand-add-label" data-i18n="sheet_add">Ajouter</span></button><div class="plus-menu brand-plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div></div></section>
   <section class="messages" id="messages" aria-live="polite"></section>
   <section class="composer-wrap">
     <div class="sheets-row" id="sheets-row"></div>
@@ -1509,8 +1564,58 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
   </section>
   <div class="status" id="status"></div>
 </main>
-<div class="newchat-anchor"><button type="button" class="newchat-button" id="newchat-button" data-tooltip-key="tooltip_new_chat">＋</button><div class="newchat-button-label" id="newchat-button-label"></div></div>
+<!-- Boutons gauche — style Apple quasi-transparent -->
+<div class="left-buttons-anchor">
+  <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Ouvrir le panneau latéral" data-tooltip-key="tooltip_sidebar">☰</button>
+  <button type="button" class="newchat-button" id="newchat-button" data-tooltip-key="tooltip_new_chat">＋</button>
+</div>
+<div id="newchat-button-label" hidden></div>
 <div class="settings-anchor"><button type="button" class="settings-button" id="settings-button" data-tooltip-key="tooltip_settings">⚙</button><div class="settings-button-label" id="settings-button-label"></div></div>
+
+<!-- Sidebar overlay + panneau latéral -->
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+<aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" role="complementary">
+  <!-- Topbar : nom de l'app + fermer -->
+  <div class="sidebar-topbar">
+    <span class="sidebar-brand">Le Goat</span>
+    <button type="button" class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le panneau">✕</button>
+  </div>
+  <!-- Bouton Nouvelle discussion — pleine largeur, avant la recherche -->
+  <div class="sidebar-new-chat-wrap">
+    <button type="button" class="sidebar-new-chat-btn" id="sidebar-new-chat-btn">
+      <span class="sidebar-new-chat-icon">✎</span>
+      <span id="sidebar-new-chat-label">Nouvelle discussion</span>
+    </button>
+  </div>
+  <!-- Barre de recherche avec icône -->
+  <div class="sidebar-search-wrap">
+    <div class="sidebar-search-inner">
+      <span class="sidebar-search-icon">⌕</span>
+      <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Rechercher une discussion…">
+    </div>
+  </div>
+  <!-- Onglets -->
+  <div class="sidebar-tabs">
+    <button type="button" class="sidebar-tab active" data-sidebar-tab="files">Fichiers</button>
+    <button type="button" class="sidebar-tab" data-sidebar-tab="history">Historique</button>
+  </div>
+  <!-- Contenu : fichiers -->
+  <div class="sidebar-content" data-sidebar-content="files">
+    <button type="button" class="sidebar-action-item" id="sidebar-create-file-btn">
+      <span class="item-icon">📄</span>Créer un fichier
+    </button>
+  </div>
+  <!-- Contenu : historique -->
+  <div class="sidebar-content" data-sidebar-content="history" hidden>
+    <div class="sidebar-empty" id="sidebar-history-empty">Aucune discussion pour l'instant.</div>
+  </div>
+  <!-- Footer : paramètres -->
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-settings-btn" id="sidebar-settings-btn">
+      <span class="item-icon">⚙</span><span id="sidebar-settings-label">Paramètres</span>
+    </button>
+  </div>
+</aside>
 <div class="settings-backdrop" id="settings-backdrop" hidden></div>
 <section class="settings-modal" id="settings-modal" hidden aria-modal="true" role="dialog">
   <aside class="settings-sidebar">
@@ -1560,6 +1665,8 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
         </div>
       </section>
       <section class="settings-section" data-settings-content="personalization"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title">Logo de l'IA</div><div class="settings-row-subtitle">Remplace le logo affiché dans l'interface. PNG ou JPG recommandé.</div></div><div style="display:flex;gap:8px;align-items:center"><img id="ai-logo-preview" alt="Logo aperçu" style="width:40px;height:40px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:var(--surface-soft)"><button type="button" class="settings-ghost-button" id="ai-logo-change-btn">Changer</button><button type="button" class="settings-ghost-button" id="ai-logo-reset-btn">Réinitialiser</button></div></div>
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title">Nom de l'IA</div><div class="settings-row-subtitle">Par défaut : "Le Goat". Ce nom s'affiche partout dans l'interface.</div></div><div style="display:flex;gap:8px;align-items:center"><input class="settings-input" id="ai-name-input" placeholder="Le Goat" style="width:150px"><button type="button" class="settings-ghost-button" id="ai-name-reset-btn">Réinitialiser</button></div></div>
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_how_address">Comment l'IA s'adresse à vous</div><div class="settings-row-subtitle" data-i18n="perso_how_address_help">Prénom, surnom, ou titre que l'IA utilisera.</div></div><input class="settings-input" id="user-tone" data-placeholder-key="placeholder_tone"></div>
         <div class="settings-row" style="flex-direction:column;align-items:stretch"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_ai_tone">Ton de l'IA</div><div class="settings-row-subtitle" data-i18n="perso_ai_tone_help">Décrivez comment vous voulez que l'IA vous parle.</div></div><textarea class="settings-textarea" id="user-info" data-placeholder-key="personalization_placeholder" style="width:100%;min-height:160px"></textarea></div>
         <input type="hidden" id="user-firstname"><input type="hidden" id="user-lastname">
@@ -1750,7 +1857,7 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
     </div>
   </div>
 </div>
-<div class="goatistique-badge" id="goatistique-badge"><img id="goatistique-logo" src="%%GOATISTIQUE_LIGHT_URI%%" data-light="%%GOATISTIQUE_LIGHT_URI%%" data-dark="%%GOATISTIQUE_DARK_URI%%" alt="Goatistique"></div>
+<!-- Badge Goatistique retiré -->
 <div class="overclock-backdrop" id="overclock-backdrop"><div class="overclock-modal"><h3>⚠ Overclocking IA</h3><div class="oc-warning-text" id="oc-warning-text"></div><div class="oc-actions"><button type="button" class="oc-btn-cancel" id="oc-cancel-btn"></button><button type="button" class="oc-btn-confirm" id="oc-confirm-btn"></button></div></div></div>
 <div class="tooltip" id="tooltip" hidden></div>
 <div class="profile-avatar-hover-card" id="profile-avatar-hover-card" hidden>
@@ -1776,8 +1883,10 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
       <input type="file" id="wallpaper-file-input" class="profile-hidden-input" accept="image/*">
       <input type="file" id="wallpaper-video-file-input" class="profile-hidden-input" accept="video/*">
       <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_video_volume">Volume de la vidéo</div><div class="settings-row-subtitle" data-i18n="appearance_video_help">Vidéo en boucle pour l’arrière-plan.</div></div><div class="settings-stepper"><input type="range" id="wallpaper-volume-input" min="0" max="100" step="1" value="35" style="width:180px"><span class="settings-stepper-value" id="wallpaper-volume-value">35%</span></div></div>
+      <!-- Option masquée temporairement : FPS et qualité vidéo
       <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">FPS</div><div class="settings-row-subtitle">Images par seconde de la vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-fps="30">30 fps</button><button type="button" class="settings-choice" data-video-fps="60">60 fps</button></div></div>
       <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">Qualité</div><div class="settings-row-subtitle">Résolution de rendu vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-quality="1080p">1080p</button><button type="button" class="settings-choice" data-video-quality="4k">4K</button></div></div>
+      -->
     </div>
   </div>
 </div>
@@ -1850,7 +1959,7 @@ const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBa
 const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||''};
 // ── Variables runtime (non persistées) ───────────────────────────
 let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
 let cropState=null;
@@ -1896,7 +2005,8 @@ const coworkingContent={
 };
 // ── Utilitaires de base ───────────────────────────────────────────
 function t(k){return(T[S.lang]||T[defs.lang]||{})[k]||(T[defs.lang]||{})[k]||k}  // Traduction
-function appTitle(){return titleByLang[S.lang]||titleByLang[defs.lang]}             // Titre localisé
+function appTitle(){return S.aiName||(titleByLang[S.lang]||titleByLang[defs.lang])}  // Titre localisé (personnalisable)
+function updateAiName(){if(brandText)brandText.textContent=appTitle();if(tabCoworking)tabCoworking.textContent=appTitle()+' Code';renderMessages()}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}  // Échappement HTML
 
 // ── Système audio (Web Audio API, synthèse additive) ─────────────
@@ -1947,7 +2057,7 @@ function applyUserFont(v,snd){apply('userfont',['default','arial','opendyslexic'
 function renderModelDD(){
   modelCurrentLabel.textContent=t(models.find(m=>m.id===S.model).label_key);
   modelDDMenu.innerHTML='<div class="model-dd-header">'+esc(t('model_recent'))+'</div>'+models.map(m=>'<button type="button" class="model-dd-item'+(m.id===S.model?' selected':'')+'" data-model="'+esc(m.id)+'" role="menuitemradio"><div class="m-info"><span class="m-name">'+esc(t(m.label_key))+'</span><span class="m-desc">'+esc(t(m.desc_key))+'</span></div><span class="m-check">✓</span></button>').join('')+'<div class="model-dd-sep"></div>';
-  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',async()=>{playClick();const nextModel=b.dataset.model;if(nextModel===S.model){closeModelDD();return}statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;S.model=nextModel;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD();refreshWelcomeContent();renderMessages();ta.value='';autoResize();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang])}catch(e){statusEl.textContent=e.message}}));
+  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{playClick();const nextModel=b.dataset.model;if(nextModel===S.model){closeModelDD();return}S.model=nextModel;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD();refreshWelcomeContent();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang])}));
 }
 function openModelDD(){modelDDMenu.classList.add('open');modelTriggerBtn.setAttribute('aria-expanded','true');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','true')}
 function closeModelDD(){modelDDMenu.classList.remove('open');modelTriggerBtn.setAttribute('aria-expanded','false');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','false')}
@@ -2059,7 +2169,7 @@ function onDrag(e){if(!dragging)return;modal.style.left=Math.max(12,mSL+(e.clien
 function apply(key,val,lsKey,sound){if(sound!==false)playClick();S[key]=val;ls(lsKey||key,val)}
 function checkUiOptOff(){if(S.uiOpt==='on'){S.uiOpt='off';ls('uiopt','off');updatePerf()}}
 function applyLang(l,snd){apply('lang',['fr','en','es'].includes(l)?l:defs.lang,'lang',snd);document.documentElement.lang=S.lang;$$('[data-language-value]').forEach(b=>b.classList.toggle('active',b.dataset.languageValue===S.lang));applyTranslations()}
-function updateThemedLogos(){const isDark=S.theme==='dark';const mainLogo=$('main-logo');if(mainLogo)mainLogo.src=isDark?mainLogo.dataset.dark:mainLogo.dataset.light;const goatLogo=$('goatistique-logo');if(goatLogo)goatLogo.src=isDark?goatLogo.dataset.dark:goatLogo.dataset.light}
+function updateThemedLogos(){const isDark=S.theme==='dark';const mainLogo=$('main-logo');if(mainLogo){if(S.aiLogo){mainLogo.src=S.aiLogo}else{const isCowork=activeTab==='coworking';if(isCowork){mainLogo.src=isDark?(mainLogo.dataset.pixelDark||mainLogo.dataset.dark):(mainLogo.dataset.pixelLight||mainLogo.dataset.light)}else{mainLogo.src=isDark?mainLogo.dataset.dark:mainLogo.dataset.light}}}const goatLogo=$('goatistique-logo');if(goatLogo)goatLogo.src=isDark?goatLogo.dataset.dark:goatLogo.dataset.light}
 function applyTheme(v,snd){if(S.privateChat)return;apply('theme',v==='dark'?'dark':'light','theme',snd);document.body.dataset.theme=S.theme;$$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue===S.theme));updateThemedLogos()}
 function applyEffects(v,snd){apply('effects',v==='off'?'off':'on','effects',snd);document.body.dataset.effects=S.effects;updatePerf()}
 function applyTextSize(v,snd){apply('textSize',v==='large'?'large':'default','textsize',snd);document.body.dataset.textsize=S.textSize;$$('[data-textsize-value]').forEach(b=>b.classList.toggle('active',b.dataset.textsizeValue===S.textSize))}
@@ -2131,6 +2241,7 @@ function updateTabUI(){
   ta.placeholder=activeTab==='coworking'?getCoworkingContent().placeholder:t('placeholder');
   statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
   applyWallpaper();
+  updateThemedLogos();
   refreshWelcomeContent();
 }
 async function switchTabWithReset(targetTab){
@@ -2149,7 +2260,7 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');const _ssl=$('sidebar-settings-label');if(_ssl)_ssl.textContent=t('settings_label');const _sh=$('sidebar-history-empty');if(_sh)_sh.textContent=t('no_history')||'Aucune discussion.';const _ss=$('sidebar-search');if(_ss)_ss.placeholder=t('search_placeholder')||'Rechercher…';$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
@@ -2268,6 +2379,8 @@ $('toggle-effects-button').addEventListener('click',()=>applyEffects(S.effects==
 $('toggle-responses-button').addEventListener('click',()=>applyOptResp(S.optResp==='on'?'off':'on'));
 $('toggle-uiopt-button').addEventListener('click',()=>applyUiOpt(S.uiOpt==='on'?'off':'on'));
 ['user-firstname','user-lastname','user-tone','user-info'].forEach(id=>$(id).addEventListener('input',persistPerso));
+(function(){const aiIn=$('ai-name-input'),aiReset=$('ai-name-reset-btn');if(aiIn){aiIn.value=S.aiName||'';aiIn.addEventListener('input',()=>{S.aiName=aiIn.value.trim();ls('ai-name',S.aiName);updateAiName()})}if(aiReset){aiReset.addEventListener('click',()=>{playClick();S.aiName='';ls('ai-name','');if(aiIn)aiIn.value='';updateAiName()})}})();
+(function(){const aiLogoChange=$('ai-logo-change-btn'),aiLogoReset=$('ai-logo-reset-btn'),aiLogoPreview=$('ai-logo-preview');function refreshLogoPreview(){if(!aiLogoPreview)return;const mainLogo=$('main-logo');const fallback=mainLogo?mainLogo.dataset.light||mainLogo.src:'';aiLogoPreview.src=S.aiLogo||fallback}if(aiLogoChange){aiLogoChange.addEventListener('click',()=>{playClick();const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const data=ev.target.result;S.aiLogo=data;ls('ai-logo',data);updateThemedLogos();refreshLogoPreview()};r.readAsDataURL(f)};inp.click()})}if(aiLogoReset){aiLogoReset.addEventListener('click',()=>{playClick();S.aiLogo='';ls('ai-logo','');updateThemedLogos();refreshLogoPreview()})}refreshLogoPreview()})();
 ['profile-firstname-input','profile-lastname-input','profile-bio-input','profile-instagram-input','profile-tiktok-input','profile-youtube-input','profile-github-input','profile-bluesky-input'].forEach(id=>$(id).addEventListener('input',persistProfileForm));
 (function(){const bioIn=$('profile-bio-input'),bioCount=$('profile-bio-count'),bioCounter=$('profile-bio-counter');if(!bioIn||!bioCount)return;function updateBioCounter(){const len=bioIn.value.length;bioCount.textContent=String(len);bioCounter.classList.remove('warning','danger');if(len>900)bioCounter.classList.add('danger');else if(len>750)bioCounter.classList.add('warning')}bioIn.addEventListener('input',updateBioCounter);updateBioCounter()})();
 profileEditToggle.addEventListener('click',()=>toggleProfileEditor());
@@ -2322,8 +2435,62 @@ aideContactBackdrop.addEventListener('click',e=>{if(e.target===aideContactBackdr
 
 // Fermeture des dropdowns au clic en dehors
 document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;if(!modeMenu.contains(e.target)&&!modeTrigger.contains(e.target))closeMM();if(!styleMenu.contains(e.target)&&!styleTrigger.contains(e.target))closeSM();if(!gadgetMenu.contains(e.target)&&!gadgetTrigger.contains(e.target))closeGM();if(!modelDDMenu.contains(e.target)&&!modelTriggerBtn.contains(e.target))closeModelDD();if(!plusMenu.contains(e.target)&&!composerPlus.contains(e.target))plusMenu.classList.remove('open');if(!calcTargetMenu.contains(e.target)&&!calcTargetTrigger.contains(e.target))closeCalcTargetMenu()});
+// ── Barre latérale (Sidebar) ─────────────────────────────────────
+const sidebarPanel=$('sidebar-panel'),sidebarOverlay=$('sidebar-overlay');
+let sidebarOpen=false;
+function openSidebar(){
+  sidebarOpen=true;
+  if(sidebarPanel){sidebarPanel.classList.add('open');sidebarPanel.setAttribute('aria-hidden','false')}
+  if(sidebarOverlay){sidebarOverlay.classList.add('open');sidebarOverlay.setAttribute('aria-hidden','false')}
+}
+function closeSidebar(){
+  sidebarOpen=false;
+  if(sidebarPanel){sidebarPanel.classList.remove('open');sidebarPanel.setAttribute('aria-hidden','true')}
+  if(sidebarOverlay){sidebarOverlay.classList.remove('open');sidebarOverlay.setAttribute('aria-hidden','true')}
+}
+// Bouton toggle sidebar (☰)
+const sidebarToggleBtn=$('sidebar-toggle-btn');
+if(sidebarToggleBtn)sidebarToggleBtn.addEventListener('click',()=>{playClick();sidebarOpen?closeSidebar():openSidebar()});
+// Bouton fermer dans la sidebar (×)
+const sidebarCloseBtn=$('sidebar-close-btn');
+if(sidebarCloseBtn)sidebarCloseBtn.addEventListener('click',()=>{playClick();closeSidebar()});
+// Clic sur l'overlay ferme la sidebar
+if(sidebarOverlay)sidebarOverlay.addEventListener('click',()=>{closeSidebar()});
+// Bouton "Nouvelle discussion" dans la sidebar
+const sidebarNewChatBtn=$('sidebar-new-chat-btn');
+if(sidebarNewChatBtn)sidebarNewChatBtn.addEventListener('click',async()=>{
+  closeSidebar();
+  playClick();
+  if(!confirm(t('new_chat_confirm')))return;
+  statusEl.textContent='...';
+  try{
+    const p=await apiNewChat();
+    messages=p.messages;
+    refreshWelcomeContent();
+    renderMessages();
+    statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
+    ta.value='';autoResize();ta.focus();
+  }catch(e){statusEl.textContent=e.message}
+});
+// Bouton "Paramètres" dans la sidebar
+const sidebarSettingsBtn=$('sidebar-settings-btn');
+if(sidebarSettingsBtn)sidebarSettingsBtn.addEventListener('click',()=>{playClick();closeSidebar();openSettings()});
+// Bouton "Créer un fichier" — no-op pour l'instant
+const sidebarCreateFileBtn=$('sidebar-create-file-btn');
+if(sidebarCreateFileBtn)sidebarCreateFileBtn.addEventListener('click',()=>{playClick();alert(t('soon'))});
+// Onglets de la sidebar (Fichiers / Historique)
+$$('[data-sidebar-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  playClick();
+  const tab=btn.dataset.sidebarTab;
+  $$('[data-sidebar-tab]').forEach(b=>b.classList.toggle('active',b.dataset.sidebarTab===tab));
+  $$('[data-sidebar-content]').forEach(s=>s.hidden=s.dataset.sidebarContent!==tab);
+}));
+// Recherche dans la sidebar (placeholder — filtrage futur de l'historique)
+const sidebarSearch=$('sidebar-search');
+if(sidebarSearch)sidebarSearch.addEventListener('input',()=>{/* filtrage historique à implémenter */});
+
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
@@ -2341,7 +2508,7 @@ applyOptResp(S.optResp,false);applyCalcTarget(S.calcTarget,false);applyUiOpt(S.u
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
 applyAiFont(S.aifont,false);applyUserFont(S.userfont,false);updateOverclockUI();updateCharCounter();updateWallpaperPreviews();
-setActiveTab(activeTab,false);applyWallpaper();ta.focus(); // Focus textarea au démarrage
+setActiveTab(activeTab,false);applyWallpaper();updateAiName();ta.focus(); // Focus textarea au démarrage
 
 // ── Top Tab Bar (Chat / Goat Code) ──
 if(tabChat){
@@ -2385,6 +2552,8 @@ def build_index_html(logo_uri: str, messages: Iterable[Message], themed_logos: O
         "%%LOGO_DATA_URI%%": html.escape(logo_uri, quote=True),
         "%%LEGOAT_LIGHT_URI%%": html.escape(tl.get("legoat_light", logo_uri), quote=True),
         "%%LEGOAT_DARK_URI%%": html.escape(tl.get("legoat_dark", logo_uri), quote=True),
+        "%%LEGOAT_PIXEL_LIGHT_URI%%": html.escape(tl.get("legoat_pixel_light", tl.get("legoat_light", logo_uri)), quote=True),
+        "%%LEGOAT_PIXEL_DARK_URI%%": html.escape(tl.get("legoat_pixel_dark", tl.get("legoat_dark", logo_uri)), quote=True),
         "%%GOATISTIQUE_LIGHT_URI%%": html.escape(tl.get("goatistique_light", ""), quote=True),
         "%%GOATISTIQUE_DARK_URI%%": html.escape(tl.get("goatistique_dark", ""), quote=True),
         "%%APP_VERSION%%": html.escape(cfg.VERSION),
@@ -3275,8 +3444,20 @@ def main() -> None:
             text_select=True,
         )
         icon_path = LogoLoader.get_icon_path()
+        # Conversion PNG → ICO avec Pillow si disponible (Windows exige .ico)
         if icon_path and not icon_path.lower().endswith('.ico'):
-            icon_path = None
+            if Image is not None:
+                try:
+                    ico_str = str(Path(icon_path).with_suffix('.ico'))
+                    if not Path(ico_str).exists():
+                        img = Image.open(icon_path).convert('RGBA')
+                        img.save(ico_str, format='ICO',
+                                 sizes=[(256, 256), (128, 128), (64, 64), (32, 32)])
+                    icon_path = ico_str
+                except Exception:
+                    icon_path = None
+            else:
+                icon_path = None  # Pillow absent — pas d'icône personnalisée
         try:
             webview.start(debug=False, icon=icon_path)
         except TypeError:
