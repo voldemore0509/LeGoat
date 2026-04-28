@@ -287,6 +287,17 @@ class TranslationManager:
             "new_chat_confirm": "La discussion actuelle sera supprimée et irrécupérable. Continuer ?",
             "tab_switch_confirm": "Changer d'espace va réinitialiser la discussion en cours. Continuer ?",
             "regenerate": "Relancer", "soon": "Bientôt disponible.",
+            "sidebar_search_placeholder": "Rechercher une discussion…",
+            "sidebar_pinned": "Épinglés",
+            "sidebar_pinned_empty": "Glissez pour épingler",
+            "sidebar_tab_files": "Fichiers",
+            "sidebar_tab_history": "Historique",
+            "sidebar_create_file": "Créer un fichier",
+            "sidebar_history_empty": "Aucune discussion pour l'instant.",
+            "attach_image": "Image",
+            "attach_image_hint": "Joindre une image (PNG, JPG, GIF…)",
+            "attach_file": "Fichier",
+            "attach_file_hint": "Joindre n'importe quel fichier",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
@@ -457,6 +468,17 @@ class TranslationManager:
             "new_chat_confirm": "The current chat will be deleted and cannot be recovered. Continue?",
             "tab_switch_confirm": "Switching workspace will reset the current conversation. Continue?",
             "regenerate": "Regenerate", "soon": "Coming soon.",
+            "sidebar_search_placeholder": "Search a conversation…",
+            "sidebar_pinned": "Pinned",
+            "sidebar_pinned_empty": "Drag to pin",
+            "sidebar_tab_files": "Files",
+            "sidebar_tab_history": "History",
+            "sidebar_create_file": "Create a file",
+            "sidebar_history_empty": "No conversation yet.",
+            "attach_image": "Image",
+            "attach_image_hint": "Attach an image (PNG, JPG, GIF…)",
+            "attach_file": "File",
+            "attach_file_hint": "Attach any file type",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
@@ -627,6 +649,17 @@ class TranslationManager:
             "new_chat_confirm": "El chat actual se eliminará y no se podrá recuperar. ¿Continuar?",
             "tab_switch_confirm": "Cambiar de espacio reiniciará la conversación actual. ¿Continuar?",
             "regenerate": "Regenerar", "soon": "Próximamente.",
+            "sidebar_search_placeholder": "Buscar una conversación…",
+            "sidebar_pinned": "Anclados",
+            "sidebar_pinned_empty": "Arrastra para anclar",
+            "sidebar_tab_files": "Archivos",
+            "sidebar_tab_history": "Historial",
+            "sidebar_create_file": "Crear un archivo",
+            "sidebar_history_empty": "Aún no hay conversaciones.",
+            "attach_image": "Imagen",
+            "attach_image_hint": "Adjuntar una imagen (PNG, JPG, GIF…)",
+            "attach_file": "Archivo",
+            "attach_file_hint": "Adjuntar cualquier tipo de archivo",
             "mode_reflection": "Reflection", "mode_fast": "Fast",
             "mode_research_in_data": "Research In Data", "mode_research_in_memory": "Research In Memory",
             "mode_creativity": "Creativity", "mode_deep_research": "Deep Research",
@@ -1150,6 +1183,35 @@ body[data-active-tab="coworking"] .logo-card{display:none}
 .plus-menu-item{width:100%;border:none;border-radius:10px;background:transparent;color:var(--menu-text);padding:10px 12px;cursor:pointer;text-align:left;font-size:.85rem;transition:background .14s}
 .plus-menu-item:hover{background:var(--menu-hover)}
 .sheets-row{display:flex;gap:8px;flex-wrap:wrap;padding:8px 0}
+
+/* ──────────────────────────────────────────────────────────────
+   Bouton + dans le composer : pièces jointes Image / Fichier
+   ────────────────────────────────────────────────────────────── */
+.attach-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--input-bg);color:var(--text-secondary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 36px;align-self:center;transition:background .14s,color .14s,border-color .14s,transform .12s}
+.attach-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary);border-color:var(--text-secondary);transform:translateY(-1px)}
+.attach-btn:active{transform:translateY(0)}
+.attach-btn svg{width:16px;height:16px;transition:transform .18s}
+.attach-btn[aria-expanded="true"] svg{transform:rotate(45deg);color:var(--accent)}
+.attach-menu{position:absolute;bottom:calc(100% + 12px);left:0;min-width:240px;padding:6px;border-radius:14px;background:var(--menu-bg);border:1px solid var(--menu-border);box-shadow:0 24px 48px rgba(0,0,0,.28);z-index:30;opacity:0;transform:translateY(6px) scale(.98);pointer-events:none;transition:opacity .16s,transform .16s}
+.attach-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.attach-menu-item{width:100%;display:flex;align-items:center;gap:12px;border:none;border-radius:10px;background:transparent;color:var(--menu-text);padding:10px 12px;cursor:pointer;text-align:left;font-family:inherit;transition:background .14s}
+.attach-menu-item:hover{background:var(--menu-hover)}
+.attach-menu-item .attach-menu-icon{width:32px;height:32px;border-radius:9px;background:var(--surface-soft);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-primary)}
+.attach-menu-item .attach-menu-icon svg{width:16px;height:16px}
+.attach-menu-item .attach-menu-text{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.attach-menu-item .attach-menu-title{font-size:.86rem;font-weight:600;color:var(--text-primary)}
+.attach-menu-item .attach-menu-hint{font-size:.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attachments-row{display:flex;gap:8px;flex-wrap:wrap;padding:6px 4px 0}
+.attachment-chip{position:relative;display:flex;align-items:center;gap:8px;padding:6px 28px 6px 8px;border-radius:12px;border:1px solid var(--line);background:var(--surface-soft);max-width:220px;transition:border-color .14s,transform .14s}
+.attachment-chip:hover{border-color:var(--text-secondary);transform:translateY(-1px)}
+.attachment-thumb{width:38px;height:38px;border-radius:9px;background:var(--menu-bg);display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;color:var(--text-secondary)}
+.attachment-thumb img{width:100%;height:100%;object-fit:cover}
+.attachment-thumb svg{width:18px;height:18px}
+.attachment-meta{display:flex;flex-direction:column;gap:1px;min-width:0}
+.attachment-name{font-size:.78rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.attachment-size{font-size:.68rem;color:var(--text-muted);font-family:"JetBrains Mono",monospace}
+.attachment-remove{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;line-height:1;transition:background .14s}
+.attachment-remove:hover{background:rgba(0,0,0,.8)}
 .sheet-thumb{width:100px;height:80px;border-radius:10px;border:1px solid var(--line);background:var(--surface-soft);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--text-secondary);padding:6px;word-break:break-all;line-height:1.2}
 .sheet-thumb .sheet-remove{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .sheet-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:80;display:none;align-items:center;justify-content:center}
@@ -1460,46 +1522,72 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 .wallpaper-url-row{display:flex;gap:10px;flex-wrap:wrap}
 .wallpaper-url-row .settings-input{flex:1;min-width:260px;width:auto}
 
-/* ── Barre latérale (sidebar) ── */
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.22);backdrop-filter:blur(3px);z-index:44;opacity:0;pointer-events:none;transition:opacity .26s cubic-bezier(.4,0,.2,1)}
+/* ──────────────────────────────────────────────────────────────
+   Barre latérale (sidebar) — design refondu
+   Structure : topbar │ primary CTA │ search │ pinned │ tabs │
+               content │ footer (profil + paramètres)
+   ────────────────────────────────────────────────────────────── */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:44;opacity:0;pointer-events:none;transition:opacity .26s cubic-bezier(.4,0,.2,1)}
 .sidebar-overlay.open{opacity:1;pointer-events:auto}
-.sidebar-panel{position:fixed;top:0;left:0;height:100vh;width:280px;background:var(--settings-panel);border-right:1px solid var(--settings-panel-border);box-shadow:4px 0 32px rgba(0,0,0,.13);z-index:45;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar-panel{position:fixed;top:0;left:0;height:100vh;width:312px;max-width:calc(100vw - 36px);background:var(--settings-panel);border-right:1px solid var(--settings-panel-border);box-shadow:8px 0 36px rgba(0,0,0,.16);z-index:45;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
 .sidebar-panel.open{transform:translateX(0)}
-/* ── Topbar : brand + close ── */
-.sidebar-topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 14px 10px;gap:8px}
-.sidebar-brand{font-size:.87rem;font-weight:700;color:var(--text-primary);letter-spacing:-.01em;flex:1;padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sidebar-close-btn{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;transition:background .14s,color .14s}
-.sidebar-close-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary)}
-/* ── Bouton Nouvelle discussion — pleine largeur, accent ── */
-.sidebar-new-chat-wrap{padding:2px 12px 8px}
-.sidebar-new-chat-btn{width:100%;height:38px;border-radius:11px;border:1px solid var(--accent-border);background:var(--accent-soft);color:var(--accent);cursor:pointer;font-size:.82rem;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:8px;padding:0 14px;transition:background .16s,transform .13s,box-shadow .16s;box-shadow:0 1px 4px rgba(var(--accent-rgb),.07)}
-.sidebar-new-chat-btn:hover{background:rgba(var(--accent-rgb),.18);transform:translateY(-1px);box-shadow:0 4px 12px rgba(var(--accent-rgb),.16)}
-.sidebar-new-chat-btn:active{transform:translateY(0);box-shadow:none}
-.sidebar-new-chat-icon{font-size:1rem;flex-shrink:0}
-/* ── Barre de recherche avec icône ── */
-.sidebar-search-wrap{padding:0 12px 8px}
+
+/* Topbar : brand + bouton fermer */
+.sidebar-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 8px;gap:8px}
+.sidebar-brand-wrap{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.sidebar-brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.55));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;font-weight:800;flex-shrink:0;letter-spacing:-.02em}
+.sidebar-brand{font-size:.92rem;font-weight:700;color:var(--text-primary);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-icon-btn{width:30px;height:30px;border-radius:9px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;transition:background .14s,color .14s}
+.sidebar-icon-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary)}
+.sidebar-icon-btn svg{width:16px;height:16px}
+
+/* Bouton primaire : Nouvelle discussion */
+.sidebar-section{padding:4px 10px}
+.sidebar-primary-btn{width:100%;height:42px;border-radius:12px;border:1px solid var(--accent-border);background:var(--accent-soft);color:var(--accent);cursor:pointer;font-size:.86rem;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:10px;padding:0 14px;transition:background .16s,transform .13s,box-shadow .16s;box-shadow:0 1px 4px rgba(var(--accent-rgb),.08)}
+.sidebar-primary-btn:hover{background:rgba(var(--accent-rgb),.18);transform:translateY(-1px);box-shadow:0 6px 16px rgba(var(--accent-rgb),.18)}
+.sidebar-primary-btn:active{transform:translateY(0);box-shadow:none}
+.sidebar-primary-btn svg{width:16px;height:16px;flex-shrink:0}
+
+/* Recherche */
 .sidebar-search-inner{position:relative;display:flex;align-items:center}
-.sidebar-search-icon{position:absolute;left:10px;color:var(--text-muted);font-size:.88rem;pointer-events:none;line-height:1;user-select:none}
-.sidebar-search{width:100%;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text-primary);padding:0 12px 0 32px;font-size:.8rem;outline:none;font-family:inherit;transition:border-color .14s,box-shadow .14s}
-.sidebar-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.10)}
+.sidebar-search-icon{position:absolute;left:12px;color:var(--text-muted);pointer-events:none;display:inline-flex}
+.sidebar-search-icon svg{width:14px;height:14px}
+.sidebar-search{width:100%;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--input-bg);color:var(--text-primary);padding:0 14px 0 36px;font-size:.84rem;outline:none;font-family:inherit;transition:border-color .14s,box-shadow .14s}
+.sidebar-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
 .sidebar-search::placeholder{color:var(--input-placeholder)}
-/* ── Onglets ── */
-.sidebar-tabs{display:flex;padding:0 12px;gap:2px;border-bottom:1px solid var(--line);margin-top:2px}
-.sidebar-tab{flex:1;height:33px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .14s,border-color .14s}
+
+/* Section "Épinglés" — état vide façon Cowork */
+.sidebar-pinned-wrap{padding:14px 14px 6px}
+.sidebar-section-title{font-size:.72rem;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;user-select:none;margin-bottom:6px}
+.sidebar-pinned-empty{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:var(--text-muted);font-size:.8rem;border:1px dashed var(--line);background:transparent}
+.sidebar-pinned-empty svg{width:14px;height:14px;flex-shrink:0;opacity:.7}
+
+/* Onglets */
+.sidebar-tabs{display:flex;padding:0 14px;gap:4px;border-bottom:1px solid var(--line);margin-top:8px}
+.sidebar-tab{flex:1;height:36px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:.81rem;font-weight:600;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .14s,border-color .14s}
 .sidebar-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .sidebar-tab:hover:not(.active){color:var(--text-primary)}
-/* ── Contenu scrollable ── */
-.sidebar-content{flex:1;overflow-y:auto;padding:8px 8px 4px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
-.sidebar-section-label{padding:10px 12px 4px;font-size:.68rem;font-weight:700;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;user-select:none}
-.sidebar-action-item{width:100%;border:none;background:transparent;color:var(--text-primary);text-align:left;padding:8px 12px;border-radius:10px;cursor:pointer;font-size:.81rem;font-family:inherit;display:flex;align-items:center;gap:9px;transition:background .14s;line-height:1.4}
+
+/* Contenu scrollable */
+.sidebar-content{flex:1;overflow-y:auto;padding:8px 8px 6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.sidebar-content::-webkit-scrollbar{width:6px}
+.sidebar-content::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+.sidebar-action-item{width:100%;border:none;background:transparent;color:var(--text-primary);text-align:left;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:.84rem;font-family:inherit;display:flex;align-items:center;gap:11px;transition:background .14s;line-height:1.4}
 .sidebar-action-item:hover{background:var(--settings-tab-hover)}
-.sidebar-action-item .item-icon{font-size:.95rem;flex-shrink:0;width:20px;text-align:center;display:inline-flex;align-items:center;justify-content:center}
-.sidebar-empty{padding:28px 14px;color:var(--text-muted);font-size:.8rem;text-align:center;line-height:1.7}
-/* ── Footer ── */
-.sidebar-footer{padding:10px 12px 14px;border-top:1px solid var(--line)}
-.sidebar-settings-btn{width:100%;height:38px;border-radius:11px;border:1px solid var(--action-border);background:transparent;color:var(--text-primary);cursor:pointer;font-size:.81rem;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:9px;padding:0 12px;transition:background .14s}
-.sidebar-settings-btn:hover{background:var(--settings-tab-hover)}
-.sidebar-settings-btn .item-icon{font-size:.95rem;width:20px;text-align:center;display:inline-flex;align-items:center;justify-content:center}
+.sidebar-action-item svg{width:16px;height:16px;flex-shrink:0;color:var(--text-secondary);transition:color .14s}
+.sidebar-action-item:hover svg{color:var(--text-primary)}
+.sidebar-empty{padding:28px 14px;color:var(--text-muted);font-size:.82rem;text-align:center;line-height:1.6}
+
+/* Footer : profil utilisateur + bouton paramètres */
+.sidebar-footer{padding:10px 10px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.sidebar-profile{flex:1;display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:11px;cursor:pointer;transition:background .14s;min-width:0}
+.sidebar-profile:hover{background:var(--settings-tab-hover)}
+.sidebar-profile-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.55));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.74rem;font-weight:700;flex-shrink:0;letter-spacing:-.02em;overflow:hidden}
+.sidebar-profile-avatar img{width:100%;height:100%;object-fit:cover}
+.sidebar-profile-name{font-size:.84rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.sidebar-settings-icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .14s,color .14s,border-color .14s}
+.sidebar-settings-icon-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary);border-color:var(--line)}
+.sidebar-settings-icon-btn svg{width:16px;height:16px}
 
 /* ── Boutons gauche Apple-style quasi-transparent ── */
 .left-buttons-anchor{position:fixed;left:16px;top:62px;z-index:40;display:flex;flex-direction:column;align-items:center;gap:7px}
@@ -1537,7 +1625,36 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
   <section class="messages" id="messages" aria-live="polite"></section>
   <section class="composer-wrap">
     <div class="sheets-row" id="sheets-row"></div>
+    <div class="attachments-row" id="attachments-row" hidden></div>
     <form class="composer" id="chat-form">
+      <!-- Bouton + : ouvre le menu Image / Fichier -->
+      <div class="attach-wrap" style="position:relative;align-self:center">
+        <button type="button" class="attach-btn" id="attach-btn" aria-haspopup="true" aria-expanded="false" aria-label="Joindre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="attach-menu" id="attach-menu" role="menu">
+          <button type="button" class="attach-menu-item" id="attach-image-btn" role="menuitem">
+            <span class="attach-menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 16l-5-5L5 21"/></svg>
+            </span>
+            <span class="attach-menu-text">
+              <span class="attach-menu-title" data-i18n="attach_image">Image</span>
+              <span class="attach-menu-hint" data-i18n="attach_image_hint">Joindre une image</span>
+            </span>
+          </button>
+          <button type="button" class="attach-menu-item" id="attach-file-btn" role="menuitem">
+            <span class="attach-menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <span class="attach-menu-text">
+              <span class="attach-menu-title" data-i18n="attach_file">Fichier</span>
+              <span class="attach-menu-hint" data-i18n="attach_file_hint">Joindre un fichier</span>
+            </span>
+          </button>
+        </div>
+        <input type="file" id="attach-image-input" accept="image/*" multiple hidden>
+        <input type="file" id="attach-file-input" multiple hidden>
+      </div>
       <textarea id="message-input" rows="1"></textarea>
       <button type="button" class="voice-input-button" id="voice-input-btn" aria-label="Voice input">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V6a2 2 0 0 1 2-2Z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><path d="M12 16v4"/><path d="M9 20h6"/></svg>
@@ -1572,47 +1689,77 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 <div id="newchat-button-label" hidden></div>
 <div class="settings-anchor"><button type="button" class="settings-button" id="settings-button" data-tooltip-key="tooltip_settings">⚙</button><div class="settings-button-label" id="settings-button-label"></div></div>
 
-<!-- Sidebar overlay + panneau latéral -->
+<!-- ──────────────────────────────────────────────────────────────
+     Barre latérale (sidebar)
+     ────────────────────────────────────────────────────────────── -->
 <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 <aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" role="complementary">
-  <!-- Topbar : nom de l'app + fermer -->
+
+  <!-- Topbar : marque + bouton fermer -->
   <div class="sidebar-topbar">
-    <span class="sidebar-brand">Le Goat</span>
-    <button type="button" class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le panneau">✕</button>
+    <div class="sidebar-brand-wrap">
+      <span class="sidebar-brand-mark" aria-hidden="true">G</span>
+      <span class="sidebar-brand">Le Goat</span>
+    </div>
+    <button type="button" class="sidebar-icon-btn" id="sidebar-close-btn" aria-label="Fermer le panneau">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
   </div>
-  <!-- Bouton Nouvelle discussion — pleine largeur, avant la recherche -->
-  <div class="sidebar-new-chat-wrap">
-    <button type="button" class="sidebar-new-chat-btn" id="sidebar-new-chat-btn">
-      <span class="sidebar-new-chat-icon">✎</span>
+
+  <!-- Action principale : nouvelle discussion -->
+  <div class="sidebar-section">
+    <button type="button" class="sidebar-primary-btn" id="sidebar-new-chat-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
       <span id="sidebar-new-chat-label">Nouvelle discussion</span>
     </button>
   </div>
-  <!-- Barre de recherche avec icône -->
-  <div class="sidebar-search-wrap">
+
+  <!-- Recherche -->
+  <div class="sidebar-section">
     <div class="sidebar-search-inner">
-      <span class="sidebar-search-icon">⌕</span>
-      <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Rechercher une discussion…">
+      <span class="sidebar-search-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Rechercher une discussion…" data-placeholder-key="sidebar_search_placeholder">
     </div>
   </div>
-  <!-- Onglets -->
-  <div class="sidebar-tabs">
-    <button type="button" class="sidebar-tab active" data-sidebar-tab="files">Fichiers</button>
-    <button type="button" class="sidebar-tab" data-sidebar-tab="history">Historique</button>
+
+  <!-- Section "Épinglés" -->
+  <div class="sidebar-pinned-wrap">
+    <div class="sidebar-section-title" data-i18n="sidebar_pinned">Épinglés</div>
+    <div class="sidebar-pinned-empty" id="sidebar-pinned-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.39 4.84 5.34.78-3.86 3.77.91 5.32L12 14.27l-4.78 2.51.91-5.32-3.86-3.77 5.34-.78L12 2z" transform="scale(.85) translate(2.1 1.6)"/></svg>
+      <span data-i18n="sidebar_pinned_empty">Glissez pour épingler</span>
+    </div>
   </div>
-  <!-- Contenu : fichiers -->
+
+  <!-- Onglets : Fichiers / Historique -->
+  <div class="sidebar-tabs">
+    <button type="button" class="sidebar-tab active" data-sidebar-tab="files" data-i18n="sidebar_tab_files">Fichiers</button>
+    <button type="button" class="sidebar-tab" data-sidebar-tab="history" data-i18n="sidebar_tab_history">Historique</button>
+  </div>
+
+  <!-- Contenu : Fichiers -->
   <div class="sidebar-content" data-sidebar-content="files">
     <button type="button" class="sidebar-action-item" id="sidebar-create-file-btn">
-      <span class="item-icon">📄</span>Créer un fichier
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15h6"/></svg>
+      <span data-i18n="sidebar_create_file">Créer un fichier</span>
     </button>
   </div>
-  <!-- Contenu : historique -->
+
+  <!-- Contenu : Historique -->
   <div class="sidebar-content" data-sidebar-content="history" hidden>
-    <div class="sidebar-empty" id="sidebar-history-empty">Aucune discussion pour l'instant.</div>
+    <div class="sidebar-empty" id="sidebar-history-empty" data-i18n="sidebar_history_empty">Aucune discussion pour l'instant.</div>
   </div>
-  <!-- Footer : paramètres -->
+
+  <!-- Footer : profil + paramètres -->
   <div class="sidebar-footer">
-    <button type="button" class="sidebar-settings-btn" id="sidebar-settings-btn">
-      <span class="item-icon">⚙</span><span id="sidebar-settings-label">Paramètres</span>
+    <button type="button" class="sidebar-profile" id="sidebar-profile-btn" aria-label="Ouvrir le profil">
+      <span class="sidebar-profile-avatar" id="sidebar-profile-avatar" aria-hidden="true">G</span>
+      <span class="sidebar-profile-name" id="sidebar-profile-name">Le Goat</span>
+    </button>
+    <button type="button" class="sidebar-settings-icon-btn" id="sidebar-settings-btn" aria-label="Paramètres" data-tooltip-key="tooltip_settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09c0 .66.39 1.26 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.25.61.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
 </aside>
@@ -2196,15 +2343,48 @@ function applyCalcTarget(v,snd,showNotif){const next=['cpu','gpu','default'].inc
 const calcTargetOptions=[{id:'cpu',icon:'🖥️',labelKey:'calc_target_cpu'},{id:'gpu',icon:'🎮',labelKey:'calc_target_gpu'},{id:'default',icon:'⚡',labelKey:'calc_target_default'}];
 function updateCalcTargetUI(){const current=calcTargetOptions.find(o=>o.id===S.calcTarget)||calcTargetOptions[2];calcTargetLabel.textContent=t(current.labelKey);calcTargetIcon.textContent=current.icon;renderCalcTargetMenu()}
 function renderCalcTargetMenu(){calcTargetMenu.innerHTML=calcTargetOptions.map(o=>'<button type="button" class="dropdown-menu-item'+(o.id===S.calcTarget?' selected':'')+'" data-ct-value="'+esc(o.id)+'" role="menuitemradio"><span class="dm-icon">'+o.icon+'</span><span class="dm-label">'+esc(t(o.labelKey))+'</span><span class="dm-check">✓</span></button>').join('')}
+// Portail vers document.body : .settings-modal est en transform → position:fixed
+// est interprétée par rapport à la modale (et clippée par overflow:hidden).
+// On déplace donc temporairement le menu sous <body> pour qu'il s'ancre au viewport.
+let _calcTargetParent=null,_calcTargetNext=null;
 function openCalcTargetMenu(){
+  if(!calcTargetMenu)return;
+  if(calcTargetMenu.parentNode!==document.body){
+    _calcTargetParent=calcTargetMenu.parentNode;
+    _calcTargetNext=calcTargetMenu.nextSibling;
+    document.body.appendChild(calcTargetMenu);
+  }
   const rect=calcTargetTrigger.getBoundingClientRect();
-  calcTargetMenu.style.top=(rect.bottom+8)+'px';
-  calcTargetMenu.style.left=Math.max(12,rect.left)+'px';
-  calcTargetMenu.style.minWidth=Math.max(280,rect.width)+'px';
+  const menuW=Math.max(280,rect.width);
+  const left=Math.min(window.innerWidth-menuW-12,Math.max(12,rect.left));
+  // Si pas assez de place sous le bouton, on bascule au-dessus.
+  const spaceBelow=window.innerHeight-rect.bottom;
+  const above=spaceBelow<260&&rect.top>260;
+  calcTargetMenu.style.top=(above?(rect.top-8-Math.min(260,calcTargetMenu.scrollHeight||260)):(rect.bottom+8))+'px';
+  calcTargetMenu.style.left=left+'px';
+  calcTargetMenu.style.minWidth=menuW+'px';
   calcTargetMenu.classList.add('open');
   calcTargetTrigger.setAttribute('aria-expanded','true');
 }
-function closeCalcTargetMenu(){calcTargetMenu.classList.remove('open');calcTargetTrigger.setAttribute('aria-expanded','false')}
+function closeCalcTargetMenu(){
+  if(!calcTargetMenu)return;
+  calcTargetMenu.classList.remove('open');
+  calcTargetTrigger.setAttribute('aria-expanded','false');
+  // Restaure la position DOM d'origine (utile si l'on rouvre la modale Settings).
+  if(_calcTargetParent&&calcTargetMenu.parentNode===document.body){
+    _calcTargetParent.insertBefore(calcTargetMenu,_calcTargetNext||null);
+    _calcTargetParent=null;_calcTargetNext=null;
+  }
+}
+// Ferme le menu si l'on clique à l'extérieur (le menu étant maintenant détaché).
+document.addEventListener('click',e=>{
+  if(!calcTargetMenu||!calcTargetMenu.classList.contains('open'))return;
+  if(calcTargetMenu.contains(e.target)||(calcTargetTrigger&&calcTargetTrigger.contains(e.target)))return;
+  closeCalcTargetMenu();
+});
+// Repositionne en cas de scroll/resize tant qu'il est ouvert.
+window.addEventListener('resize',()=>{if(calcTargetMenu&&calcTargetMenu.classList.contains('open'))openCalcTargetMenu()});
+window.addEventListener('scroll',()=>{if(calcTargetMenu&&calcTargetMenu.classList.contains('open'))openCalcTargetMenu()},true);
 function applyUiOpt(v,snd){apply('uiOpt',v==='on'?'on':'off','uiopt',snd);if(S.uiOpt==='on'){applyEffects('off',false);applyKbSound('off',false);applyClickSound('off',false);applyAiSound('off',false)}updatePerf()}
 function applyKbSound(v,snd){apply('kbSound',v==='on'?'on':'off','kb-sound',snd);$$('[data-kb-sound]').forEach(b=>b.classList.toggle('active',b.dataset.kbSound===S.kbSound));updateSndVis();if(v==='on')checkUiOptOff()}
 function applyKbStyle(v,snd){apply('kbStyle',['bulle','aurela','verdrock','feryn'].includes(v)?v:'bulle','kb-style',snd);$$('[data-kb-style]').forEach(b=>b.classList.toggle('active',b.dataset.kbStyle===S.kbStyle))}
@@ -2260,7 +2440,7 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');const _ssl=$('sidebar-settings-label');if(_ssl)_ssl.textContent=t('settings_label');const _sh=$('sidebar-history-empty');if(_sh)_sh.textContent=t('no_history')||'Aucune discussion.';const _ss=$('sidebar-search');if(_ss)_ss.placeholder=t('search_placeholder')||'Rechercher…';$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');const _spn=$('sidebar-profile-name');if(_spn){const _fn=(ls('firstname')||'').trim();const _ln=(ls('lastname')||'').trim();_spn.textContent=(_fn||_ln)?`${_fn} ${_ln}`.trim():'Le Goat'}const _spa=$('sidebar-profile-avatar');if(_spa&&!_spa.querySelector('img')){const _fn=(ls('firstname')||'').trim();const _ln=(ls('lastname')||'').trim();_spa.textContent=((_fn[0]||'')+(_ln[0]||'')).toUpperCase()||'G'}$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
@@ -2488,9 +2668,60 @@ $$('[data-sidebar-tab]').forEach(btn=>btn.addEventListener('click',()=>{
 // Recherche dans la sidebar (placeholder — filtrage futur de l'historique)
 const sidebarSearch=$('sidebar-search');
 if(sidebarSearch)sidebarSearch.addEventListener('input',()=>{/* filtrage historique à implémenter */});
+// Bouton profil dans le footer de la sidebar — ouvre l'onglet Profil des paramètres
+const sidebarProfileBtn=$('sidebar-profile-btn');
+if(sidebarProfileBtn)sidebarProfileBtn.addEventListener('click',()=>{
+  playClick();closeSidebar();openSettings();
+  // Bascule sur l'onglet Profil si présent
+  const _pt=document.querySelector('[data-settings-tab="profile"]');if(_pt)_pt.click();
+});
+
+// ──────────────────────────────────────────────────────────────
+// Composer : bouton + (Image / Fichier)
+// ──────────────────────────────────────────────────────────────
+const attachBtn=$('attach-btn'),attachMenu=$('attach-menu'),attachImageBtn=$('attach-image-btn'),attachFileBtn=$('attach-file-btn');
+const attachImageInput=$('attach-image-input'),attachFileInput=$('attach-file-input'),attachmentsRow=$('attachments-row');
+let attachments=[]; // [{kind:'image'|'file',name,size,type,dataUrl?}]
+function fmtSize(n){if(!Number.isFinite(n))return'';const u=['o','Ko','Mo','Go'];let i=0,v=n;while(v>=1024&&i<u.length-1){v/=1024;i++}return (v<10?v.toFixed(1):Math.round(v))+' '+u[i]}
+function escAttr(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderAttachments(){
+  if(!attachmentsRow)return;
+  if(!attachments.length){attachmentsRow.hidden=true;attachmentsRow.innerHTML='';return}
+  attachmentsRow.hidden=false;
+  attachmentsRow.innerHTML=attachments.map((a,i)=>{
+    const thumb=a.kind==='image'&&a.dataUrl
+      ?`<span class="attachment-thumb"><img src="${escAttr(a.dataUrl)}" alt=""></span>`
+      :`<span class="attachment-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>`;
+    return `<div class="attachment-chip" data-att-idx="${i}">${thumb}<div class="attachment-meta"><span class="attachment-name" title="${escAttr(a.name)}">${escAttr(a.name)}</span><span class="attachment-size">${escAttr(fmtSize(a.size))}</span></div><button type="button" class="attachment-remove" data-att-remove="${i}" aria-label="Retirer">×</button></div>`;
+  }).join('');
+  attachmentsRow.querySelectorAll('[data-att-remove]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();attachments.splice(+b.dataset.attRemove,1);renderAttachments()}));
+}
+function readImageFile(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(file)})}
+async function addAttachmentsFromInput(input,kind){
+  const files=Array.from(input.files||[]);input.value='';
+  for(const f of files){
+    const a={kind,name:f.name,size:f.size,type:f.type||''};
+    if(kind==='image'&&/^image\//.test(f.type||'')){a.dataUrl=await readImageFile(f)}
+    attachments.push(a);
+  }
+  renderAttachments();
+}
+function openAttachMenu(){if(!attachMenu)return;attachMenu.classList.add('open');attachBtn.setAttribute('aria-expanded','true')}
+function closeAttachMenu(){if(!attachMenu)return;attachMenu.classList.remove('open');attachBtn.setAttribute('aria-expanded','false')}
+if(attachBtn)attachBtn.addEventListener('click',e=>{e.stopPropagation();playClick();attachMenu.classList.contains('open')?closeAttachMenu():openAttachMenu()});
+if(attachImageBtn)attachImageBtn.addEventListener('click',()=>{playClick();closeAttachMenu();attachImageInput.click()});
+if(attachFileBtn)attachFileBtn.addEventListener('click',()=>{playClick();closeAttachMenu();attachFileInput.click()});
+if(attachImageInput)attachImageInput.addEventListener('change',()=>addAttachmentsFromInput(attachImageInput,'image'));
+if(attachFileInput)attachFileInput.addEventListener('change',()=>addAttachmentsFromInput(attachFileInput,'file'));
+// Ferme le menu si l'on clique à l'extérieur
+document.addEventListener('click',e=>{
+  if(!attachMenu||!attachMenu.classList.contains('open'))return;
+  if(attachMenu.contains(e.target)||(attachBtn&&attachBtn.contains(e.target)))return;
+  closeAttachMenu();
+});
 
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeAttachMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
@@ -3141,7 +3372,7 @@ def _build_profile_pdf(profile: dict, chat_count: int, goat_score: int, include_
         for idx, line in enumerate(_wrap_pdf_text(pdf, f'{label} : {value}', card_w - 48)[:2]):
             pdf.drawString(card_x + 24, current_y, line)
             current_y -= 14
-        current_y -= 2
+        current_y -= 2 
     pdf.showPage()
     pdf.save()
     return buffer.getvalue()
