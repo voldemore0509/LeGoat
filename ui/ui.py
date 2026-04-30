@@ -423,6 +423,41 @@ class TranslationManager:
             "aide_contact_modal_desc": "Choisissez votre moyen de contact préféré.",
             "aide_close": "Fermer",
             "aide_beta_label": "BÊTA",
+            # ── Onglet Connecteurs ─────────────────────────────────
+            "tab_connectors": "Connecteurs",
+            "connectors_title": "Connecteurs",
+            "connectors_subtitle": "Liez Le Goat à vos services et outils externes.",
+            "connectors_add": "Ajouter un connecteur",
+            "connectors_modal_title": "Connecteurs disponibles",
+            "connectors_empty": "Aucun connecteur",
+            "connectors_empty_hint": "Aucun connecteur n'est disponible pour le moment.",
+            "connectors_add_custom": "Ajouter un connecteur personnalisé",
+            "connectors_custom_modal_title": "Connecteur personnalisé",
+            "connectors_custom_modal_desc": "Cette fonction est en cours de développement.",
+            # ── Toggle "Version de prévisualisation" ──────────────
+            "preview_toggle_label": "Accéder à la version de prévisualisation",
+            "preview_toggle_hint": "Active les fonctions expérimentales — modes, styles, connecteurs, chat privé, sidebar, ciblage des calculs, overclocking, pièces jointes.",
+            "preview_warning_title": "Activer les fonctions de prévisualisation",
+            "preview_warning_text": "Plusieurs fonctions seront affichées, mais elles risquent d'être inutilisables ou en cours de test. Souhaitez-vous continuer ?",
+            "preview_warning_confirm": "Activer",
+            "preview_warning_cancel": "Annuler",
+            # ── Barre de menu (style logiciel) ─────────────────────
+            "menu_file": "Fichier",
+            "menu_edit": "Édition",
+            "menu_help": "Aide",
+            "menu_open_location": "Emplacement du/des programmes",
+            "menu_settings": "Paramètres",
+            "menu_new_chat": "Nouvelle conversation",
+            "menu_contact_dev": "Contacter le développeur",
+            "menu_doc": "Documentation du projet",
+            # Raccourcis clavier (édition)
+            "shortcut_undo": "Annuler",
+            "shortcut_redo": "Rétablir",
+            "shortcut_cut": "Couper",
+            "shortcut_copy": "Copier",
+            "shortcut_paste": "Coller",
+            "shortcut_select_all": "Tout sélectionner",
+            "shortcut_find": "Rechercher",
         },
         "en": {
             "placeholder": "Ask The Goat...", "settings_label": "Settings", "settings_title": "Settings",
@@ -604,6 +639,40 @@ class TranslationManager:
             "aide_contact_modal_desc": "Choose your preferred way to reach us.",
             "aide_close": "Close",
             "aide_beta_label": "BETA",
+            # ── Connectors tab ───────────────────────────────────
+            "tab_connectors": "Connectors",
+            "connectors_title": "Connectors",
+            "connectors_subtitle": "Link The Goat to your external services and tools.",
+            "connectors_add": "Add a connector",
+            "connectors_modal_title": "Available connectors",
+            "connectors_empty": "No connector",
+            "connectors_empty_hint": "No connector is available at the moment.",
+            "connectors_add_custom": "Add a custom connector",
+            "connectors_custom_modal_title": "Custom connector",
+            "connectors_custom_modal_desc": "This feature is currently being developed.",
+            # ── Preview toggle ───────────────────────────────────
+            "preview_toggle_label": "Access the preview version",
+            "preview_toggle_hint": "Enables experimental features — modes, styles, connectors, private chat, sidebar, compute targeting, overclocking, attachments.",
+            "preview_warning_title": "Enable preview features",
+            "preview_warning_text": "Several features will be displayed but may be unusable or under testing. Do you want to continue?",
+            "preview_warning_confirm": "Enable",
+            "preview_warning_cancel": "Cancel",
+            # ── Top menubar ──────────────────────────────────────
+            "menu_file": "File",
+            "menu_edit": "Edit",
+            "menu_help": "Help",
+            "menu_open_location": "Program location",
+            "menu_settings": "Settings",
+            "menu_new_chat": "New conversation",
+            "menu_contact_dev": "Contact the developer",
+            "menu_doc": "Project documentation",
+            "shortcut_undo": "Undo",
+            "shortcut_redo": "Redo",
+            "shortcut_cut": "Cut",
+            "shortcut_copy": "Copy",
+            "shortcut_paste": "Paste",
+            "shortcut_select_all": "Select all",
+            "shortcut_find": "Find",
         },
         "es": {
             "placeholder": "Pregunte a El Goat...", "settings_label": "Ajustes", "settings_title": "Ajustes",
@@ -785,6 +854,40 @@ class TranslationManager:
             "aide_contact_modal_desc": "Elija su forma de contacto preferida.",
             "aide_close": "Cerrar",
             "aide_beta_label": "BETA",
+            # ── Pestaña Conectores ───────────────────────────────
+            "tab_connectors": "Conectores",
+            "connectors_title": "Conectores",
+            "connectors_subtitle": "Vincule El Goat con sus servicios y herramientas externas.",
+            "connectors_add": "Añadir un conector",
+            "connectors_modal_title": "Conectores disponibles",
+            "connectors_empty": "Ningún conector",
+            "connectors_empty_hint": "No hay ningún conector disponible por el momento.",
+            "connectors_add_custom": "Añadir un conector personalizado",
+            "connectors_custom_modal_title": "Conector personalizado",
+            "connectors_custom_modal_desc": "Esta función está en desarrollo.",
+            # ── Toggle de vista previa ───────────────────────────
+            "preview_toggle_label": "Acceder a la versión de vista previa",
+            "preview_toggle_hint": "Activa las funciones experimentales — modos, estilos, conectores, chat privado, barra lateral, objetivo de cálculo, overclocking, adjuntos.",
+            "preview_warning_title": "Activar funciones de vista previa",
+            "preview_warning_text": "Se mostrarán varias funciones, pero pueden ser inutilizables o estar en pruebas. ¿Desea continuar?",
+            "preview_warning_confirm": "Activar",
+            "preview_warning_cancel": "Cancelar",
+            # ── Barra de menú ─────────────────────────────────────
+            "menu_file": "Archivo",
+            "menu_edit": "Edición",
+            "menu_help": "Ayuda",
+            "menu_open_location": "Ubicación del/los programas",
+            "menu_settings": "Ajustes",
+            "menu_new_chat": "Nueva conversación",
+            "menu_contact_dev": "Contactar al desarrollador",
+            "menu_doc": "Documentación del proyecto",
+            "shortcut_undo": "Deshacer",
+            "shortcut_redo": "Rehacer",
+            "shortcut_cut": "Cortar",
+            "shortcut_copy": "Copiar",
+            "shortcut_paste": "Pegar",
+            "shortcut_select_all": "Seleccionar todo",
+            "shortcut_find": "Buscar",
         },
     }
 
@@ -1597,10 +1700,129 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 .newchat-button{width:40px!important;height:40px!important;border-radius:12px!important;border:1px solid var(--action-border)!important;background:var(--action-bg)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;box-shadow:0 2px 10px rgba(0,0,0,.07)!important;font-size:1.1rem!important}
 .settings-button{width:40px!important;height:40px!important;border-radius:12px!important;border:1px solid var(--action-border)!important;background:var(--action-bg)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;box-shadow:0 2px 10px rgba(0,0,0,.07)!important;font-size:1.05rem!important}
 
+/* ──────────────────────────────────────────────────────────────
+   Barre de menu façon logiciel (Fichier / Édition / Aide)
+   Ancrée tout en haut, pleine largeur, opaque pour masquer
+   complètement le fond d'écran sous la zone d'en-tête.
+   IMPORTANT : seul le label (.app-menubar-label) est visible ;
+   les dropdowns sont en position absolue + display:none par défaut.
+   ────────────────────────────────────────────────────────────── */
+.app-menubar{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:stretch;height:30px;padding:0 6px;background:var(--bg);user-select:none;overflow:visible}
+body[data-theme="dark"] .app-menubar{background:var(--bg)}
+/* Sécurité : on force la barre à rester opaque même quand un fond
+   d'écran est actif (la barre doit toujours masquer l'image). */
+body[data-wallpaper-active="on"] .app-menubar{background:var(--bg)!important}
+body[data-theme="dark"][data-wallpaper-active="on"] .app-menubar{background:var(--bg)!important}
+.app-menubar-item{position:relative;display:inline-flex;align-items:center;height:100%;padding:0;cursor:pointer;border:none;background:transparent;outline:none}
+.app-menubar-label{display:inline-flex;align-items:center;height:100%;padding:0 12px;font-size:.82rem;color:var(--text-primary);border-radius:6px;transition:background .12s;white-space:nowrap}
+.app-menubar-item:hover .app-menubar-label,.app-menubar-item.open .app-menubar-label{background:var(--settings-tab-hover)}
+.app-menubar-dropdown{position:absolute;top:100%;left:0;min-width:260px;background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:10px;box-shadow:0 18px 46px rgba(15,23,42,.18);padding:6px;display:none;flex-direction:column;gap:2px;z-index:91;overflow:hidden;white-space:nowrap}
+.app-menubar-item.open>.app-menubar-dropdown{display:flex}
+.app-menubar-dd-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:7px 10px;border-radius:7px;font-size:.82rem;color:var(--text-primary);cursor:pointer;background:transparent;border:none;text-align:left;width:100%;white-space:nowrap}
+.app-menubar-dd-item:hover{background:var(--settings-tab-hover)}
+.app-menubar-dd-item.disabled{color:var(--text-muted);cursor:default}
+.app-menubar-dd-item.disabled:hover{background:transparent}
+.app-menubar-dd-shortcut{font-size:.74rem;color:var(--text-secondary);font-family:"JetBrains Mono",monospace;letter-spacing:.02em}
+.app-menubar-dd-sep{height:1px;background:var(--settings-row-border);margin:4px 2px}
+
+/* Décale les éléments fixes pour ne pas chevaucher la menubar (30px) */
+.top-tab-bar{top:30px!important;background:var(--bg)!important}
+/* Sécurité : la top-tab-bar reste opaque même avec fond d'écran. */
+body[data-wallpaper-active="on"] .top-tab-bar{background:var(--bg)!important}
+body[data-theme="dark"][data-wallpaper-active="on"] .top-tab-bar{background:var(--bg)!important}
+.left-buttons-anchor{top:calc(62px + 30px)}
+.private-chat-btn{top:calc(73px + 30px)!important}
+.private-chat-btn .pc-tooltip{top:calc(116px + 30px)!important}
+.settings-anchor{bottom:18px}
+
+/* ──────────────────────────────────────────────────────────────
+   Toggle "Version de prévisualisation" (interrupteur dans Général)
+   ────────────────────────────────────────────────────────────── */
+.preview-switch{position:relative;display:inline-block;width:44px;height:24px}
+.preview-switch input{opacity:0;width:0;height:0}
+.preview-switch-track{position:absolute;cursor:pointer;inset:0;background:rgba(148,163,184,.4);border-radius:999px;transition:background .18s}
+.preview-switch-track::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.preview-switch input:checked+.preview-switch-track{background:var(--accent)}
+.preview-switch input:checked+.preview-switch-track::before{transform:translateX(20px)}
+
+/* Quand la prévisualisation est désactivée, on cache toutes les fonctions
+   expérimentales sans toucher au DOM (réversible immédiat). */
+body[data-preview="off"] .mode-panel,
+body[data-preview="off"] .style-panel,
+body[data-preview="off"] #attach-btn,
+body[data-preview="off"] .attach-wrap,
+body[data-preview="off"] #sidebar-toggle-btn,
+body[data-preview="off"] #private-chat-btn,
+body[data-preview="off"] [data-settings-tab="connectors"],
+body[data-preview="off"] [data-settings-content="connectors"],
+body[data-preview="off"] [data-preview-only="1"]{display:none!important}
+
+/* ──────────────────────────────────────────────────────────────
+   Modale d'avertissement (activation prévisualisation)
+   ────────────────────────────────────────────────────────────── */
+.preview-warning-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:130;display:none;align-items:center;justify-content:center;padding:20px}
+.preview-warning-backdrop.open{display:flex}
+.preview-warning-modal{width:min(460px,calc(100vw - 40px));background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:18px;box-shadow:0 32px 80px rgba(0,0,0,.34);padding:24px;display:flex;flex-direction:column;gap:14px}
+.preview-warning-modal h3{margin:0;color:var(--text-primary);font-size:1.05rem}
+.preview-warning-modal p{margin:0;color:var(--text-secondary);font-size:.9rem;line-height:1.5}
+.preview-warning-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+
+/* ──────────────────────────────────────────────────────────────
+   Onglet Connecteurs : modale + liste vide + bouton custom
+   ────────────────────────────────────────────────────────────── */
+.connectors-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:130;display:none;align-items:center;justify-content:center;padding:20px}
+.connectors-modal-backdrop.open{display:flex}
+.connectors-modal{width:min(560px,calc(100vw - 40px));max-height:calc(100vh - 60px);overflow:auto;background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.32);padding:24px;display:flex;flex-direction:column;gap:18px}
+.connectors-modal-header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.connectors-modal-header h3{margin:0;color:var(--text-primary);font-size:1.1rem}
+.connectors-modal-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text-primary);cursor:pointer;font-size:1.05rem}
+.connectors-empty-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:38px 18px;border:1px dashed var(--settings-row-border);border-radius:14px;background:var(--surface-soft);color:var(--text-secondary);text-align:center}
+.connectors-empty-card strong{color:var(--text-primary);font-size:1rem}
+.connectors-empty-card span{font-size:.85rem}
+.connectors-modal-footer{display:flex;justify-content:flex-end;gap:10px}
+
 </style>
 </head>
-<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off">
+<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off" data-preview="on">
 <div class="wallpaper-layer" id="wallpaper-layer" aria-hidden="true"><img class="wallpaper-media" id="wallpaper-image" alt=""><video class="wallpaper-media" id="wallpaper-video" autoplay muted loop playsinline></video><div class="wallpaper-tint"></div></div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     Barre de menu façon logiciel (Fichier / Édition / Aide)
+     IMPORTANT : on utilise <div> pour le déclencheur, car un <button>
+     ne peut pas contenir d'autres <button> (le navigateur les déplie).
+     ────────────────────────────────────────────────────────────── -->
+<nav class="app-menubar" id="app-menubar" aria-label="Menu principal">
+  <div class="app-menubar-item" id="menu-file-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_file">Fichier</span>
+    <div class="app-menubar-dropdown" id="menu-file-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-location" role="menuitem"><span data-i18n="menu_open_location">Emplacement du/des programmes</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-settings" role="menuitem"><span data-i18n="menu_settings">Paramètres</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="new-chat" role="menuitem"><span data-i18n="menu_new_chat">Nouvelle conversation</span></button>
+    </div>
+  </div>
+  <div class="app-menubar-item" id="menu-edit-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_edit">Édition</span>
+    <div class="app-menubar-dropdown" id="menu-edit-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="undo" role="menuitem"><span data-i18n="shortcut_undo">Annuler</span><span class="app-menubar-dd-shortcut">Ctrl+Z</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="redo" role="menuitem"><span data-i18n="shortcut_redo">Rétablir</span><span class="app-menubar-dd-shortcut">Ctrl+Maj+Z</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="cut" role="menuitem"><span data-i18n="shortcut_cut">Couper</span><span class="app-menubar-dd-shortcut">Ctrl+X</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="copy" role="menuitem"><span data-i18n="shortcut_copy">Copier</span><span class="app-menubar-dd-shortcut">Ctrl+C</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="paste" role="menuitem"><span data-i18n="shortcut_paste">Coller</span><span class="app-menubar-dd-shortcut">Ctrl+V</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="select-all" role="menuitem"><span data-i18n="shortcut_select_all">Tout sélectionner</span><span class="app-menubar-dd-shortcut">Ctrl+A</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="find" role="menuitem"><span data-i18n="shortcut_find">Rechercher</span><span class="app-menubar-dd-shortcut">Ctrl+F</span></button>
+    </div>
+  </div>
+  <div class="app-menubar-item" id="menu-help-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_help">Aide</span>
+    <div class="app-menubar-dropdown" id="menu-help-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="contact-dev" role="menuitem"><span data-i18n="menu_contact_dev">Contacter le développeur</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-doc" role="menuitem"><span data-i18n="menu_doc">Documentation du projet</span></button>
+    </div>
+  </div>
+</nav>
 
 <!-- Top Tab Bar -->
 <div class="top-tab-bar">
@@ -1772,6 +1994,7 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
     <button type="button" class="settings-tab" data-settings-tab="personalization"><span class="settings-tab-icon">✦</span><span data-i18n="tab_personalization">Personnalisation</span></button>
     <button type="button" class="settings-tab" data-settings-tab="data_security"><span class="settings-tab-icon">☑</span><span data-i18n="tab_data_security">Données</span></button>
     <button type="button" class="settings-tab" data-settings-tab="optimization"><span class="settings-tab-icon">⚡</span><span data-i18n="tab_optimization">Optimisation</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="connectors"><span class="settings-tab-icon">🔌</span><span data-i18n="tab_connectors">Connecteurs</span></button>
     <button type="button" class="settings-tab" data-settings-tab="goat_dev"><span class="settings-tab-icon">🐐</span><span data-i18n="tab_goat_dev">Goat Developer</span></button>
     <button type="button" class="settings-tab" data-settings-tab="aide"><span class="settings-tab-icon">💬</span><span data-i18n="tab_aide">Aide</span></button>
     <button type="button" class="settings-tab settings-tab-profile-footer" data-settings-tab="profile">
@@ -1797,6 +2020,19 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_ai_reply_sounds">Son IA</div></div><div class="settings-choice-group" id="ai-sound-toggle"><button type="button" class="settings-choice" data-ai-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-ai-sound="off" data-i18n="sound_off">Désactiver</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_label">Police IA</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-aifont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-aifont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-aifont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_user_label">Police utilisateur</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-userfont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-userfont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-userfont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
+        <!-- Toggle "Version de prévisualisation" — active/désactive les fonctions expérimentales -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="preview_toggle_label">Accéder à la version de prévisualisation</div>
+              <div class="settings-row-subtitle" data-i18n="preview_toggle_hint"></div>
+            </div>
+            <label class="preview-switch" aria-label="Version de prévisualisation">
+              <input type="checkbox" id="preview-toggle-input" checked>
+              <span class="preview-switch-track"></span>
+            </label>
+          </div>
+        </div>
         <div class="thanks-text" id="thanks-text" data-i18n="thanks_message">Designed and coded in France</div>
       </section>
 
@@ -1828,12 +2064,24 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
       <section class="settings-section" data-settings-content="optimization">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calculs<span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
+        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calculs<span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
         <div class="calc-target-notification" id="calc-target-notification" hidden></div>
         <!-- Option masquée temporairement : libération de la mémoire vive de l'IA
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
         -->
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
+        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
+      </section>
+      <!-- ── Section Connecteurs ── -->
+      <section class="settings-section" data-settings-content="connectors">
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="connectors_title">Connecteurs</div>
+              <div class="settings-row-subtitle" data-i18n="connectors_subtitle">Liez Le Goat à vos services et outils externes.</div>
+            </div>
+            <button type="button" class="settings-ghost-button" id="connectors-add-btn" data-i18n="connectors_add">Ajouter un connecteur</button>
+          </div>
+        </div>
       </section>
       <!-- ── Section Aide ── -->
       <section class="settings-section" data-settings-content="aide"><div class="settings-block">
@@ -1879,6 +2127,49 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
             </div>
           </div>
           <button type="button" class="aide-contact-close" id="aide-contact-close" data-i18n="aide_close">Fermer</button>
+        </div>
+      </div>
+
+      <!-- ── Modale Connecteurs (liste vide + bouton custom) ── -->
+      <div class="connectors-modal-backdrop" id="connectors-modal-backdrop" role="dialog" aria-modal="true">
+        <div class="connectors-modal">
+          <div class="connectors-modal-header">
+            <h3 data-i18n="connectors_modal_title">Connecteurs disponibles</h3>
+            <button type="button" class="connectors-modal-close" id="connectors-modal-close">×</button>
+          </div>
+          <div class="connectors-empty-card">
+            <strong data-i18n="connectors_empty">Aucun connecteur</strong>
+            <span data-i18n="connectors_empty_hint">Aucun connecteur n'est disponible pour le moment.</span>
+          </div>
+          <div class="connectors-modal-footer">
+            <button type="button" class="settings-ghost-button" id="connectors-add-custom-btn" data-i18n="connectors_add_custom">Ajouter un connecteur personnalisé</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Modale Connecteur personnalisé (placeholder) ── -->
+      <div class="connectors-modal-backdrop" id="connectors-custom-backdrop" role="dialog" aria-modal="true">
+        <div class="connectors-modal">
+          <div class="connectors-modal-header">
+            <h3 data-i18n="connectors_custom_modal_title">Connecteur personnalisé</h3>
+            <button type="button" class="connectors-modal-close" id="connectors-custom-close">×</button>
+          </div>
+          <p style="margin:0;color:var(--text-secondary);font-size:.9rem;line-height:1.5" data-i18n="connectors_custom_modal_desc">Cette fonction est en cours de développement.</p>
+          <div class="connectors-modal-footer">
+            <button type="button" class="settings-ghost-button" id="connectors-custom-ok" data-i18n="aide_close">Fermer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Modale d'avertissement (activation prévisualisation) ── -->
+      <div class="preview-warning-backdrop" id="preview-warning-backdrop" role="dialog" aria-modal="true">
+        <div class="preview-warning-modal">
+          <h3 data-i18n="preview_warning_title">Activer les fonctions de prévisualisation</h3>
+          <p data-i18n="preview_warning_text">Plusieurs fonctions seront affichées, mais elles risquent d'être inutilisables ou en cours de test. Souhaitez-vous continuer ?</p>
+          <div class="preview-warning-actions">
+            <button type="button" class="settings-ghost-button" id="preview-warning-cancel" data-i18n="preview_warning_cancel">Annuler</button>
+            <button type="button" class="settings-ghost-button primary" id="preview-warning-confirm" data-i18n="preview_warning_confirm">Activer</button>
+          </div>
         </div>
       </div>
 
@@ -2721,7 +3012,13 @@ document.addEventListener('click',e=>{
 });
 
 // Touche Escape — ferme toutes les modales et dropdowns ouverts
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeAttachMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeMM();closeSM();closeGM();closeModelDD();closeCalcTargetMenu();closeAttachMenu();closeSettings();closeMigrate();closeOverclockModal();closeCropper();closeWallpaperModal();closeAideContact();hideProfileAvatarHover(true);hideTip();
+  // Fermetures des nouvelles modales (prévisualisation + connecteurs + menubar)
+  if(typeof closePreviewWarning==='function')closePreviewWarning();
+  if(typeof closeConnectorsModal==='function')closeConnectorsModal();
+  if(typeof closeConnectorsCustom==='function')closeConnectorsCustom();
+  if(typeof closeAllMenubar==='function')closeAllMenubar();
+}});
 // Textarea — redimensionnement auto + limite caractères + son clavier
 ta.addEventListener('input',()=>{autoResize();enforceCharLimit();updateCharCounter()});
 ta.addEventListener('keydown',e=>{const ign=new Set(['Shift','Control','Alt','Meta','CapsLock','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape']);if(!ign.has(e.key)&&e.key!=='Enter')playKey();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
@@ -2767,6 +3064,157 @@ if(tabCoworking){
 }
 // Fermer le model dropdown quand on clique ailleurs
 document.addEventListener('click',function(e){if(tabChat&&modelDDMenu&&!tabChat.contains(e.target)&&!modelDDMenu.contains(e.target)){modelDDMenu.classList.remove('open');tabChat.setAttribute('aria-expanded','false')}});
+
+// ──────────────────────────────────────────────────────────────
+// Toggle "Version de prévisualisation" — active / désactive
+// les fonctions expérimentales sans toucher au DOM (CSS toggle).
+// ──────────────────────────────────────────────────────────────
+const previewToggleInput=$('preview-toggle-input');
+const previewWarningBackdrop=$('preview-warning-backdrop');
+const previewWarningConfirm=$('preview-warning-confirm');
+const previewWarningCancel=$('preview-warning-cancel');
+function applyPreviewMode(state){
+  // state : 'on' ou 'off'
+  const v=state==='off'?'off':'on';
+  S.preview=v;
+  ls('preview',v);
+  document.body.dataset.preview=v;
+  if(previewToggleInput)previewToggleInput.checked=(v==='on');
+  // Ferme la sidebar si on bascule en mode off et qu'elle est ouverte
+  if(v==='off'&&typeof closeSidebar==='function')closeSidebar();
+  // Sortir du chat privé si on bascule en off
+  if(v==='off'&&S.privateChat&&typeof exitPrivateChat==='function')exitPrivateChat();
+}
+function openPreviewWarning(){if(previewWarningBackdrop)previewWarningBackdrop.classList.add('open')}
+function closePreviewWarning(){if(previewWarningBackdrop)previewWarningBackdrop.classList.remove('open')}
+if(previewToggleInput){
+  previewToggleInput.addEventListener('change',()=>{
+    playClick();
+    if(previewToggleInput.checked){
+      // Activation → on demande confirmation puis on applique
+      previewToggleInput.checked=false; // on attend la confirmation
+      openPreviewWarning();
+    }else{
+      // Désactivation → immédiate
+      applyPreviewMode('off');
+    }
+  });
+}
+if(previewWarningConfirm)previewWarningConfirm.addEventListener('click',()=>{playClick();closePreviewWarning();applyPreviewMode('on')});
+if(previewWarningCancel)previewWarningCancel.addEventListener('click',()=>{playClick();closePreviewWarning();applyPreviewMode('off')});
+if(previewWarningBackdrop)previewWarningBackdrop.addEventListener('click',e=>{if(e.target===previewWarningBackdrop){closePreviewWarning();applyPreviewMode('off')}});
+
+// État initial : "on" par défaut sauf si l'utilisateur a explicitement désactivé.
+applyPreviewMode(ls('preview')||'on');
+
+// ──────────────────────────────────────────────────────────────
+// Onglet Connecteurs — modale "Aucun connecteur" + bouton custom
+// ──────────────────────────────────────────────────────────────
+const connectorsModalBackdrop=$('connectors-modal-backdrop');
+const connectorsModalClose=$('connectors-modal-close');
+const connectorsAddBtn=$('connectors-add-btn');
+const connectorsAddCustomBtn=$('connectors-add-custom-btn');
+const connectorsCustomBackdrop=$('connectors-custom-backdrop');
+const connectorsCustomClose=$('connectors-custom-close');
+const connectorsCustomOk=$('connectors-custom-ok');
+function openConnectorsModal(){if(connectorsModalBackdrop)connectorsModalBackdrop.classList.add('open')}
+function closeConnectorsModal(){if(connectorsModalBackdrop)connectorsModalBackdrop.classList.remove('open')}
+function openConnectorsCustom(){if(connectorsCustomBackdrop)connectorsCustomBackdrop.classList.add('open')}
+function closeConnectorsCustom(){if(connectorsCustomBackdrop)connectorsCustomBackdrop.classList.remove('open')}
+if(connectorsAddBtn)connectorsAddBtn.addEventListener('click',()=>{playClick();openConnectorsModal()});
+if(connectorsModalClose)connectorsModalClose.addEventListener('click',()=>{playClick();closeConnectorsModal()});
+if(connectorsModalBackdrop)connectorsModalBackdrop.addEventListener('click',e=>{if(e.target===connectorsModalBackdrop)closeConnectorsModal()});
+if(connectorsAddCustomBtn)connectorsAddCustomBtn.addEventListener('click',()=>{playClick();closeConnectorsModal();openConnectorsCustom()});
+if(connectorsCustomClose)connectorsCustomClose.addEventListener('click',()=>{playClick();closeConnectorsCustom()});
+if(connectorsCustomOk)connectorsCustomOk.addEventListener('click',()=>{playClick();closeConnectorsCustom()});
+if(connectorsCustomBackdrop)connectorsCustomBackdrop.addEventListener('click',e=>{if(e.target===connectorsCustomBackdrop)closeConnectorsCustom()});
+
+// ──────────────────────────────────────────────────────────────
+// Barre de menu (Fichier / Édition / Aide)
+// ──────────────────────────────────────────────────────────────
+const menuFileBtn=$('menu-file-btn'),menuEditBtn=$('menu-edit-btn'),menuHelpBtn=$('menu-help-btn');
+const menubarItems=[menuFileBtn,menuEditBtn,menuHelpBtn].filter(Boolean);
+function closeAllMenubar(){menubarItems.forEach(b=>{b.classList.remove('open');b.setAttribute('aria-expanded','false')})}
+function toggleMenubar(btn){
+  const isOpen=btn.classList.contains('open');
+  closeAllMenubar();
+  if(!isOpen){btn.classList.add('open');btn.setAttribute('aria-expanded','true')}
+}
+menubarItems.forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();playClick();toggleMenubar(btn)}));
+// Survol : si un item est déjà ouvert et qu'on survole un autre, on bascule.
+menubarItems.forEach(btn=>btn.addEventListener('mouseenter',()=>{
+  const anyOpen=menubarItems.some(b=>b.classList.contains('open'));
+  if(anyOpen&&!btn.classList.contains('open')){closeAllMenubar();btn.classList.add('open');btn.setAttribute('aria-expanded','true')}
+}));
+// Clic en dehors → fermeture
+document.addEventListener('click',e=>{
+  if(!e.target||!e.target.closest)return;
+  if(!e.target.closest('#app-menubar'))closeAllMenubar();
+});
+
+// Actions des items de menu
+async function handleMenubarAction(action){
+  closeAllMenubar();
+  switch(action){
+    case 'open-location':
+      try{
+        const r=await fetch('/api/open_app_folder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+        const p=await r.json();
+        if(!p||!p.ok)alert((p&&p.error)||t('soon'));
+      }catch(err){alert(t('soon'))}
+      break;
+    case 'open-settings':
+      openSettings();
+      break;
+    case 'new-chat':
+      if(!confirm(t('new_chat_confirm')))return;
+      try{
+        statusEl.textContent='...';
+        const p=await apiNewChat();
+        messages=p.messages;refreshWelcomeContent();renderMessages();
+        statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
+        ta.value='';autoResize();ta.focus();
+      }catch(e){statusEl.textContent=e.message}
+      break;
+    case 'undo':document.execCommand('undo');break;
+    case 'redo':document.execCommand('redo');break;
+    case 'cut':document.execCommand('cut');break;
+    case 'copy':document.execCommand('copy');break;
+    case 'paste':
+      try{
+        if(navigator.clipboard&&navigator.clipboard.readText){
+          const text=await navigator.clipboard.readText();
+          if(document.activeElement&&'value' in document.activeElement){
+            const el=document.activeElement;
+            const start=el.selectionStart||0,end=el.selectionEnd||0;
+            el.value=el.value.substring(0,start)+text+el.value.substring(end);
+            el.selectionStart=el.selectionEnd=start+text.length;
+            el.dispatchEvent(new Event('input',{bubbles:true}));
+          }
+        }else{document.execCommand('paste')}
+      }catch(e){/* l'API clipboard nécessite une permission */}
+      break;
+    case 'select-all':
+      if(document.activeElement&&document.activeElement.select){document.activeElement.select()}
+      else{document.execCommand('selectAll')}
+      break;
+    case 'find':
+      // Focus la barre de recherche de la sidebar si dispo, sinon ouvre la sidebar
+      if(typeof openSidebar==='function')openSidebar();
+      setTimeout(()=>{const s=$('sidebar-search');if(s){s.focus();s.select&&s.select()}},120);
+      break;
+    case 'contact-dev':
+      // Ouvre la même modale que dans Paramètres → Aide → Contacter
+      if(typeof openAideContact==='function')openAideContact();
+      break;
+    case 'open-doc':
+      // Documentation du projet — placeholder, rien pour le moment.
+      break;
+  }
+}
+document.querySelectorAll('[data-menu-action]').forEach(b=>{
+  b.addEventListener('click',e=>{e.stopPropagation();playClick();handleMenubarAction(b.dataset.menuAction)});
+});
 
 }();
 </script>
@@ -3476,6 +3924,33 @@ class GoatWebApp:
         except Exception:
             return {"ok": True, "triggered": False}
 
+    def open_app_folder(self) -> dict:
+        """
+        Ouvre l'explorateur de fichiers sur le dossier contenant ce programme
+        (Fichier → Emplacement du/des programmes dans la barre de menu).
+        Multi-plateforme : Windows (explorer), macOS (open), Linux (xdg-open).
+        """
+        try:
+            folder = os.path.dirname(os.path.abspath(__file__))
+        except Exception:
+            folder = os.getcwd()
+        if not os.path.isdir(folder):
+            return {"ok": False, "error": "Dossier du programme introuvable."}
+        try:
+            system = platform.system().lower()
+            if system == 'windows':
+                # startfile ouvre le dossier dans l'explorateur Windows.
+                os.startfile(folder)  # type: ignore[attr-defined]
+            elif system == 'darwin':
+                import subprocess
+                subprocess.Popen(['open', folder])
+            else:
+                import subprocess
+                subprocess.Popen(['xdg-open', folder])
+            return {"ok": True, "folder": folder}
+        except Exception as exc:
+            return {"ok": False, "error": f"Impossible d'ouvrir le dossier : {exc}"}
+
 
 class GoatHTTPServer(ThreadingHTTPServer):
     """
@@ -3565,6 +4040,7 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
             "/api/export_profile_pdf": lambda: self.server.app.export_profile_pdf(payload),
             "/api/profile_screenshot": lambda: self.server.app.trigger_profile_screenshot(),
             "/api/voice_shortcut": lambda: self.server.app.trigger_voice_shortcut(),
+            "/api/open_app_folder": lambda: self.server.app.open_app_folder(),
         }
 
         fn = handlers.get(self.path)
