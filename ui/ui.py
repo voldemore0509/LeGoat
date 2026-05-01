@@ -1630,15 +1630,19 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
    Structure : topbar │ primary CTA │ search │ pinned │ tabs │
                content │ footer (profil + paramètres)
    ────────────────────────────────────────────────────────────── */
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:44;opacity:0;pointer-events:none;transition:opacity .26s cubic-bezier(.4,0,.2,1)}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;opacity:0;pointer-events:none;transition:opacity .26s cubic-bezier(.4,0,.2,1)}
 .sidebar-overlay.open{opacity:1;pointer-events:auto}
-.sidebar-panel{position:fixed;top:0;left:0;height:100vh;width:312px;max-width:calc(100vw - 36px);background:var(--settings-panel);border-right:1px solid var(--settings-panel-border);box-shadow:8px 0 36px rgba(0,0,0,.16);z-index:45;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar-panel{position:fixed;top:0;left:0;height:100vh;width:312px;max-width:calc(100vw - 36px);background:var(--settings-panel);border-right:1px solid var(--settings-panel-border);box-shadow:8px 0 36px rgba(0,0,0,.16);z-index:101;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
 .sidebar-panel.open{transform:translateX(0)}
 
 /* Topbar : brand + bouton fermer */
 .sidebar-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 8px;gap:8px}
 .sidebar-brand-wrap{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-.sidebar-brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.55));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;font-weight:800;flex-shrink:0;letter-spacing:-.02em}
+.sidebar-brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.55));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;font-weight:800;flex-shrink:0;letter-spacing:-.02em;overflow:hidden}
+.sidebar-brand-mark img{width:100%;height:100%;object-fit:cover;display:block}
+.sidebar-brand-mark img[src=""],.sidebar-brand-mark img:not([src]){display:none}
+/* Quand un vrai logo est présent, on retire le dégradé bleu derrière */
+.sidebar-brand-mark.has-logo{background:transparent}
 .sidebar-brand{font-size:.92rem;font-weight:700;color:var(--text-primary);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar-icon-btn{width:30px;height:30px;border-radius:9px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;transition:background .14s,color .14s}
 .sidebar-icon-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary)}
@@ -1691,6 +1695,35 @@ body[data-theme="dark"] .wallpaper-preview-box .label{background:rgba(17,24,39,.
 .sidebar-settings-icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .14s,color .14s,border-color .14s}
 .sidebar-settings-icon-btn:hover{background:var(--settings-tab-hover);color:var(--text-primary);border-color:var(--line)}
 .sidebar-settings-icon-btn svg{width:16px;height:16px}
+
+/* ── Système "Créer un fichier" : modale + items + popover d'actions ── */
+.sf-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:140;display:none;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .18s}
+.sf-modal-backdrop.open{display:flex;opacity:1}
+.sf-modal{width:min(420px,100%);background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:18px;box-shadow:0 28px 70px rgba(0,0,0,.32);padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px;transform:translateY(8px);transition:transform .18s}
+.sf-modal-backdrop.open .sf-modal{transform:translateY(0)}
+.sf-modal-title{font-size:1.05rem;font-weight:700;color:var(--text-primary)}
+.sf-modal-input{height:42px;border-radius:11px;border:1px solid var(--line);background:var(--input-bg);color:var(--text-primary);padding:0 14px;font-size:.9rem;outline:none;font-family:inherit;transition:border-color .14s,box-shadow .14s}
+.sf-modal-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+.sf-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+.sf-modal-btn{height:38px;padding:0 16px;border-radius:11px;font-size:.85rem;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text-primary);transition:background .14s,filter .14s}
+.sf-modal-btn:hover{background:var(--settings-tab-hover)}
+.sf-modal-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.sf-modal-btn.primary:hover{filter:brightness(1.08);background:var(--accent)}
+.sf-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--text-primary);font-size:.84rem;transition:background .14s;position:relative;line-height:1.4}
+.sf-item:hover,.sf-item.menu-open{background:var(--settings-tab-hover)}
+.sf-item-icon{width:16px;height:16px;flex-shrink:0;color:var(--text-secondary)}
+.sf-item-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf-item-more{width:26px;height:26px;border-radius:8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;opacity:0;transition:opacity .14s,background .14s,color .14s}
+.sf-item:hover .sf-item-more,.sf-item.menu-open .sf-item-more{opacity:1}
+.sf-item-more:hover{background:var(--line);color:var(--text-primary)}
+.sf-item-more svg{width:14px;height:14px}
+.sf-popover{position:fixed;min-width:170px;background:var(--menu-bg);border:1px solid var(--menu-border);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.28);padding:6px;display:none;flex-direction:column;gap:2px;z-index:142}
+.sf-popover.open{display:flex}
+.sf-popover-item{height:34px;padding:0 12px;border-radius:8px;border:none;background:transparent;color:var(--text-primary);text-align:left;cursor:pointer;font-size:.84rem;font-family:inherit;display:flex;align-items:center;gap:9px;transition:background .14s}
+.sf-popover-item:hover{background:var(--settings-tab-hover)}
+.sf-popover-item.danger{color:#dc2626}
+.sf-popover-item.danger:hover{background:rgba(220,38,38,.10)}
+.sf-popover-item svg{width:14px;height:14px;flex-shrink:0}
 
 /* ── Boutons gauche Apple-style quasi-transparent ── */
 .left-buttons-anchor{position:fixed;left:16px;top:62px;z-index:40;display:flex;flex-direction:column;align-items:center;gap:7px}
@@ -1920,8 +1953,10 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
   <!-- Topbar : marque + bouton fermer -->
   <div class="sidebar-topbar">
     <div class="sidebar-brand-wrap">
-      <span class="sidebar-brand-mark" aria-hidden="true">G</span>
-      <span class="sidebar-brand">Le Goat</span>
+      <span class="sidebar-brand-mark" id="sidebar-brand-mark" aria-hidden="true">
+        <img id="sidebar-brand-mark-img" alt="">
+      </span>
+      <span class="sidebar-brand" id="sidebar-brand">Le Goat</span>
     </div>
     <button type="button" class="sidebar-icon-btn" id="sidebar-close-btn" aria-label="Fermer le panneau">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -1985,6 +2020,28 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
     </button>
   </div>
 </aside>
+<!-- Modale "Créer / Renommer un fichier" -->
+<div class="sf-modal-backdrop" id="sf-modal-backdrop" aria-hidden="true">
+  <div class="sf-modal" role="dialog" aria-modal="true" aria-labelledby="sf-modal-title">
+    <div class="sf-modal-title" id="sf-modal-title">Nouveau fichier</div>
+    <input type="text" class="sf-modal-input" id="sf-modal-input" placeholder="Nom du fichier" autocomplete="off" spellcheck="false" maxlength="120">
+    <div class="sf-modal-actions">
+      <button type="button" class="sf-modal-btn" id="sf-modal-cancel">Annuler</button>
+      <button type="button" class="sf-modal-btn primary" id="sf-modal-confirm">Créer</button>
+    </div>
+  </div>
+</div>
+<!-- Popover : actions sur un fichier (renommer / supprimer) -->
+<div class="sf-popover" id="sf-popover" role="menu" aria-hidden="true">
+  <button type="button" class="sf-popover-item" id="sf-popover-rename" role="menuitem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <span id="sf-popover-rename-label">Renommer</span>
+  </button>
+  <button type="button" class="sf-popover-item danger" id="sf-popover-delete" role="menuitem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    <span id="sf-popover-delete-label">Supprimer</span>
+  </button>
+</div>
 <div class="settings-backdrop" id="settings-backdrop" hidden></div>
 <section class="settings-modal" id="settings-modal" hidden aria-modal="true" role="dialog">
   <aside class="settings-sidebar">
@@ -2444,7 +2501,44 @@ const coworkingContent={
 // ── Utilitaires de base ───────────────────────────────────────────
 function t(k){return(T[S.lang]||T[defs.lang]||{})[k]||(T[defs.lang]||{})[k]||k}  // Traduction
 function appTitle(){return S.aiName||(titleByLang[S.lang]||titleByLang[defs.lang])}  // Titre localisé (personnalisable)
-function updateAiName(){if(brandText)brandText.textContent=appTitle();if(tabCoworking)tabCoworking.textContent=appTitle()+' Code';renderMessages()}
+// ── Met à jour en temps réel le footer de la sidebar (nom + avatar) ──
+// Priorité nom   : aiName > prénom+nom utilisateur > titre par défaut
+// Priorité logo  : aiLogo > avatar utilisateur > main-logo > initiales
+function updateSidebarProfile(){
+  try{
+    const nameEl=document.getElementById('sidebar-profile-name');
+    const avEl=document.getElementById('sidebar-profile-avatar');
+    // On lit les deux jeux de clés : onglet "Profil" (profile-*) prioritaire,
+    // sinon onglet "Personnalisation" (firstname / lastname).
+    const _read=k=>(typeof ls==='function'?(ls(k)||''):'');
+    const pFn=_read('profile-firstname').trim();
+    const pLn=_read('profile-lastname').trim();
+    const fn=(pFn||_read('firstname').trim());
+    const ln=(pLn||_read('lastname').trim());
+    const userFull=(fn+' '+ln).trim();
+    const aiName=((typeof S!=='undefined'&&S&&S.aiName)||'').trim();
+    // Priorité : prénom+nom utilisateur > aiName > titre par défaut
+    const displayName=userFull||aiName||(typeof appTitle==='function'?appTitle():'Le Goat')||'Le Goat';
+    if(nameEl)nameEl.textContent=displayName;
+    if(avEl){
+      const aiLogo=((typeof S!=='undefined'&&S&&S.aiLogo)||'');
+      const userAvatar=_read('profile-avatar');
+      const mainLogoEl=document.getElementById('main-logo');
+      const mainLogoSrc=mainLogoEl?(mainLogoEl.getAttribute('src')||''):'';
+      const src=aiLogo||userAvatar||mainLogoSrc;
+      if(src){
+        let img=avEl.querySelector('img');
+        if(!img){avEl.textContent='';img=document.createElement('img');img.alt='';avEl.appendChild(img)}
+        if(img.getAttribute('src')!==src)img.setAttribute('src',src);
+      }else{
+        if(avEl.querySelector('img'))avEl.innerHTML='';
+        const initials=((fn[0]||'')+(ln[0]||'')).toUpperCase()||((displayName[0]||'G').toUpperCase());
+        avEl.textContent=initials;
+      }
+    }
+  }catch(e){/* tolère un appel précoce */}
+}
+function updateAiName(){if(brandText)brandText.textContent=appTitle();if(tabCoworking)tabCoworking.textContent=appTitle()+' Code';updateSidebarProfile();renderMessages()}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}  // Échappement HTML
 
 // ── Système audio (Web Audio API, synthèse additive) ─────────────
@@ -2607,7 +2701,7 @@ function onDrag(e){if(!dragging)return;modal.style.left=Math.max(12,mSL+(e.clien
 function apply(key,val,lsKey,sound){if(sound!==false)playClick();S[key]=val;ls(lsKey||key,val)}
 function checkUiOptOff(){if(S.uiOpt==='on'){S.uiOpt='off';ls('uiopt','off');updatePerf()}}
 function applyLang(l,snd){apply('lang',['fr','en','es'].includes(l)?l:defs.lang,'lang',snd);document.documentElement.lang=S.lang;$$('[data-language-value]').forEach(b=>b.classList.toggle('active',b.dataset.languageValue===S.lang));applyTranslations()}
-function updateThemedLogos(){const isDark=S.theme==='dark';const mainLogo=$('main-logo');if(mainLogo){if(S.aiLogo){mainLogo.src=S.aiLogo}else{const isCowork=activeTab==='coworking';if(isCowork){mainLogo.src=isDark?(mainLogo.dataset.pixelDark||mainLogo.dataset.dark):(mainLogo.dataset.pixelLight||mainLogo.dataset.light)}else{mainLogo.src=isDark?mainLogo.dataset.dark:mainLogo.dataset.light}}}const goatLogo=$('goatistique-logo');if(goatLogo)goatLogo.src=isDark?goatLogo.dataset.dark:goatLogo.dataset.light}
+function updateThemedLogos(){const isDark=S.theme==='dark';const mainLogo=$('main-logo');if(mainLogo){if(S.aiLogo){mainLogo.src=S.aiLogo}else{const isCowork=activeTab==='coworking';if(isCowork){mainLogo.src=isDark?(mainLogo.dataset.pixelDark||mainLogo.dataset.dark):(mainLogo.dataset.pixelLight||mainLogo.dataset.light)}else{mainLogo.src=isDark?mainLogo.dataset.dark:mainLogo.dataset.light}}}const goatLogo=$('goatistique-logo');if(goatLogo)goatLogo.src=isDark?goatLogo.dataset.dark:goatLogo.dataset.light;const sbMark=document.getElementById('sidebar-brand-mark');const sbMarkImg=document.getElementById('sidebar-brand-mark-img');if(sbMarkImg&&mainLogo){let src='';if(S.aiLogo){src=S.aiLogo}else{src=isDark?(mainLogo.dataset.dark||mainLogo.getAttribute('src')||''):(mainLogo.dataset.light||mainLogo.getAttribute('src')||'')}sbMarkImg.setAttribute('src',src||'');if(sbMark)sbMark.classList.toggle('has-logo',!!src)}updateSidebarProfile()}
 function applyTheme(v,snd){if(S.privateChat)return;apply('theme',v==='dark'?'dark':'light','theme',snd);document.body.dataset.theme=S.theme;$$('[data-theme-value]').forEach(b=>b.classList.toggle('active',b.dataset.themeValue===S.theme));updateThemedLogos()}
 function applyEffects(v,snd){apply('effects',v==='off'?'off':'on','effects',snd);document.body.dataset.effects=S.effects;updatePerf()}
 function applyTextSize(v,snd){apply('textSize',v==='large'?'large':'default','textsize',snd);document.body.dataset.textsize=S.textSize;$$('[data-textsize-value]').forEach(b=>b.classList.toggle('active',b.dataset.textsizeValue===S.textSize))}
@@ -2731,8 +2825,8 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');const _spn=$('sidebar-profile-name');if(_spn){const _fn=(ls('firstname')||'').trim();const _ln=(ls('lastname')||'').trim();_spn.textContent=(_fn||_ln)?`${_fn} ${_ln}`.trim():'Le Goat'}const _spa=$('sidebar-profile-avatar');if(_spa&&!_spa.querySelector('img')){const _fn=(ls('firstname')||'').trim();const _ln=(ls('lastname')||'').trim();_spa.textContent=((_fn[0]||'')+(_ln[0]||'')).toUpperCase()||'G'}$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
-function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value)}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');updateSidebarProfile();$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
+function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value);updateSidebarProfile()}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
 function profileSet(key,val){ls('profile-'+key,val||'');return val||''}
@@ -2777,7 +2871,7 @@ function setUploadPreview(box,src,fallbackLabel,kind){if(!box)return;box.innerHT
 function toggleProfileEditor(force){const open=typeof force==='boolean'?force:profileEditor.hidden;profileEditor.hidden=!open;profileEditToggle.textContent=open?t('profile_close_edit'):t('profile_edit')}
 function loadProfileForm(){const data=getProfileData();profileFirstnameInput.value=data.firstname;profileLastnameInput.value=data.lastname;profileBioInput.value=data.bio;profileInstagramInput.value=data.instagram;profileTikTokInput.value=data.tiktok;profileYouTubeInput.value=data.youtube;profileGitHubInput.value=data.github;profileBlueskyInput.value=data.bluesky;if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');updateProfileUI()}
 function persistProfileForm(){profileSet('firstname',profileFirstnameInput.value.trim());profileSet('lastname',profileLastnameInput.value.trim());profileSet('bio',profileBioInput.value.trim());profileSet('instagram',profileInstagramInput.value.trim());profileSet('tiktok',profileTikTokInput.value.trim());profileSet('youtube',profileYouTubeInput.value.trim());profileSet('github',profileGitHubInput.value.trim());profileSet('bluesky',profileBlueskyInput.value.trim());updateProfileUI()}
-function updateProfileUI(){if(!profileNamePreview)return;const data=getProfileData();const count=getChatCount();const score=computeGoatScore(count);const fullName=getProfileFullName(data);const fallbackAvatar=$('main-logo')?$('main-logo').getAttribute('src'):'';const avatarSrc=data.avatar||fallbackAvatar;profileNamePreview.textContent=fullName;profileDescriptionPreview.textContent=data.bio||t('profile_no_description');profileDescriptionPreview.classList.toggle('empty',!data.bio);if(profileChatCount)profileChatCount.textContent=count.toLocaleString('fr-FR');if(profileGoatScore)profileGoatScore.textContent=score.toLocaleString('fr-FR');profileAvatarPreview.src=avatarSrc;applyAvatarFitMode(profileAvatarPreview,avatarSrc);profileBannerPreview.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';if(settingsProfileTabAvatar){settingsProfileTabAvatar.src=avatarSrc;applyAvatarFitMode(settingsProfileTabAvatar,avatarSrc)}if(settingsProfileTabName)settingsProfileTabName.textContent=fullName;setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';const socials=socialEntries(data).filter(item=>item.value.trim());if(!socials.length){profileSocialsPreview.innerHTML='<span class="profile-social-empty">'+esc(t('profile_share_hint'))+'</span>'}else{profileSocialsPreview.innerHTML=socials.map(item=>'<a class="profile-social-link" href="'+esc(normalizeSocialUrl(item.id,item.value))+'" target="_blank" rel="noreferrer noopener">'+esc(item.label)+'</a>').join('')}}
+function updateProfileUI(){if(!profileNamePreview)return;const data=getProfileData();const count=getChatCount();const score=computeGoatScore(count);const fullName=getProfileFullName(data);const fallbackAvatar=$('main-logo')?$('main-logo').getAttribute('src'):'';const avatarSrc=data.avatar||fallbackAvatar;profileNamePreview.textContent=fullName;profileDescriptionPreview.textContent=data.bio||t('profile_no_description');profileDescriptionPreview.classList.toggle('empty',!data.bio);if(profileChatCount)profileChatCount.textContent=count.toLocaleString('fr-FR');if(profileGoatScore)profileGoatScore.textContent=score.toLocaleString('fr-FR');profileAvatarPreview.src=avatarSrc;applyAvatarFitMode(profileAvatarPreview,avatarSrc);profileBannerPreview.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';if(settingsProfileTabAvatar){settingsProfileTabAvatar.src=avatarSrc;applyAvatarFitMode(settingsProfileTabAvatar,avatarSrc)}if(settingsProfileTabName)settingsProfileTabName.textContent=fullName;setUploadPreview(profileAvatarUploadPreview,data.avatar,t('profile_avatar'),'avatar');setUploadPreview(profileBannerUploadPreview,data.banner,t('profile_banner'),'banner');if(profileAvatarMessagesToggle)profileAvatarMessagesToggle.checked=data.showMessageAvatar==='on';const socials=socialEntries(data).filter(item=>item.value.trim());if(!socials.length){profileSocialsPreview.innerHTML='<span class="profile-social-empty">'+esc(t('profile_share_hint'))+'</span>'}else{profileSocialsPreview.innerHTML=socials.map(item=>'<a class="profile-social-link" href="'+esc(normalizeSocialUrl(item.id,item.value))+'" target="_blank" rel="noreferrer noopener">'+esc(item.label)+'</a>').join('')}updateSidebarProfile();}
 function closeProfilePicker(){if(!profilePickerBackdrop)return;profilePickerBackdrop.classList.remove('open')}
 function renderProfilePicker(){if(!profilePickerGrid)return;const library=getProfilePresetLibrary()[profilePickerMode]||[];if(profilePickerTitle)profilePickerTitle.textContent=profilePickerMode==='banner'?t('profile_picker_title_banner'):t('profile_picker_title');if(profilePickerSectionTitle)profilePickerSectionTitle.textContent=t('profile_picker_category_goat');profilePickerGrid.innerHTML='';profilePickerGrid.classList.toggle('banner-mode',profilePickerMode==='banner');library.forEach(item=>{const btn=document.createElement('button');btn.type='button';btn.className='profile-picker-card';const thumb=document.createElement('div');thumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');const img=document.createElement('img');img.src=item.src;if(profilePickerMode==='avatar')applyAvatarFitMode(img,item.src);thumb.appendChild(img);const label=document.createElement('span');label.className='profile-picker-card-label';label.textContent=item.label;btn.appendChild(thumb);btn.appendChild(label);btn.addEventListener('click',()=>{playClick();profileSet(profilePickerMode,item.src);loadProfileForm();closeProfilePicker();renderMessages()});profilePickerGrid.appendChild(btn)});const importBtn=document.createElement('button');importBtn.type='button';importBtn.className='profile-picker-card import';const importThumb=document.createElement('div');importThumb.className='profile-picker-thumb'+(profilePickerMode==='banner'?' banner':'');importThumb.innerHTML='<div>+</div><span>'+esc(profilePickerMode==='banner'?t('profile_picker_import_banner'):t('profile_picker_import_avatar'))+'</span>';const importLabel=document.createElement('span');importLabel.className='profile-picker-card-label';importLabel.textContent=profilePickerMode==='banner'?t('profile_choose_banner'):t('profile_choose_avatar');importBtn.appendChild(importThumb);importBtn.appendChild(importLabel);importBtn.addEventListener('click',()=>{playClick();closeProfilePicker();(profilePickerMode==='banner'?profileBannerFile:profileAvatarFile).click()});profilePickerGrid.appendChild(importBtn)}
 function openProfilePicker(mode){profilePickerMode=mode||'avatar';renderProfilePicker();if(profilePickerBackdrop)profilePickerBackdrop.classList.add('open')}
@@ -2946,9 +3040,102 @@ if(sidebarNewChatBtn)sidebarNewChatBtn.addEventListener('click',async()=>{
 // Bouton "Paramètres" dans la sidebar
 const sidebarSettingsBtn=$('sidebar-settings-btn');
 if(sidebarSettingsBtn)sidebarSettingsBtn.addEventListener('click',()=>{playClick();closeSidebar();openSettings()});
-// Bouton "Créer un fichier" — no-op pour l'instant
+// ── Système "Créer un fichier" : modale + persistance + menu actions ──
+const sfBackdrop=$('sf-modal-backdrop'),sfTitleEl=$('sf-modal-title'),sfInput=$('sf-modal-input'),sfCancel=$('sf-modal-cancel'),sfConfirm=$('sf-modal-confirm');
+const sfPopover=$('sf-popover'),sfPopRename=$('sf-popover-rename'),sfPopDelete=$('sf-popover-delete');
+const sfFilesContainer=document.querySelector('[data-sidebar-content="files"]');
+let sfMode='create',sfActiveId=null,sfMenuTargetId=null,sfMenuTargetEl=null;
+function sfLoad(){try{const raw=ls('sidebar-files')||'[]';const arr=JSON.parse(raw);return Array.isArray(arr)?arr:[]}catch(e){return[]}}
+function sfSave(arr){ls('sidebar-files',JSON.stringify(arr||[]))}
+function sfNewId(){return 'f_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+function sfOpenModal(mode,id){
+  sfMode=mode;sfActiveId=id||null;
+  if(mode==='rename'){
+    const file=sfLoad().find(f=>f.id===id);
+    sfTitleEl.textContent='Renommer le fichier';
+    sfConfirm.textContent='Renommer';
+    sfInput.value=file?file.name:'';
+  }else{
+    sfTitleEl.textContent='Nouveau fichier';
+    sfConfirm.textContent='Créer';
+    sfInput.value='';
+  }
+  sfBackdrop.classList.add('open');
+  sfBackdrop.setAttribute('aria-hidden','false');
+  setTimeout(()=>{try{sfInput.focus();sfInput.select()}catch(e){}},30);
+}
+function sfCloseModal(){sfBackdrop.classList.remove('open');sfBackdrop.setAttribute('aria-hidden','true');sfActiveId=null}
+function sfConfirmModal(){
+  const name=(sfInput.value||'').trim();
+  if(!name){sfInput.focus();return}
+  const arr=sfLoad();
+  if(sfMode==='rename'&&sfActiveId){
+    const idx=arr.findIndex(f=>f.id===sfActiveId);
+    if(idx>=0){arr[idx].name=name;sfSave(arr)}
+  }else{
+    arr.push({id:sfNewId(),name:name,created:Date.now()});
+    sfSave(arr);
+  }
+  sfCloseModal();sfRenderFiles();
+}
+function sfClosePopover(){
+  if(!sfPopover)return;
+  sfPopover.classList.remove('open');
+  sfPopover.setAttribute('aria-hidden','true');
+  if(sfMenuTargetEl)sfMenuTargetEl.classList.remove('menu-open');
+  sfMenuTargetId=null;sfMenuTargetEl=null;
+}
+function sfOpenPopover(itemEl,id){
+  sfClosePopover();
+  sfMenuTargetId=id;sfMenuTargetEl=itemEl;
+  itemEl.classList.add('menu-open');
+  sfPopover.classList.add('open');
+  sfPopover.setAttribute('aria-hidden','false');
+  const r=itemEl.getBoundingClientRect();
+  const popW=sfPopover.offsetWidth||180;
+  const popH=sfPopover.offsetHeight||80;
+  let left=r.right-popW;
+  if(left<8)left=8;
+  if(left+popW>window.innerWidth-8)left=window.innerWidth-popW-8;
+  let top=r.bottom+4;
+  if(top+popH>window.innerHeight-8)top=Math.max(8,r.top-popH-4);
+  sfPopover.style.left=left+'px';
+  sfPopover.style.top=top+'px';
+}
+function sfRenderFiles(){
+  if(!sfFilesContainer)return;
+  // Conserver le bouton "Créer un fichier" en tête de liste
+  const createBtn=sfFilesContainer.querySelector('#sidebar-create-file-btn');
+  sfFilesContainer.innerHTML='';
+  if(createBtn)sfFilesContainer.appendChild(createBtn);
+  const arr=sfLoad();
+  arr.forEach(f=>{
+    const row=document.createElement('div');
+    row.className='sf-item';
+    row.dataset.fileId=f.id;
+    row.innerHTML='<svg class="sf-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'+
+      '<span class="sf-item-name"></span>'+
+      '<button type="button" class="sf-item-more" aria-label="Options"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg></button>';
+    row.querySelector('.sf-item-name').textContent=f.name;
+    const more=row.querySelector('.sf-item-more');
+    const opener=e=>{e.stopPropagation();if(sfMenuTargetId===f.id){sfClosePopover();return}sfOpenPopover(row,f.id)};
+    row.addEventListener('click',opener);
+    more.addEventListener('click',opener);
+    sfFilesContainer.appendChild(row);
+  });
+}
 const sidebarCreateFileBtn=$('sidebar-create-file-btn');
-if(sidebarCreateFileBtn)sidebarCreateFileBtn.addEventListener('click',()=>{playClick();alert(t('soon'))});
+if(sidebarCreateFileBtn)sidebarCreateFileBtn.addEventListener('click',e=>{e.stopPropagation();playClick();sfClosePopover();sfOpenModal('create')});
+if(sfCancel)sfCancel.addEventListener('click',()=>{playClick();sfCloseModal()});
+if(sfConfirm)sfConfirm.addEventListener('click',()=>{playClick();sfConfirmModal()});
+if(sfBackdrop)sfBackdrop.addEventListener('click',e=>{if(e.target===sfBackdrop)sfCloseModal()});
+if(sfInput)sfInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sfConfirmModal()}else if(e.key==='Escape'){e.preventDefault();sfCloseModal()}});
+if(sfPopRename)sfPopRename.addEventListener('click',e=>{e.stopPropagation();playClick();const id=sfMenuTargetId;sfClosePopover();if(id)sfOpenModal('rename',id)});
+if(sfPopDelete)sfPopDelete.addEventListener('click',e=>{e.stopPropagation();playClick();const id=sfMenuTargetId;sfClosePopover();if(!id)return;if(!confirm('Supprimer ce fichier ?'))return;const arr=sfLoad().filter(f=>f.id!==id);sfSave(arr);sfRenderFiles()});
+document.addEventListener('click',e=>{if(!sfPopover||!sfPopover.classList.contains('open'))return;if(sfPopover.contains(e.target))return;if(sfMenuTargetEl&&sfMenuTargetEl.contains(e.target))return;sfClosePopover()});
+window.addEventListener('resize',sfClosePopover);
+window.addEventListener('scroll',sfClosePopover,true);
+sfRenderFiles();
 // Onglets de la sidebar (Fichiers / Historique)
 $$('[data-sidebar-tab]').forEach(btn=>btn.addEventListener('click',()=>{
   playClick();
