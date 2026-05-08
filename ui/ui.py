@@ -183,6 +183,17 @@ class AppConfig:
     ]
     DEFAULT_GADGET = ""
 
+    # ── Modèles personnalisés (Settings → Personnalisation) ──────
+    # Lorsque l'utilisateur active l'interrupteur "Autres modèles" dans
+    # Personnalisation, un bouton "Modèles" apparaît à côté du sélecteur
+    # de style d'écriture. Il permet d'ajouter, renommer, supprimer
+    # des modèles personnalisés (libellés uniquement, sans backend dédié).
+    DEFAULT_OTHER_MODELS_ENABLED = "off"   # "on" | "off"
+    # Sentinel utilisé pour marquer que le modèle actif est un modèle custom.
+    # Lorsqu'il est posé, l'étiquette du bandeau supérieur affiche "Custom"
+    # et la sélection des modèles standards est verrouillée jusqu'au reset.
+    CUSTOM_MODEL_SENTINEL = "__custom__"
+
     # ── Prompt de migration (export mémoire depuis une autre IA) ─
     MIGRATION_PROMPT = r"""Export all of my stored memories and any context you've learned about me from past conversations. Preserve my words verbatim where possible, especially for instructions and preferences.
 
@@ -287,6 +298,22 @@ class TranslationManager:
             "new_chat_confirm": "La discussion actuelle sera supprimée et irrécupérable. Continuer ?",
             "tab_switch_confirm": "Changer d'espace va réinitialiser la discussion en cours. Continuer ?",
             "regenerate": "Relancer", "soon": "Bientôt disponible.",
+            "specificity": "Spécificité",
+            "tooltip_specificity": "Voir le détail de la requête (mode, style, modèle, pièces jointes, horodatage…).",
+            "specificity_title": "Spécificités de la réponse",
+            "specificity_mode": "Mode utilisé",
+            "specificity_style": "Style d'écriture",
+            "specificity_model": "Modèle utilisé",
+            "specificity_attachments": "Documents et images",
+            "specificity_request_time": "Envoi de la requête",
+            "specificity_response_time": "Réception de la réponse",
+            "specificity_duration": "Temps de réponse",
+            "specificity_none": "Aucun",
+            "specificity_no_attachments": "Aucun document ou image joint",
+            "specificity_unavailable": "Aucune information disponible.",
+            "specificity_seconds_short": "s",
+            "specificity_milliseconds_short": "ms",
+            "specificity_custom_model": "Modèle personnalisé",
             "sidebar_search_placeholder": "Rechercher une discussion…",
             "sidebar_pinned": "Épinglés",
             "sidebar_pinned_empty": "Glissez pour épingler",
@@ -336,6 +363,26 @@ class TranslationManager:
             "tooltip_style_explicatif": "Permet d'être dans un style plus explicatif, bien pour l'école ou l'explication d'un dossier.",
             "tooltip_style_educatif": "Idéal pour apprendre une notion ou quelque chose de nouveau.",
             "tooltip_style_trigger": "Sélectionner un style d'écriture (re-cliquez pour désélectionner).",
+            # ── Modèles personnalisés ───────────────────────────
+            "perso_other_models": "Autres modèles",
+            "perso_other_models_help": "Active la possibilité d'ajouter et de gérer vos propres modèles.",
+            "tooltip_other_models_toggle": "Active la possibilité d'ajouter d'autres modèles que ceux d'origine.",
+            "models_btn_label": "Modèles",
+            "tooltip_models_trigger": "Gérer et activer vos modèles personnalisés.",
+            "models_add": "Ajouter un modèle",
+            "models_modal_title": "NAME Models",
+            "models_modal_placeholder": "Nom du modèle",
+            "models_modal_enter": "Entrer",
+            "models_modal_cancel": "Annuler",
+            "models_no_custom": "Aucun modèle personnalisé pour l'instant.",
+            "models_custom_label": "Custom",
+            "models_rename": "Renommer",
+            "models_delete": "Supprimer",
+            "models_set_default": "Remettre le modèle par défaut",
+            "models_default_required": "Pour repasser sur Sukoshi, Traditionnel ou Maestro, remettez d'abord le modèle sur « Par défaut ».",
+            "models_delete_confirm": "Supprimer ce modèle personnalisé ?",
+            "models_invalid_name": "Le nom du modèle ne peut pas être vide.",
+            "models_duplicate_name": "Un modèle porte déjà ce nom.",
             "analyze_code": "Analyser le code",
             "update_info": "Voir les informations de mise à jour",
             "dev_notes": "Voir les notes de développement",
@@ -503,6 +550,22 @@ class TranslationManager:
             "new_chat_confirm": "The current chat will be deleted and cannot be recovered. Continue?",
             "tab_switch_confirm": "Switching workspace will reset the current conversation. Continue?",
             "regenerate": "Regenerate", "soon": "Coming soon.",
+            "specificity": "Details",
+            "tooltip_specificity": "See request details (mode, style, model, attachments, timestamps…).",
+            "specificity_title": "Response details",
+            "specificity_mode": "Mode used",
+            "specificity_style": "Writing style",
+            "specificity_model": "Model used",
+            "specificity_attachments": "Documents and images",
+            "specificity_request_time": "Request sent",
+            "specificity_response_time": "Response received",
+            "specificity_duration": "Response time",
+            "specificity_none": "None",
+            "specificity_no_attachments": "No document or image attached",
+            "specificity_unavailable": "No information available.",
+            "specificity_seconds_short": "s",
+            "specificity_milliseconds_short": "ms",
+            "specificity_custom_model": "Custom model",
             "sidebar_search_placeholder": "Search a conversation…",
             "sidebar_pinned": "Pinned",
             "sidebar_pinned_empty": "Drag to pin",
@@ -552,6 +615,26 @@ class TranslationManager:
             "tooltip_style_explicatif": "A more explanatory style, great for school or explaining a topic.",
             "tooltip_style_educatif": "Ideal for learning a concept or something new.",
             "tooltip_style_trigger": "Select a writing style (re-click to deselect).",
+            # ── Custom models ───────────────────────────────────
+            "perso_other_models": "Other models",
+            "perso_other_models_help": "Enable the ability to add and manage your own models.",
+            "tooltip_other_models_toggle": "Enables the option to add models other than the original ones.",
+            "models_btn_label": "Models",
+            "tooltip_models_trigger": "Manage and activate your custom models.",
+            "models_add": "Add a model",
+            "models_modal_title": "NAME Models",
+            "models_modal_placeholder": "Model name",
+            "models_modal_enter": "Enter",
+            "models_modal_cancel": "Cancel",
+            "models_no_custom": "No custom model yet.",
+            "models_custom_label": "Custom",
+            "models_rename": "Rename",
+            "models_delete": "Delete",
+            "models_set_default": "Reset model to default",
+            "models_default_required": "To switch back to Sukoshi, Traditional or Maestro, first reset the model to \"Default\".",
+            "models_delete_confirm": "Delete this custom model?",
+            "models_invalid_name": "Model name cannot be empty.",
+            "models_duplicate_name": "A model with this name already exists.",
             "analyze_code": "Analyze code",
             "update_info": "View update information",
             "dev_notes": "View development notes",
@@ -718,6 +801,22 @@ class TranslationManager:
             "new_chat_confirm": "El chat actual se eliminará y no se podrá recuperar. ¿Continuar?",
             "tab_switch_confirm": "Cambiar de espacio reiniciará la conversación actual. ¿Continuar?",
             "regenerate": "Regenerar", "soon": "Próximamente.",
+            "specificity": "Detalles",
+            "tooltip_specificity": "Ver los detalles de la solicitud (modo, estilo, modelo, adjuntos, marca de tiempo…).",
+            "specificity_title": "Detalles de la respuesta",
+            "specificity_mode": "Modo utilizado",
+            "specificity_style": "Estilo de escritura",
+            "specificity_model": "Modelo utilizado",
+            "specificity_attachments": "Documentos e imágenes",
+            "specificity_request_time": "Solicitud enviada",
+            "specificity_response_time": "Respuesta recibida",
+            "specificity_duration": "Tiempo de respuesta",
+            "specificity_none": "Ninguno",
+            "specificity_no_attachments": "Ningún documento o imagen adjunto",
+            "specificity_unavailable": "No hay información disponible.",
+            "specificity_seconds_short": "s",
+            "specificity_milliseconds_short": "ms",
+            "specificity_custom_model": "Modelo personalizado",
             "sidebar_search_placeholder": "Buscar una conversación…",
             "sidebar_pinned": "Anclados",
             "sidebar_pinned_empty": "Arrastra para anclar",
@@ -767,6 +866,26 @@ class TranslationManager:
             "tooltip_style_explicatif": "Un estilo más explicativo, ideal para la escuela o explicar un tema.",
             "tooltip_style_educatif": "Ideal para aprender un concepto o algo nuevo.",
             "tooltip_style_trigger": "Seleccionar un estilo de escritura (haga clic de nuevo para deseleccionar).",
+            # ── Modelos personalizados ─────────────────────────
+            "perso_other_models": "Otros modelos",
+            "perso_other_models_help": "Activa la posibilidad de añadir y gestionar tus propios modelos.",
+            "tooltip_other_models_toggle": "Permite añadir modelos distintos a los originales.",
+            "models_btn_label": "Modelos",
+            "tooltip_models_trigger": "Gestiona y activa tus modelos personalizados.",
+            "models_add": "Añadir un modelo",
+            "models_modal_title": "NAME Models",
+            "models_modal_placeholder": "Nombre del modelo",
+            "models_modal_enter": "Entrar",
+            "models_modal_cancel": "Cancelar",
+            "models_no_custom": "Aún no hay modelos personalizados.",
+            "models_custom_label": "Custom",
+            "models_rename": "Renombrar",
+            "models_delete": "Eliminar",
+            "models_set_default": "Restablecer al modelo por defecto",
+            "models_default_required": "Para volver a Sukoshi, Tradicional o Maestro, restablece primero el modelo a «Por defecto».",
+            "models_delete_confirm": "¿Eliminar este modelo personalizado?",
+            "models_invalid_name": "El nombre del modelo no puede estar vacío.",
+            "models_duplicate_name": "Ya existe un modelo con ese nombre.",
             "analyze_code": "Analizar código",
             "update_info": "Ver información de actualizaciones",
             "dev_notes": "Ver notas de desarrollo",
@@ -957,52 +1076,177 @@ class ChatSession:
     ---------
     messages : list[Message]
         Historique complet de la conversation (utilisateur + IA).
+    metas : list[dict]
+        Méta-données parallèles à `messages` (un dict par message).
+        Pour un message utilisateur : {"role": "user", "request_ts": ...}
+        Pour une réponse IA       : {"role": "assistant", "mode", "style",
+                                     "model", "custom_model_name",
+                                     "attachments", "request_ts",
+                                     "response_ts", "duration_ms"}
+        Cette liste alimente le panneau « Spécificité » du frontend.
     last_user_message : str
         Dernier message utilisateur (pour la fonction Relancer).
-    last_mode_id : str
-        Mode actif lors du dernier envoi (pour la fonction Relancer).
+    last_mode_id / last_style_id / last_model_id / last_custom_model_name :
+        Contexte du dernier envoi (réutilisé par regenerate() si non fourni).
+    last_attachments : list[dict]
+        Pièces jointes du dernier envoi (ré-attachées par regenerate par défaut).
     """
     messages: List[Message] = field(default_factory=list)
+    metas: List[dict] = field(default_factory=list)
     last_user_message: str = ""
     last_mode_id: str = ""
+    last_style_id: str = ""
+    last_model_id: str = ""
+    last_custom_model_name: str = ""
+    last_attachments: List[dict] = field(default_factory=list)
 
-    def submit(self, text: str, mode: str = "") -> str:
-        """Normalise le texte, l'envoie au backend IA et stocke le résultat."""
+    @staticmethod
+    def _sanitize_attachments(attachments) -> List[dict]:
+        """Filtre les pièces jointes pour ne garder que les méta-données utiles
+        (nom, type, taille, kind) — les données binaires (dataUrl) sont écartées
+        afin de ne pas alourdir le panneau « Spécificité »."""
+        result: List[dict] = []
+        if not isinstance(attachments, list):
+            return result
+        for att in attachments:
+            if not isinstance(att, dict):
+                continue
+            result.append({
+                "name": str(att.get("name", "") or ""),
+                "kind": str(att.get("kind", "") or ""),
+                "type": str(att.get("type", "") or ""),
+                "size": int(att.get("size") or 0) if str(att.get("size", "")).isdigit() or isinstance(att.get("size"), (int, float)) else 0,
+            })
+        return result
+
+    def _build_assistant_meta(
+        self,
+        mode: str,
+        style: str,
+        model: str,
+        custom_model_name: str,
+        attachments: List[dict],
+        request_ts: float,
+        response_ts: float,
+    ) -> dict:
+        """Construit le dict de méta-données associé à une réponse IA."""
+        return {
+            "role": "assistant",
+            "mode": mode or "",
+            "style": style or "",
+            "model": model or "",
+            "custom_model_name": custom_model_name or "",
+            "attachments": list(attachments),
+            "request_ts": request_ts,
+            "response_ts": response_ts,
+            "duration_ms": int(round(max(0.0, response_ts - request_ts) * 1000)),
+        }
+
+    def submit(
+        self,
+        text: str,
+        mode: str = "",
+        style: str = "",
+        model: str = "",
+        custom_model_name: str = "",
+        attachments: Optional[List[dict]] = None,
+    ) -> str:
+        """Normalise le texte, l'envoie au backend IA et stocke le résultat.
+
+        Les paramètres additionnels (style, model, attachments…) ne modifient pas
+        le comportement de generate_reply() — ils sont conservés à des fins
+        d'affichage dans le panneau « Spécificité » côté frontend.
+        """
         cleaned = " ".join(text.strip().split())  # Collapse des espaces multiples
         if not cleaned:
             return ""
+        attachments_clean = self._sanitize_attachments(attachments)
         self.last_user_message = cleaned
         self.last_mode_id = mode
+        self.last_style_id = style
+        self.last_model_id = model
+        self.last_custom_model_name = custom_model_name
+        self.last_attachments = list(attachments_clean)
+
+        request_ts = time.time()
         self.messages.append(("Vous", cleaned))
+        self.metas.append({
+            "role": "user",
+            "request_ts": request_ts,
+            "attachments": list(attachments_clean),
+        })
         try:
             reply = generate_reply(cleaned, mode)
         except Exception as exc:
             reply = f"Erreur backend IA : {exc}"
+        response_ts = time.time()
         self.messages.append((AppConfig.DEFAULT_TITLE, reply))
+        self.metas.append(self._build_assistant_meta(
+            mode, style, model, custom_model_name,
+            attachments_clean, request_ts, response_ts,
+        ))
         return reply
 
-    def regenerate(self, mode: str | None = None) -> str:
-        """Relance le dernier message utilisateur avec un mode optionnel différent."""
+    def regenerate(
+        self,
+        mode: Optional[str] = None,
+        style: Optional[str] = None,
+        model: Optional[str] = None,
+        custom_model_name: Optional[str] = None,
+        attachments: Optional[List[dict]] = None,
+    ) -> str:
+        """Relance le dernier message utilisateur avec un contexte optionnel différent."""
         if not self.last_user_message:
             return ""
-        active_mode = mode if mode is not None else self.last_mode_id
+        active_mode  = mode  if mode  is not None else self.last_mode_id
+        active_style = style if style is not None else self.last_style_id
+        active_model = model if model is not None else self.last_model_id
+        active_custom = custom_model_name if custom_model_name is not None else self.last_custom_model_name
+        active_attachments = (
+            self._sanitize_attachments(attachments)
+            if attachments is not None else list(self.last_attachments)
+        )
+
+        request_ts = time.time()
         try:
             reply = generate_reply(self.last_user_message, active_mode)
         except Exception as exc:
             reply = f"Erreur backend IA : {exc}"
+        response_ts = time.time()
+
         self.last_mode_id = active_mode
+        self.last_style_id = active_style
+        self.last_model_id = active_model
+        self.last_custom_model_name = active_custom
+        self.last_attachments = list(active_attachments)
+
+        new_meta = self._build_assistant_meta(
+            active_mode, active_style, active_model, active_custom,
+            active_attachments, request_ts, response_ts,
+        )
+
         # Remplace la dernière réponse IA si elle existe, sinon l'ajoute
         if self.messages and self.messages[-1][0] != "Vous":
             self.messages[-1] = (AppConfig.DEFAULT_TITLE, reply)
+            if self.metas:
+                self.metas[-1] = new_meta
+            else:
+                self.metas.append(new_meta)
         else:
             self.messages.append((AppConfig.DEFAULT_TITLE, reply))
+            self.metas.append(new_meta)
         return reply
 
     def reset(self) -> None:
         """Vide complètement la session (nouvelle discussion)."""
         self.messages.clear()
+        self.metas.clear()
         self.last_user_message = ""
         self.last_mode_id = ""
+        self.last_style_id = ""
+        self.last_model_id = ""
+        self.last_custom_model_name = ""
+        self.last_attachments = []
 
 
 # ============================================================
@@ -1273,6 +1517,25 @@ body[data-active-tab="coworking"] .logo-card{display:none}
 .bubble-actions{display:inline-flex;gap:10px;padding-left:6px}
 .bubble-action{border:1px solid var(--action-border);background:var(--action-bg);color:var(--action-text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:.75rem;box-shadow:0 10px 24px rgba(15,23,42,.06);transition:transform .14s,box-shadow .14s}
 .bubble-action:hover{transform:translateY(-1px)}
+.bubble-action.is-active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+.bubble-action[data-action="specificity"]{display:inline-flex;align-items:center;gap:6px}
+.bubble-action[data-action="specificity"]::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.18)}
+
+/* ── Panneau dépliant « Spécificité » ── */
+.specificity-panel{display:none;width:min(84%,640px);margin-top:6px;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface-softer);color:var(--text-primary);box-shadow:var(--shadow-soft);font-size:.82rem;line-height:1.5;animation:specificityFade .18s ease-out}
+.specificity-panel.open{display:block}
+.specificity-panel-title{font-size:.78rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px 0}
+.specificity-grid{display:grid;grid-template-columns:minmax(140px,auto) 1fr;column-gap:14px;row-gap:8px}
+.specificity-label{font-weight:600;color:var(--text-secondary);white-space:nowrap}
+.specificity-value{color:var(--text-primary);word-break:break-word}
+.specificity-value.is-muted{color:var(--text-muted);font-style:italic}
+.specificity-attachments{display:flex;flex-direction:column;gap:6px}
+.specificity-attachment{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:var(--surface-soft);border:1px solid var(--line);font-size:.78rem}
+.specificity-attachment-kind{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);background:var(--bg);padding:2px 6px;border-radius:6px;border:1px solid var(--line)}
+.specificity-attachment-name{font-weight:500;color:var(--text-primary);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.specificity-attachment-size{color:var(--text-muted);font-size:.72rem;margin-left:auto}
+@keyframes specificityFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@media (max-width:560px){.specificity-grid{grid-template-columns:1fr;row-gap:4px}.specificity-label{margin-top:4px}}
 .composer-wrap{width:min(760px,calc(100vw - 32px));position:relative;margin:0 auto;display:flex;flex-direction:column}
 .composer{width:100%;background:var(--input-bg);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow-soft);padding:16px 18px;display:flex;align-items:flex-end;gap:12px;backdrop-filter:blur(14px)}
 .composer textarea{flex:1;resize:none;border:none;outline:none;background:transparent;color:var(--text-primary);font-size:1rem;line-height:1.5;min-height:28px;max-height:180px;padding:2px 2px 4px 2px;overflow-y:auto}
@@ -1319,6 +1582,27 @@ body[data-active-tab="coworking"] .logo-card{display:none}
 .sheet-thumb .sheet-remove{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .sheet-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:80;display:none;align-items:center;justify-content:center}
 .sheet-modal-backdrop.open{display:flex}
+/* ── Modèles personnalisés (Settings → Personnalisation → Autres modèles) ── */
+.custom-models-menu{min-width:240px;max-width:320px;max-height:380px;overflow-y:auto;padding:6px}
+.custom-model-row{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:10px;border:none;background:transparent;color:var(--text-primary);cursor:pointer;text-align:left;transition:background .14s}
+.custom-model-row:hover{background:var(--menu-hover)}
+.custom-model-row.selected{background:rgba(var(--accent-rgb),.14);color:var(--accent)}
+.custom-model-row .cmr-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:.875rem}
+.custom-model-row .cmr-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:opacity .14s}
+.custom-model-row:hover .cmr-actions,.custom-model-row.selected .cmr-actions{opacity:1}
+.custom-model-row .cmr-act-btn{border:none;background:transparent;color:var(--text-secondary);width:24px;height:24px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;transition:background .14s,color .14s}
+.custom-model-row .cmr-act-btn:hover{background:var(--menu-hover);color:var(--text-primary)}
+.custom-models-empty{padding:14px 12px;font-size:.8rem;color:var(--text-muted);text-align:center}
+.custom-models-add-btn{width:100%;border:1px dashed var(--line);background:transparent;color:var(--text-primary);border-radius:10px;padding:10px;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:6px;transition:background .14s,border-color .14s}
+.custom-models-add-btn:hover{background:var(--menu-hover);border-color:var(--text-secondary)}
+.custom-models-default-btn{width:100%;border:none;background:rgba(var(--accent-rgb),.1);color:var(--accent);border-radius:10px;padding:9px;cursor:pointer;font-weight:600;font-size:.8rem;margin-bottom:6px;transition:background .14s}
+.custom-models-default-btn:hover{background:rgba(var(--accent-rgb),.18)}
+.custom-models-sep{height:1px;background:var(--menu-border);margin:6px 4px}
+.custom-model-error{color:#ef4444;font-size:.78rem;font-weight:600;min-height:1em}
+.custom-model-error[hidden]{display:none}
+/* Item de modèle standard désactivé (verrouillé tant qu'un modèle custom est actif) */
+.model-dd-item.locked{opacity:.45;cursor:not-allowed}
+.model-dd-item.locked:hover{background:transparent}
 .sheet-modal{width:min(700px,calc(100vw - 40px));max-height:80vh;background:var(--settings-panel);border:1px solid var(--settings-panel-border);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.3);padding:24px;display:flex;flex-direction:column;gap:16px}
 .sheet-modal h3{margin:0;font-size:1.1rem;color:var(--text-primary)}
 .sheet-modal textarea{flex:1;min-height:300px;resize:vertical;border:1px solid var(--line);border-radius:14px;background:var(--bubble-assistant);color:var(--text-primary);padding:14px;font-size:.9rem;outline:none;font-family:inherit}
@@ -1926,6 +2210,15 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
       <div class="mode-panel" id="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
       <!-- Writing Styles -->
       <div class="style-panel"><button type="button" class="style-trigger" id="style-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_style_trigger"><span class="trigger-icon" id="style-icon">✎</span><span id="selected-style-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="style-menu" role="menu"></div></div>
+      <!-- ── Modèles personnalisés (visible si interrupteur "Autres modèles" actif) ── -->
+      <div class="style-panel custom-models-panel" id="custom-models-panel" hidden>
+        <button type="button" class="style-trigger" id="custom-models-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_models_trigger">
+          <span class="trigger-icon" id="custom-models-icon">⚙</span>
+          <span id="custom-models-label" data-i18n="models_btn_label">Modèles</span>
+          <span class="trigger-chevron">⌄</span>
+        </button>
+        <div class="dropdown-menu custom-models-menu" id="custom-models-menu" role="menu"></div>
+      </div>
       <!-- Gadgets (desactive pour le moment)
       <div class="style-panel"><button type="button" class="style-trigger" id="gadget-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_gadget_trigger"><span class="trigger-icon" id="gadget-icon">⚙</span><span id="selected-gadget-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="gadget-menu" role="menu"></div></div>
       -->
@@ -2109,6 +2402,19 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title">Nom de l'IA</div><div class="settings-row-subtitle">Par défaut : "Le Goat". Ce nom s'affiche partout dans l'interface.</div></div><div style="display:flex;gap:8px;align-items:center"><input class="settings-input" id="ai-name-input" placeholder="Le Goat" style="width:150px"><button type="button" class="settings-ghost-button" id="ai-name-reset-btn">Réinitialiser</button></div></div>
         <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_how_address">Comment l'IA s'adresse à vous</div><div class="settings-row-subtitle" data-i18n="perso_how_address_help">Prénom, surnom, ou titre que l'IA utilisera.</div></div><input class="settings-input" id="user-tone" data-placeholder-key="placeholder_tone"></div>
         <div class="settings-row" style="flex-direction:column;align-items:stretch"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_ai_tone">Ton de l'IA</div><div class="settings-row-subtitle" data-i18n="perso_ai_tone_help">Décrivez comment vous voulez que l'IA vous parle.</div></div><textarea class="settings-textarea" id="user-info" data-placeholder-key="personalization_placeholder" style="width:100%;min-height:160px"></textarea></div>
+        <!-- ── Interrupteur "Autres modèles" ───────────────────────────────
+             Affiche/cache un bouton "Modèles" à côté du sélecteur de style
+             d'écriture, qui permet de gérer ses propres modèles. -->
+        <div class="settings-row" data-tooltip-key="tooltip_other_models_toggle">
+          <div class="settings-row-stack">
+            <div class="settings-row-title" data-i18n="perso_other_models">Autres modèles</div>
+            <div class="settings-row-subtitle" data-i18n="perso_other_models_help">Active la possibilité d'ajouter et de gérer vos propres modèles.</div>
+          </div>
+          <label class="profile-switch" aria-label="Autres modèles">
+            <input type="checkbox" id="other-models-toggle">
+            <span class="profile-switch-track"></span>
+          </label>
+        </div>
         <input type="hidden" id="user-firstname"><input type="hidden" id="user-lastname">
       </div></section>
       <section class="settings-section" data-settings-content="data_security"><div class="settings-block">
@@ -2327,6 +2633,21 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 </section>
 <div class="migrate-backdrop" id="migrate-backdrop"><div class="migrate-modal"><h3><span id="migrate-title"></span><button type="button" id="migrate-close-x">×</button></h3><div class="migrate-step" id="migrate-step1"></div><div class="migrate-prompt-box" id="migrate-prompt-box"></div><button type="button" class="migrate-copy-btn" id="migrate-copy-btn"></button><div class="migrate-step" id="migrate-step2" style="margin-top:8px"></div><textarea class="migrate-textarea" id="migrate-textarea"></textarea><div class="migrate-actions"><button type="button" class="migrate-btn-cancel" id="migrate-cancel-btn"></button><button type="button" class="migrate-btn-add" id="migrate-add-btn" disabled></button></div></div></div>
 <div class="sheet-modal-backdrop" id="sheet-modal-backdrop"><div class="sheet-modal"><div class="sheet-modal-header"><h3 id="sheet-modal-title"></h3><span class="sheet-char-counter" id="sheet-char-counter">0 / 14 000</span></div><textarea id="sheet-textarea" placeholder=""></textarea><div class="sheet-modal-actions"><button type="button" class="sheet-btn-cancel" id="sheet-cancel"></button><button type="button" class="sheet-btn-add" id="sheet-add-btn"></button></div></div></div>
+<!-- ── Modale "NAME Models" : ajout / renommage d'un modèle personnalisé ──
+     Réutilisée pour les deux opérations (le titre est ajusté dynamiquement). -->
+<div class="sheet-modal-backdrop" id="custom-model-backdrop" role="dialog" aria-modal="true">
+  <div class="sheet-modal" style="max-width:480px;min-height:0">
+    <div class="sheet-modal-header">
+      <h3 id="custom-model-modal-title" data-i18n="models_modal_title">NAME Models</h3>
+    </div>
+    <input type="text" class="settings-input" id="custom-model-name-input" maxlength="64" autocomplete="off" data-placeholder-key="models_modal_placeholder">
+    <div class="custom-model-error" id="custom-model-error" hidden></div>
+    <div class="sheet-modal-actions">
+      <button type="button" class="sheet-btn-cancel" id="custom-model-cancel-btn" data-i18n="models_modal_cancel">Annuler</button>
+      <button type="button" class="sheet-btn-add" id="custom-model-enter-btn" data-i18n="models_modal_enter">Entrer</button>
+    </div>
+  </div>
+</div>
 <div class="profile-crop-backdrop" id="profile-crop-backdrop">
   <div class="profile-crop-modal">
     <div class="profile-crop-header"><strong id="profile-crop-title">Recadrer l'image</strong><button type="button" id="profile-crop-close">×</button></div>
@@ -2417,7 +2738,8 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
 const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%,localProfilePresets=%%PROFILE_PRESETS_JSON%%;
-const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p'};
+const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p',otherModelsOn:%%DEFAULT_OTHER_MODELS_JSON%%};
+const CUSTOM_MODEL_SENTINEL=%%CUSTOM_MODEL_SENTINEL_JSON%%;
 const ls=(k,v)=>{try{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)}catch(err){console.warn('Local storage unavailable for',k,err);return v!==undefined?v:null}};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
 const controlsRow=$('controls-row'),modePanel=$('mode-panel');
@@ -2427,6 +2749,10 @@ const styleTrigger=$('style-trigger'),styleMenu=$('style-menu'),styleLbl=$('sele
 const gadgetTrigger=$('gadget-trigger'),gadgetMenu=$('gadget-menu'),gadgetLbl=$('selected-gadget-label'),gadgetIcn=$('gadget-icon');
 */
 const modelTriggerBtn=$('model-trigger-btn'),modelDDMenu=$('model-dd-menu'),modelCurrentLabel=$('model-current-label');
+// ── Modèles personnalisés (Settings → Personnalisation → Autres modèles) ──
+const otherModelsToggle=$('other-models-toggle');
+const customModelsPanel=$('custom-models-panel'),customModelsTrigger=$('custom-models-trigger'),customModelsMenu=$('custom-models-menu'),customModelsLabel=$('custom-models-label');
+const customModelBackdrop=$('custom-model-backdrop'),customModelInput=$('custom-model-name-input'),customModelEnterBtn=$('custom-model-enter-btn'),customModelCancelBtn=$('custom-model-cancel-btn'),customModelTitleEl=$('custom-model-modal-title'),customModelErrorEl=$('custom-model-error');
 const tabChat=$('tab-chat'),tabCoworking=$('tab-coworking');
 const privateChatBtn=$('private-chat-btn');
 const composerPlus=$('composer-plus'),plusMenu=$('plus-menu'),plusAddSheet=$('plus-add-sheet'),sheetsRow=$('sheets-row');
@@ -2454,9 +2780,13 @@ const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBa
 const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||''};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||'',otherModelsOn:ls('other-models-on')||defs.otherModelsOn,activeCustomModel:ls('active-custom-model')||'',customModels:(function(){try{const raw=ls('custom-models');return raw?JSON.parse(raw):[]}catch(e){return[]}})()};
 // ── Variables runtime (non persistées) ───────────────────────────
-let messages=%%MESSAGES_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
+let messages=%%MESSAGES_JSON%%,messagesMeta=%%MESSAGES_META_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
+// Stocke quels panneaux « Spécificité » sont ouverts (clé = index du message
+// dans la liste `messages`). Permet de conserver l'état d'ouverture entre deux
+// appels à renderMessages() (par ex. après un Relancer ou une nouvelle requête).
+let openSpecificityPanels=new Set();
 let cropState=null;
 let wallpaperTarget='normal';
 let sheets=[];          // Feuilles d'écriture attachées à la requête courante
@@ -2586,10 +2916,41 @@ function applyAiFont(v,snd){apply('aifont',['default','arial','opendyslexic'].in
 function applyUserFont(v,snd){apply('userfont',['default','arial','opendyslexic'].includes(v)?v:'default','userfont',snd);document.body.dataset.userfont=S.userfont;$$('[data-userfont-value]').forEach(b=>b.classList.toggle('active',b.dataset.userfontValue===S.userfont))}
 
 // ── Model dropdown (ChatGPT style) ──
+// Le bandeau supérieur affiche soit le modèle standard (Sukoshi /
+// Traditionnel / Maestro), soit "Custom" lorsqu'un modèle personnalisé
+// est actif (cf. section "Modèles personnalisés" plus bas).
 function renderModelDD(){
-  modelCurrentLabel.textContent=t(models.find(m=>m.id===S.model).label_key);
-  modelDDMenu.innerHTML='<div class="model-dd-header">'+esc(t('model_recent'))+'</div>'+models.map(m=>'<button type="button" class="model-dd-item'+(m.id===S.model?' selected':'')+'" data-model="'+esc(m.id)+'" role="menuitemradio"><div class="m-info"><span class="m-name">'+esc(t(m.label_key))+'</span><span class="m-desc">'+esc(t(m.desc_key))+'</span></div><span class="m-check">✓</span></button>').join('')+'<div class="model-dd-sep"></div>';
-  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{playClick();const nextModel=b.dataset.model;if(nextModel===S.model){closeModelDD();return}S.model=nextModel;ls('model',S.model);enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();closeModelDD();refreshWelcomeContent();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang])}));
+  const customActive=(typeof cmHasCustomActive==='function')&&cmHasCustomActive();
+  // Étiquette en haut (à gauche du chevron).
+  if(customActive){
+    modelCurrentLabel.textContent=t('models_custom_label');
+  }else{
+    const fallback=models.find(m=>m.id===S.model)||models.find(m=>m.id===defs.model)||models[0];
+    if(fallback){if(S.model!==fallback.id){S.model=fallback.id;ls('model',S.model)}modelCurrentLabel.textContent=t(fallback.label_key)}
+  }
+  // Liste : tous les modèles standards. Si un modèle custom est actif,
+  // ils sont visuellement verrouillés et un clic ouvre une alerte.
+  modelDDMenu.innerHTML='<div class="model-dd-header">'+esc(t('model_recent'))+'</div>'+models.map(m=>{
+    const sel=(!customActive&&m.id===S.model);
+    const locked=customActive;
+    return '<button type="button" class="model-dd-item'+(sel?' selected':'')+(locked?' locked':'')+'" data-model="'+esc(m.id)+'"'+(locked?' aria-disabled="true"':'')+' role="menuitemradio"><div class="m-info"><span class="m-name">'+esc(t(m.label_key))+'</span><span class="m-desc">'+esc(t(m.desc_key))+'</span></div><span class="m-check">✓</span></button>';
+  }).join('')+'<div class="model-dd-sep"></div>';
+  modelDDMenu.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{
+    playClick();
+    if(customActive){
+      // Verrou : pour basculer vers Sukoshi/Maestro/Traditionnel,
+      // l'utilisateur doit d'abord remettre le modèle sur "Par défaut".
+      alert(t('models_default_required'));
+      return;
+    }
+    const nextModel=b.dataset.model;
+    if(nextModel===S.model){closeModelDD();return}
+    S.model=nextModel;ls('model',S.model);
+    enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();
+    if(typeof updateCustomModelTriggerUI==='function')updateCustomModelTriggerUI();
+    closeModelDD();refreshWelcomeContent();
+    statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
+  }));
 }
 function openModelDD(){modelDDMenu.classList.add('open');modelTriggerBtn.setAttribute('aria-expanded','true');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','true')}
 function closeModelDD(){modelDDMenu.classList.remove('open');modelTriggerBtn.setAttribute('aria-expanded','false');var tc=$('tab-chat');if(tc)tc.setAttribute('aria-expanded','false')}
@@ -2654,6 +3015,187 @@ function renderGadgets(){}
 function openGM(){}
 function closeGM(){}
 
+// =================================================================
+// ── Modèles personnalisés ─────────────────────────────────────────
+// =================================================================
+// Activé via Settings → Personnalisation → "Autres modèles".
+// Lorsque actif, un bouton "Modèles" apparaît à côté du sélecteur
+// de style d'écriture. Il permet d'ajouter / renommer / supprimer
+// des modèles personnalisés. Sélectionner un modèle custom remplace
+// l'étiquette du bandeau supérieur ("Traditionnel" → "Custom") et
+// verrouille les modèles d'origine jusqu'à ce que l'utilisateur
+// remette le modèle sur "Par défaut" via le menu modèle du haut.
+// -----------------------------------------------------------------
+
+// État utilitaires —
+function cmGenId(){return 'cm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)}
+function cmSave(){ls('custom-models',JSON.stringify(S.customModels||[]))}
+function cmGet(id){return (S.customModels||[]).find(m=>m.id===id)||null}
+function cmHasCustomActive(){return !!(S.activeCustomModel&&cmGet(S.activeCustomModel))}
+function cmTrimName(s){return String(s||'').trim().slice(0,64)}
+function cmNameTaken(name,exceptId){const n=name.toLowerCase();return (S.customModels||[]).some(m=>m.id!==exceptId&&String(m.name).toLowerCase()===n)}
+
+// Affiche/masque le bouton "Modèles" selon l'état de l'interrupteur.
+function applyOtherModelsOn(v,snd){
+  apply('otherModelsOn',v==='on'?'on':'off','other-models-on',snd);
+  if(otherModelsToggle)otherModelsToggle.checked=(S.otherModelsOn==='on');
+  if(customModelsPanel)customModelsPanel.hidden=(S.otherModelsOn!=='on');
+  // Si désactivé : on ferme le menu et on retombe sur le modèle par défaut.
+  if(S.otherModelsOn!=='on'){
+    closeCustomModelsMenu();
+    if(cmHasCustomActive()){
+      S.activeCustomModel='';ls('active-custom-model','');
+      S.model=defs.model;ls('model',S.model);
+      renderModelDD();
+    }
+  }
+  renderCustomModelsMenu();
+  updateCustomModelTriggerUI();
+}
+
+// Met à jour l'icône + libellé du bouton "Modèles" (affiche le nom du
+// modèle actif s'il y en a un, sinon le libellé générique).
+function updateCustomModelTriggerUI(){
+  if(!customModelsLabel)return;
+  const active=cmHasCustomActive()?cmGet(S.activeCustomModel):null;
+  customModelsLabel.textContent=active?active.name:t('models_btn_label');
+  const icon=$('custom-models-icon');
+  if(icon)icon.textContent=active?'✦':'⚙';
+  if(customModelsTrigger)customModelsTrigger.classList.toggle('active',!!active);
+}
+
+// Rend le contenu du menu déroulant "Modèles".
+function renderCustomModelsMenu(){
+  if(!customModelsMenu)return;
+  const list=S.customModels||[];
+  let html='';
+  if(cmHasCustomActive()){
+    html+='<button type="button" class="custom-models-default-btn" id="cm-set-default-btn">'+esc(t('models_set_default'))+'</button>';
+    html+='<div class="custom-models-sep"></div>';
+  }
+  if(!list.length){
+    html+='<div class="custom-models-empty">'+esc(t('models_no_custom'))+'</div>';
+  }else{
+    html+=list.map(m=>{
+      const sel=(S.activeCustomModel===m.id);
+      return '<div class="custom-model-row'+(sel?' selected':'')+'" data-cm-id="'+esc(m.id)+'" role="menuitemradio">'+
+        '<span class="cmr-name">'+esc(m.name)+'</span>'+
+        '<span class="cmr-actions">'+
+          '<button type="button" class="cmr-act-btn" data-cm-action="rename" data-cm-id="'+esc(m.id)+'" title="'+esc(t('models_rename'))+'" aria-label="'+esc(t('models_rename'))+'">✎</button>'+
+          '<button type="button" class="cmr-act-btn" data-cm-action="delete" data-cm-id="'+esc(m.id)+'" title="'+esc(t('models_delete'))+'" aria-label="'+esc(t('models_delete'))+'">🗑</button>'+
+        '</span>'+
+      '</div>';
+    }).join('');
+  }
+  html+='<button type="button" class="custom-models-add-btn" id="cm-add-btn">+ '+esc(t('models_add'))+'</button>';
+  customModelsMenu.innerHTML=html;
+
+  // Ajout
+  const addBtn=$('cm-add-btn');
+  if(addBtn)addBtn.addEventListener('click',e=>{e.stopPropagation();playClick();openCustomModelModal('add')});
+  // Reset par défaut
+  const resetBtn=$('cm-set-default-btn');
+  if(resetBtn)resetBtn.addEventListener('click',e=>{e.stopPropagation();playClick();resetActiveCustomModel()});
+  // Sélection / actions
+  customModelsMenu.querySelectorAll('[data-cm-action]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();playClick();
+      const id=btn.dataset.cmId,act=btn.dataset.cmAction;
+      if(act==='rename')openCustomModelModal('rename',id);
+      else if(act==='delete')deleteCustomModel(id);
+    });
+  });
+  customModelsMenu.querySelectorAll('.custom-model-row').forEach(row=>{
+    row.addEventListener('click',e=>{
+      if(e.target.closest('[data-cm-action]'))return;
+      playClick();selectCustomModel(row.dataset.cmId);
+    });
+  });
+}
+
+function openCustomModelsMenu(){if(!customModelsMenu)return;customModelsMenu.classList.add('open');if(customModelsTrigger)customModelsTrigger.setAttribute('aria-expanded','true')}
+function closeCustomModelsMenu(){if(!customModelsMenu)return;customModelsMenu.classList.remove('open');if(customModelsTrigger)customModelsTrigger.setAttribute('aria-expanded','false')}
+
+// Sélection d'un modèle custom : pose le sentinel sur S.model et
+// l'id réel sur S.activeCustomModel. Re-cliquer déselectionne.
+function selectCustomModel(id){
+  const m=cmGet(id);if(!m)return;
+  if(S.activeCustomModel===id){
+    resetActiveCustomModel();
+    return;
+  }
+  S.activeCustomModel=id;ls('active-custom-model',id);
+  S.model=CUSTOM_MODEL_SENTINEL;ls('model',S.model);
+  enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();
+  renderCustomModelsMenu();updateCustomModelTriggerUI();
+  closeCustomModelsMenu();
+  refreshWelcomeContent();
+}
+
+// Remet le modèle sur le défaut (sortie du mode "custom").
+function resetActiveCustomModel(){
+  S.activeCustomModel='';ls('active-custom-model','');
+  S.model=defs.model;ls('model',S.model);
+  enforceMode();renderModelDD();renderModes();updateModeUI();renderStyles();updateStyleUI();
+  renderCustomModelsMenu();updateCustomModelTriggerUI();
+  refreshWelcomeContent();
+}
+
+// ── Modale "NAME Models" ─────────────────────────────────────
+let customModelEditTarget=null;   // 'add' | id-en-cours-de-renommage
+function openCustomModelModal(mode,id){
+  customModelEditTarget=(mode==='rename'&&id)?id:'add';
+  if(customModelTitleEl)customModelTitleEl.textContent=t('models_modal_title');
+  customModelInput.value=(mode==='rename')?(cmGet(id)?cmGet(id).name:''):'';
+  customModelErrorEl.hidden=true;customModelErrorEl.textContent='';
+  customModelBackdrop.classList.add('open');
+  setTimeout(()=>{customModelInput.focus();customModelInput.select()},40);
+}
+function closeCustomModelModal(){customModelBackdrop.classList.remove('open');customModelEditTarget=null}
+
+function submitCustomModelModal(){
+  const name=cmTrimName(customModelInput.value);
+  if(!name){customModelErrorEl.textContent=t('models_invalid_name');customModelErrorEl.hidden=false;return}
+  const editingId=(customModelEditTarget&&customModelEditTarget!=='add')?customModelEditTarget:null;
+  if(cmNameTaken(name,editingId)){customModelErrorEl.textContent=t('models_duplicate_name');customModelErrorEl.hidden=false;return}
+  if(editingId){
+    const m=cmGet(editingId);if(m)m.name=name;
+  }else{
+    const newModel={id:cmGenId(),name:name};
+    S.customModels.push(newModel);
+  }
+  cmSave();
+  renderCustomModelsMenu();updateCustomModelTriggerUI();
+  closeCustomModelModal();
+}
+
+function deleteCustomModel(id){
+  if(!confirm(t('models_delete_confirm')))return;
+  const list=S.customModels||[];
+  S.customModels=list.filter(m=>m.id!==id);
+  cmSave();
+  if(S.activeCustomModel===id){
+    // Le modèle actif vient d'être supprimé : on retombe sur le défaut.
+    resetActiveCustomModel();
+  }else{
+    renderCustomModelsMenu();updateCustomModelTriggerUI();
+  }
+}
+
+// Hook d'événements (déclenchés une seule fois au chargement).
+if(otherModelsToggle){otherModelsToggle.addEventListener('change',()=>{playClick();applyOtherModelsOn(otherModelsToggle.checked?'on':'off')})}
+if(customModelsTrigger){customModelsTrigger.addEventListener('click',e=>{e.stopPropagation();playClick();customModelsMenu.classList.contains('open')?closeCustomModelsMenu():openCustomModelsMenu()})}
+if(customModelEnterBtn){customModelEnterBtn.addEventListener('click',submitCustomModelModal)}
+if(customModelCancelBtn){customModelCancelBtn.addEventListener('click',closeCustomModelModal)}
+if(customModelBackdrop){customModelBackdrop.addEventListener('click',e=>{if(e.target===customModelBackdrop)closeCustomModelModal()})}
+if(customModelInput){customModelInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCustomModelModal()}else if(e.key==='Escape'){e.preventDefault();closeCustomModelModal()}})}
+// Fermer le menu déroulant lorsqu'on clique en dehors.
+document.addEventListener('click',e=>{
+  if(!customModelsMenu||!customModelsMenu.classList.contains('open'))return;
+  if(customModelsMenu.contains(e.target)||(customModelsTrigger&&customModelsTrigger.contains(e.target)))return;
+  closeCustomModelsMenu();
+});
+
 // ── Migration modal ──
 function openMigrate(){migrateTitle.textContent=t('migrate_title');migrateStep1.textContent=t('migrate_step1');migrateStep2.textContent=t('migrate_step2');migratePromptBox.textContent=migrationPrompt;migrateTA.value='';migrateTA.placeholder=t('migrate_paste_placeholder');migrateAddBtn.textContent=t('migrate_add');migrateCancelBtn.textContent=t('migrate_cancel');migrateAddBtn.disabled=true;migrateBackdrop.classList.add('open')}
 function closeMigrate(){migrateBackdrop.classList.remove('open')}
@@ -2686,7 +3228,170 @@ function getProfileAvatarForMessages(){return profileGet('avatar','')||($('main-
 function showProfileAvatarHover(target){if(!profileAvatarHoverCard||!profileAvatarHoverImage||!profileAvatarHoverName||!profileAvatarHoverBio)return;const data=getProfileData();const src=data.avatar||getProfileAvatarForMessages();if(!src)return;profileAvatarHoverImage.src=src;applyAvatarFitMode(profileAvatarHoverImage,src);profileAvatarHoverName.textContent=getProfileFullName(data);profileAvatarHoverBio.textContent=(data.bio||t('profile_preview_title'));if(profileAvatarHoverBanner)profileAvatarHoverBanner.style.backgroundImage=data.banner?'url("'+String(data.banner).replace(/"/g,'\"')+'")':'';const rect=target.getBoundingClientRect();const cardW=288,cardH=178;let left=rect.left-cardW+rect.width;if(left<12)left=Math.min(window.innerWidth-cardW-12,rect.right+10);let top=rect.top-(cardH-rect.height)/2;top=Math.max(12,Math.min(window.innerHeight-cardH-12,top));profileAvatarHoverCard.hidden=false;profileAvatarHoverCard.style.left=left+'px';profileAvatarHoverCard.style.top=top+'px';requestAnimationFrame(()=>profileAvatarHoverCard.classList.add('show'))}
 function hideProfileAvatarHover(immediate){clearTimeout(avatarHoverTimer);if(!profileAvatarHoverCard)return;if(immediate){profileAvatarHoverCard.classList.remove('show');profileAvatarHoverCard.hidden=true;return}profileAvatarHoverCard.classList.remove('show');setTimeout(()=>{if(profileAvatarHoverCard&&!profileAvatarHoverCard.classList.contains('show'))profileAvatarHoverCard.hidden=true},160)}
 function bindUserAvatarHover(scope){if(!scope)return;scope.querySelectorAll('.message-user-avatar').forEach(el=>{el.addEventListener('mouseenter',()=>{clearTimeout(avatarHoverTimer);avatarHoverTimer=setTimeout(()=>showProfileAvatarHover(el),500)});el.addEventListener('mouseleave',()=>hideProfileAvatarHover(false))})}
-function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=activeTab==='coworking';const showUserAvatar=shouldShowProfileAvatarInMessages();const userAvatar=getProfileAvatarForMessages();msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){let acts='';if(i===last&&!isLoading){acts='<div class="bubble-actions"><button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';if(isCode){acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>'}acts+='</div>'}return'<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+'</div>'}const avatarHtml=showUserAvatar&&userAvatar?'<div class="message-user-avatar"><img class="'+(isLogoStyleAvatarSrc(userAvatar)?'is-logo':'')+'" src="'+esc(userAvatar)+'" alt="Photo utilisateur"></div>':'';return'<div class="message-row user"><div class="bubble">'+e+'</div>'+avatarHtml+'</div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;bindUserAvatarHover(msgBox);msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiSend(t('regenerate_command'),abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
+
+// ── Helpers « Spécificité » ──────────────────────────────────────────────
+// Ces fonctions formatent les méta-données associées à chaque réponse IA
+// (mode, style, modèle, pièces jointes, horodatage, durée) pour les afficher
+// dans le panneau dépliant sous chaque bulle assistant.
+
+// Convertit un timestamp Python (secondes depuis epoch, float) en chaîne
+// localisée du type "08/05/2026 14:32:18". Retourne '' si invalide.
+function formatSpecTimestamp(ts){
+  if(typeof ts!=='number'||!isFinite(ts)||ts<=0)return '';
+  const d=new Date(ts*1000);
+  if(isNaN(d.getTime()))return '';
+  const lang=({fr:'fr-FR',en:'en-US',es:'es-ES'})[S.lang]||'fr-FR';
+  try{
+    return d.toLocaleString(lang,{
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit'
+    });
+  }catch(e){return d.toISOString()}
+}
+
+// Formate une durée en millisecondes au format "1.42 s" ou "850 ms".
+function formatSpecDuration(ms){
+  if(typeof ms!=='number'||!isFinite(ms)||ms<0)return '';
+  if(ms>=1000)return (ms/1000).toFixed(2).replace(/\.?0+$/,'')+' '+t('specificity_seconds_short');
+  return Math.round(ms)+' '+t('specificity_milliseconds_short');
+}
+
+// Convertit une taille en octets en chaîne lisible (B / KB / MB).
+function formatSpecSize(bytes){
+  const n=Number(bytes)||0;
+  if(n<=0)return '';
+  if(n<1024)return n+' B';
+  if(n<1024*1024)return (n/1024).toFixed(1).replace(/\.0$/,'')+' KB';
+  return (n/(1024*1024)).toFixed(2).replace(/\.?0+$/,'')+' MB';
+}
+
+// Résolution id → libellé humain (réutilise les traductions existantes).
+function resolveModeLabel(id){
+  if(!id)return '';
+  const opt=(MO||[]).find(m=>m&&m.id===id);
+  if(opt){const k='mode_'+opt.id;const tr=t(k);if(tr&&tr!==k)return tr}
+  const k='mode_'+id;const tr=t(k);return (tr&&tr!==k)?tr:id;
+}
+function resolveStyleLabel(id){
+  if(!id)return '';
+  const k='style_'+id;const tr=t(k);return (tr&&tr!==k)?tr:id;
+}
+function resolveModelLabel(meta){
+  if(!meta)return '';
+  // Modèle personnalisé saisi par l'utilisateur (ex. "mistral small 4 bas").
+  if(meta.custom_model_name)return meta.custom_model_name;
+  if(meta.model===CUSTOM_MODEL_SENTINEL){return t('specificity_custom_model')}
+  if(!meta.model)return '';
+  const opt=(models||[]).find(m=>m&&m.id===meta.model);
+  if(opt&&opt.label_key){const tr=t(opt.label_key);if(tr&&tr!==opt.label_key)return tr}
+  const k='model_'+meta.model;const tr=t(k);return (tr&&tr!==k)?tr:meta.model;
+}
+
+// Construit le HTML d'une ligne du panneau (label + valeur, ou état "vide").
+function buildSpecRow(labelKey,value,muted){
+  const v=(value===undefined||value===null||value==='')
+    ? '<span class="specificity-value is-muted">'+esc(t('specificity_none'))+'</span>'
+    : '<span class="specificity-value'+(muted?' is-muted':'')+'">'+value+'</span>';
+  return '<div class="specificity-label">'+esc(t(labelKey))+'</div>'+v;
+}
+
+// Construit la liste HTML des pièces jointes pour le panneau.
+function buildSpecAttachments(list){
+  if(!Array.isArray(list)||list.length===0){
+    return '<span class="specificity-value is-muted">'+esc(t('specificity_no_attachments'))+'</span>';
+  }
+  const items=list.map(a=>{
+    const kind=esc((a&&a.kind)||'file');
+    const name=esc((a&&a.name)||'-');
+    const size=formatSpecSize(a&&a.size);
+    return '<div class="specificity-attachment">'
+      +'<span class="specificity-attachment-kind">'+kind+'</span>'
+      +'<span class="specificity-attachment-name">'+name+'</span>'
+      +(size?'<span class="specificity-attachment-size">'+esc(size)+'</span>':'')
+      +'</div>';
+  }).join('');
+  return '<div class="specificity-attachments">'+items+'</div>';
+}
+
+// Construit le HTML du panneau dépliant pour un message assistant donné.
+function buildSpecPanel(meta,idx){
+  const isOpen=openSpecificityPanels.has(idx);
+  if(!meta||meta.role!=='assistant'){
+    return '<div class="specificity-panel'+(isOpen?' open':'')+'" data-spec-index="'+idx+'">'
+      +'<p class="specificity-panel-title">'+esc(t('specificity_title'))+'</p>'
+      +'<div class="specificity-value is-muted">'+esc(t('specificity_unavailable'))+'</div>'
+      +'</div>';
+  }
+  const modeLabel  = resolveModeLabel(meta.mode);
+  const styleLabel = resolveStyleLabel(meta.style);
+  const modelLabel = resolveModelLabel(meta);
+  const reqTime    = formatSpecTimestamp(meta.request_ts);
+  const resTime    = formatSpecTimestamp(meta.response_ts);
+  const dur        = formatSpecDuration(meta.duration_ms);
+  let html='<div class="specificity-panel'+(isOpen?' open':'')+'" data-spec-index="'+idx+'">';
+  html+='<p class="specificity-panel-title">'+esc(t('specificity_title'))+'</p>';
+  html+='<div class="specificity-grid">';
+  html+=buildSpecRow('specificity_mode',         modeLabel ?esc(modeLabel) :'');
+  html+=buildSpecRow('specificity_style',        styleLabel?esc(styleLabel):'');
+  html+=buildSpecRow('specificity_model',        modelLabel?esc(modelLabel):'');
+  html+='<div class="specificity-label">'+esc(t('specificity_attachments'))+'</div>';
+  html+=buildSpecAttachments(meta.attachments);
+  html+=buildSpecRow('specificity_request_time', reqTime?esc(reqTime):'');
+  html+=buildSpecRow('specificity_response_time',resTime?esc(resTime):'');
+  html+=buildSpecRow('specificity_duration',     dur?esc(dur):'');
+  html+='</div></div>';
+  return html;
+}
+
+// Bascule l'affichage du panneau « Spécificité » pour le message d'index `idx`.
+// On modifie uniquement la ligne concernée (pas de full re-render) afin de
+// préserver la position de scroll et l'état des autres panneaux.
+function toggleSpecificityPanel(idx){
+  if(openSpecificityPanels.has(idx))openSpecificityPanels.delete(idx);
+  else openSpecificityPanels.add(idx);
+  const panel=msgBox.querySelector('.specificity-panel[data-spec-index="'+idx+'"]');
+  if(panel)panel.classList.toggle('open',openSpecificityPanels.has(idx));
+  const btn=msgBox.querySelector('.bubble-action[data-action="specificity"][data-msg-index="'+idx+'"]');
+  if(btn)btn.classList.toggle('is-active',openSpecificityPanels.has(idx));
+}
+
+function renderMessages(){const last=messages.length-1;const dotsHtml='<div class="typing-dots"><span></span><span></span><span></span></div>';const isCode=activeTab==='coworking';const showUserAvatar=shouldShowProfileAvatarInMessages();const userAvatar=getProfileAvatarForMessages();msgBox.innerHTML=messages.map(([s,txt],i)=>{const e=esc(txt);const isLoading=txt==='\u2026';if(s!=='Vous'){
+      // ── Bulle assistant ────────────────────────────────────────────
+      let acts='';
+      if(!isLoading){
+        // Le bouton « Spécificité » est visible sur toutes les réponses IA
+        // afin de pouvoir consulter rétrospectivement le contexte d'une
+        // réponse, même après plusieurs envois.
+        acts='<div class="bubble-actions">';
+        acts+='<button type="button" class="bubble-action'+(openSpecificityPanels.has(i)?' is-active':'')+'" data-action="specificity" data-tooltip-key="tooltip_specificity" data-msg-index="'+i+'" aria-expanded="'+(openSpecificityPanels.has(i)?'true':'false')+'">'+esc(t('specificity'))+'</button>';
+        // Les actions « Relancer / Relire / Analyser / Exécuter » ne
+        // s'appliquent qu'à la dernière réponse pour éviter les régressions
+        // (modifier une réponse intermédiaire briserait l'historique).
+        if(i===last){
+          acts+='<button type="button" class="bubble-action" data-action="regenerate" data-tooltip-key="tooltip_regenerate">'+esc(t('regenerate'))+'</button>';
+          if(isCode){
+            acts+='<button type="button" class="bubble-action" data-action="review">'+esc(t('review_code'))+'</button>';
+            acts+='<button type="button" class="bubble-action" data-action="analyze">'+esc(t('analyze_code'))+'</button>';
+            acts+='<button type="button" class="bubble-action" data-action="execute" data-tooltip-key="tooltip_execute_code">'+esc(t('execute_code'))+'</button>';
+          }
+        }
+        acts+='</div>';
+      }
+      const panelHtml=isLoading?'':buildSpecPanel((messagesMeta||[])[i],i);
+      return '<div class="message-row assistant"><div class="bubble">'+(isLoading?dotsHtml:e)+'</div>'+acts+panelHtml+'</div>';
+    }const avatarHtml=showUserAvatar&&userAvatar?'<div class="message-user-avatar"><img class="'+(isLogoStyleAvatarSrc(userAvatar)?'is-logo':'')+'" src="'+esc(userAvatar)+'" alt="Photo utilisateur"></div>':'';return'<div class="message-row user"><div class="bubble">'+e+'</div>'+avatarHtml+'</div>'}).join('');shell.classList.toggle('has-messages',messages.length>0);msgBox.scrollTop=msgBox.scrollHeight;bindUserAvatarHover(msgBox);
+  // ── Bouton « Spécificité » : toggle du panneau associé ───────────
+  msgBox.querySelectorAll('[data-action="specificity"]').forEach(b=>{
+    bindTip(b,'tooltip_specificity');
+    b.addEventListener('click',()=>{
+      playClick();
+      const idx=parseInt(b.dataset.msgIndex,10);
+      if(!isFinite(idx))return;
+      toggleSpecificityPanel(idx);
+      b.setAttribute('aria-expanded',openSpecificityPanels.has(idx)?'true':'false');
+    });
+  });
+  msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiSend(t('regenerate_command'),abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
 let resizeRAF=null;function autoResize(){if(resizeRAF)cancelAnimationFrame(resizeRAF);resizeRAF=requestAnimationFrame(()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,180)+'px'})}
 
 // ── Settings ──
@@ -2812,7 +3517,7 @@ function updateTabUI(){
 async function switchTabWithReset(targetTab){
   if(activeTab===targetTab)return;
   statusEl.textContent='...';
-  try{const p=await apiNewChat();messages=p.messages}catch(e){statusEl.textContent=e.message;return}
+  try{const p=await apiNewChat();messages=p.messages;messagesMeta=p.metas||[];openSpecificityPanels.clear()}catch(e){statusEl.textContent=e.message;return}
   activeTab=targetTab==='coworking'?'coworking':'chat';
   closeModelDD();closeMM();closeSM();
   refreshWelcomeContent();updateTabUI();renderMessages();ta.value='';autoResize();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
@@ -2825,7 +3530,7 @@ function setActiveTab(tab,refresh){
   if(refresh!==false)refreshWelcomeContent();
   updateTabUI();
 }
-function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');updateSidebarProfile();$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
+function applyTranslations(){$$('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));$$('[data-placeholder-key]').forEach(n=>n.placeholder=t(n.dataset.placeholderKey));$('settings-button-label').textContent=t('settings_label');$('newchat-button-label').textContent=t('new_chat');const _sl=$('sidebar-new-chat-label');if(_sl)_sl.textContent=t('new_chat');updateSidebarProfile();$('settings-version-value').textContent=appVersion;brandText.textContent=appTitle();plusAddSheet.textContent='📄 '+t('add_sheet');const mcb=$('migrate-copy-btn');if(mcb)mcb.textContent=t('migrate_copy');updatePrivateChatLabels();updateCharCounter();updateContraction();updatePerf();updateUIScaleUI();updateModeUI();renderModes();updateStyleUI();renderStyles();updateGadgetUI();renderGadgets();renderModelDD();if(typeof renderCustomModelsMenu==='function')renderCustomModelsMenu();if(typeof updateCustomModelTriggerUI==='function')updateCustomModelTriggerUI();updateTabUI();updateProfileUI();updateWallpaperPreviews();toggleProfileEditor(!profileEditor.hidden);renderMessages()}
 function persistPerso(){ls('firstname',$('user-firstname').value);ls('lastname',$('user-lastname').value);ls('tone',$('user-tone').value);ls('info',$('user-info').value);updateSidebarProfile()}
 function loadPerso(){$('user-firstname').value=ls('firstname')||'';$('user-lastname').value=ls('lastname')||'';$('user-tone').value=ls('tone')||'';$('user-info').value=ls('info')||''}
 function profileGet(key,def=''){const v=ls('profile-'+key);return v===null||v===undefined||v===''?def:v}
@@ -2896,19 +3601,38 @@ async function triggerVoiceInput(){playClick();try{const p=await apiVoiceShortcu
 // ── API HTTP — communication avec le backend Python ──────────────
 // Toutes les requêtes sont en POST JSON vers localhost.
 // Les endpoints sont définis dans GoatRequestHandler (Python).
-async function apiSend(msg,signal){const bio=($('profile-bio-input')||{}).value||'';const tone=($('user-tone')||{}).value||'';const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,mode:S.mode,userBio:bio,userTone:tone}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');incrementChatCount();return p}
-async function apiRegen(signal){const r=await fetch('/api/regenerate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:S.mode}),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
+// ── Construction du contexte « Spécificité » envoyé avec chaque requête ──
+// On regroupe ici les méta-données affichées dans le panneau dépliant côté
+// frontend : mode, style, modèle (standard ou custom), pièces jointes.
+function buildRequestContext(){
+  const customActive=(typeof cmHasCustomActive==='function')&&cmHasCustomActive();
+  const customName=customActive?(cmGet(S.activeCustomModel)||{}).name||'':'';
+  return {
+    mode: S.mode||'',
+    style: S.wstyle||'',
+    model: S.model||'',
+    customModelName: customName,
+    attachments: (attachments||[]).map(a=>({
+      name: a.name||'',
+      kind: a.kind||'',
+      type: a.type||'',
+      size: a.size||0,
+    })),
+  };
+}
+async function apiSend(msg,signal){const bio=($('profile-bio-input')||{}).value||'';const tone=($('user-tone')||{}).value||'';const ctx=buildRequestContext();const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({message:msg,userBio:bio,userTone:tone},ctx)),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');incrementChatCount();return p}
+async function apiRegen(signal){const ctx=buildRequestContext();const r=await fetch('/api/regenerate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ctx),signal});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 
 // ── Soumission du formulaire (envoi message + gestion erreurs) ────
-form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…')messages.pop();renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
+form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);messagesMeta.push(null,null);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…'){messages.pop();messagesMeta.pop()}renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
 // ── Liaisons événements contrôles UI ─────────────────────────────
 modeTrigger.addEventListener('click',()=>{playClick();modeMenu.classList.contains('open')?closeMM():openMM()});
 styleTrigger.addEventListener('click',()=>{playClick();styleMenu.classList.contains('open')?closeSM():openSM()});
 /* gadgetTrigger.addEventListener('click',()=>{playClick();gadgetMenu.classList.contains('open')?closeGM():openGM()}); // desactive */
 $('settings-button').addEventListener('click',openSettings);$('settings-close').addEventListener('click',closeSettings);backdrop.addEventListener('click',closeSettings);
 dragH.addEventListener('mousedown',startDrag);document.addEventListener('mousemove',onDrag);document.addEventListener('mouseup',()=>{dragging=false});
-$('newchat-button').addEventListener('click',async()=>{playClick();if(!confirm(t('new_chat_confirm')))return;statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;refreshWelcomeContent();renderMessages();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);ta.value='';autoResize();ta.focus()}catch(e){statusEl.textContent=e.message}});
+$('newchat-button').addEventListener('click',async()=>{playClick();if(!confirm(t('new_chat_confirm')))return;statusEl.textContent='...';try{const p=await apiNewChat();messages=p.messages;messagesMeta=p.metas||[];openSpecificityPanels.clear();refreshWelcomeContent();renderMessages();statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);ta.value='';autoResize();ta.focus()}catch(e){statusEl.textContent=e.message}});
 $$('[data-settings-tab]').forEach(t=>t.addEventListener('click',()=>{playClick();showTab(t.dataset.settingsTab||'general')}));
 // Paramètres — tous les boutons data-xxx-value sont liés dynamiquement
 $$('[data-language-value]').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.languageValue)));
@@ -3030,7 +3754,7 @@ if(sidebarNewChatBtn)sidebarNewChatBtn.addEventListener('click',async()=>{
   statusEl.textContent='...';
   try{
     const p=await apiNewChat();
-    messages=p.messages;
+    messages=p.messages;messagesMeta=p.metas||[];
     refreshWelcomeContent();
     renderMessages();
     statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
@@ -3221,7 +3945,15 @@ document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;docu
 applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);applyUIScale(S.uiScale,false);applyAccent(S.accent,false);
 applyOptResp(S.optResp,false);applyCalcTarget(S.calcTarget,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
-updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
+// ── Modèles personnalisés : normalisation de l'état au démarrage ──
+// Si l'option globale est désactivée, on purge l'éventuel modèle actif.
+// Si l'id actif ne correspond plus à aucun modèle (storage corrompu),
+// on retombe également sur le modèle par défaut.
+if(S.otherModelsOn!=='on'){S.activeCustomModel='';ls('active-custom-model','')}
+if(S.activeCustomModel&&!cmGet(S.activeCustomModel)){S.activeCustomModel='';ls('active-custom-model','')}
+if(S.model===CUSTOM_MODEL_SENTINEL&&!cmHasCustomActive()){S.model=defs.model;ls('model',S.model)}
+applyOtherModelsOn(S.otherModelsOn,false);
+updateSndVis();enforceMode();renderModes();updateModeUI();renderStyles();updateStyleUI();renderGadgets();updateGadgetUI();renderModelDD();updateCustomModelTriggerUI();renderCustomModelsMenu();updatePrivateChatLabels();updateThemedLogos();autoResize();renderMessages();renderSheets();updatePerf();
 applyAiFont(S.aifont,false);applyUserFont(S.userfont,false);updateOverclockUI();updateCharCounter();updateWallpaperPreviews();
 setActiveTab(activeTab,false);applyWallpaper();updateAiName();ta.focus(); // Focus textarea au démarrage
 
@@ -3358,7 +4090,7 @@ async function handleMenubarAction(action){
       try{
         statusEl.textContent='...';
         const p=await apiNewChat();
-        messages=p.messages;refreshWelcomeContent();renderMessages();
+        messages=p.messages;messagesMeta=p.metas||[];refreshWelcomeContent();renderMessages();
         statusEl.textContent=activeTab==='coworking'?getCoworkingContent().status:(ST[S.lang]||ST[defs.lang]);
         ta.value='';autoResize();ta.focus();
       }catch(e){statusEl.textContent=e.message}
@@ -3448,10 +4180,13 @@ def build_index_html(logo_uri: str, messages: Iterable[Message], themed_logos: O
         "%%WSTYLES_JSON%%": json.dumps(cfg.WRITING_STYLES, ensure_ascii=False),
         "%%GADGETS_JSON%%": json.dumps(cfg.GADGETS, ensure_ascii=False),
         "%%DEFAULT_GADGET_JSON%%": json.dumps(cfg.DEFAULT_GADGET),
+        "%%DEFAULT_OTHER_MODELS_JSON%%": json.dumps(cfg.DEFAULT_OTHER_MODELS_ENABLED),
+        "%%CUSTOM_MODEL_SENTINEL_JSON%%": json.dumps(cfg.CUSTOM_MODEL_SENTINEL),
         "%%MIGRATION_PROMPT_JSON%%": json.dumps(cfg.MIGRATION_PROMPT, ensure_ascii=False),
         "%%SHEET_LIMITS_JSON%%": json.dumps(cfg.SHEET_LIMITS, ensure_ascii=False),
         "%%STORAGE_PREFIX_JSON%%": json.dumps(cfg.STORAGE_PREFIX),
         "%%MESSAGES_JSON%%": json.dumps(list(messages), ensure_ascii=False),
+        "%%MESSAGES_META_JSON%%": json.dumps([], ensure_ascii=False),
         "%%PROFILE_PRESETS_JSON%%": json.dumps(LogoLoader.get_profile_presets(), ensure_ascii=False),
     }
     for k, v in replacements.items():
@@ -3467,6 +4202,7 @@ def build_index_html(
     logo_uri: str,
     messages: Iterable[Message],
     themed_logos: Optional[Dict[str, str]] = None,
+    metas: Optional[Iterable[dict]] = None,
 ) -> str:
     """
     Injecte toutes les données de configuration dans le template HTML.
@@ -3534,11 +4270,14 @@ def build_index_html(
         "%%DEFAULT_WSTYLE_JSON%%":     json.dumps(cfg.DEFAULT_WRITING_STYLE),
         "%%DEFAULT_GADGET_JSON%%":     json.dumps(cfg.DEFAULT_GADGET),
         "%%DEFAULT_CALC_TARGET_JSON%%":json.dumps(cfg.DEFAULT_CALC_TARGET),
+        "%%DEFAULT_OTHER_MODELS_JSON%%": json.dumps(cfg.DEFAULT_OTHER_MODELS_ENABLED),
+        "%%CUSTOM_MODEL_SENTINEL_JSON%%": json.dumps(cfg.CUSTOM_MODEL_SENTINEL),
 
         # ── Divers ────────────────────────────────────────────────
         "%%MIGRATION_PROMPT_JSON%%": json.dumps(cfg.MIGRATION_PROMPT, ensure_ascii=False),
         "%%STORAGE_PREFIX_JSON%%":   json.dumps(cfg.STORAGE_PREFIX),
         "%%MESSAGES_JSON%%":         json.dumps(list(messages), ensure_ascii=False),
+        "%%MESSAGES_META_JSON%%":    json.dumps(list(metas) if metas else [], ensure_ascii=False),
         "%%PROFILE_PRESETS_JSON%%":  json.dumps(LogoLoader.get_profile_presets(), ensure_ascii=False),
     }
 
@@ -4028,26 +4767,64 @@ class GoatWebApp:
 
     def render_index(self) -> str:
         """Génère et retourne la page HTML complète avec l'état actuel."""
-        return build_index_html(self.logo_uri, self.session.messages, self.themed_logos)
+        return build_index_html(
+            self.logo_uri,
+            self.session.messages,
+            self.themed_logos,
+            metas=self.session.metas,
+        )
 
-    def submit_message(self, message: str, mode: str = "") -> dict:
-        """Envoie un message à l'IA et retourne la réponse + historique."""
-        reply = self.session.submit(message, mode)
+    def submit_message(
+        self,
+        message: str,
+        mode: str = "",
+        style: str = "",
+        model: str = "",
+        custom_model_name: str = "",
+        attachments: Optional[List[dict]] = None,
+    ) -> dict:
+        """Envoie un message à l'IA et retourne la réponse + historique + métas."""
+        reply = self.session.submit(
+            message, mode, style, model, custom_model_name, attachments,
+        )
         if not reply:
             return {"ok": False, "error": "Veuillez saisir un message."}
-        return {"ok": True, "reply": reply, "messages": self.session.messages}
+        return {
+            "ok": True,
+            "reply": reply,
+            "messages": self.session.messages,
+            "metas": self.session.metas,
+        }
 
-    def regenerate(self, mode: str = "") -> dict:
-        """Relance le dernier message et retourne la nouvelle réponse."""
-        reply = self.session.regenerate(mode)
+    def regenerate(
+        self,
+        mode: str = "",
+        style: Optional[str] = None,
+        model: Optional[str] = None,
+        custom_model_name: Optional[str] = None,
+        attachments: Optional[List[dict]] = None,
+    ) -> dict:
+        """Relance le dernier message et retourne la nouvelle réponse + métas."""
+        reply = self.session.regenerate(
+            mode, style, model, custom_model_name, attachments,
+        )
         if not reply:
             return {"ok": False, "error": "Aucun message à relancer."}
-        return {"ok": True, "reply": reply, "messages": self.session.messages}
+        return {
+            "ok": True,
+            "reply": reply,
+            "messages": self.session.messages,
+            "metas": self.session.metas,
+        }
 
     def new_chat(self) -> dict:
         """Réinitialise la session et retourne un historique vide."""
         self.session.reset()
-        return {"ok": True, "messages": self.session.messages}
+        return {
+            "ok": True,
+            "messages": self.session.messages,
+            "metas": self.session.metas,
+        }
 
     def moderate_profile_image(self, filename: str, data_url: str) -> dict:
         safe, reason = _local_image_safety_check(filename, data_url)
@@ -4192,7 +4969,11 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
         if self.path == "/":
             self._send(self.server.app.render_index())
         elif self.path == "/api/history":
-            self._json({"ok": True, "messages": self.server.app.session.messages})
+            self._json({
+                "ok": True,
+                "messages": self.server.app.session.messages,
+                "metas": self.server.app.session.metas,
+            })
         elif self.path in {"/favicon.ico", "/favicon.png"}:
             self.send_response(204)
             self.end_headers()
@@ -4211,13 +4992,26 @@ class GoatRequestHandler(BaseHTTPRequestHandler):
             self._json({"ok": False, "error": "JSON invalide."}, 400)
             return
 
+        # Pièces jointes : on n'accepte qu'une liste de dicts pour éviter
+        # qu'un payload mal formé ne fasse planter le sanitizer.
+        raw_attachments = payload.get("attachments")
+        attachments_list = raw_attachments if isinstance(raw_attachments, list) else None
+
         handlers = {
             "/api/send":       lambda: self.server.app.submit_message(
                                    str(payload.get("message", "")),
-                                   str(payload.get("mode", ""))
+                                   str(payload.get("mode", "")),
+                                   str(payload.get("style", "")),
+                                   str(payload.get("model", "")),
+                                   str(payload.get("customModelName", "")),
+                                   attachments_list,
                                ),
             "/api/regenerate": lambda: self.server.app.regenerate(
-                                   str(payload.get("mode", ""))
+                                   str(payload.get("mode", "")),
+                                   payload.get("style") if "style" in payload else None,
+                                   payload.get("model") if "model" in payload else None,
+                                   payload.get("customModelName") if "customModelName" in payload else None,
+                                   attachments_list if "attachments" in payload else None,
                                ),
             "/api/new_chat":   lambda: self.server.app.new_chat(),
             "/api/moderate_profile_image": lambda: self.server.app.moderate_profile_image(
