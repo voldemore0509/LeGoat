@@ -1,28 +1,22 @@
-//Code for generating the response
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <curl/curl.h>
+#include <cjson/cJSON.h>
 
-struct variable_generation
+truct MemoryStruct {
+    char *memory;
+    size_t size;
+};
+
+
+int generation_prompt(const char *prompt, const char *model, char *output, size_t output_size)
 {
-        char json_data[512];  // le buffer
-}
-
-void generation_prompt(struct model_config *models)
-{
-    //initialisation
-    CURL *curl = curl_easy_init(); //appel la fonction
-    if(curl == NULL)
+    CURL *curl = curl_easy_init();
+    if(curl == NULL)    //verifie si le Handle est nul ou pas 
     {
-        printf("Error Serve");
+        printf("handle is NULL");
+        return -3 ; 
     }
-    else
-    {
-        struct variable_generation *generation = malloc(sizeof(struct variable_generation)); //alloue de la mémoire pour stoquer et libérer à la fin
-        //permet de stoquer les paramètre JSON
-        snprintf(generation->json_data, sizeof(generation->json_data), 
-        "{\"model\":\"%s\", \"prompt\": \"%s\", \"stream\": false}", 
-        models->model, models->prompt);
-        free(generation);
-    }
-
+    return 0;
 }
