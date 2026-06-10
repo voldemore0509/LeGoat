@@ -47,6 +47,10 @@ Usage
 
 Auteur  : Goatistique / Longan AI
 Version : voir AppConfig.VERSION
+
+Note de maintenance (2026-06-10) : corrections Liquid Glass (menus fermés
+affichés, position du bouton Chat Privé, jauge de transparence) + effets
+d'envoi / micro, style d'écriture "Découverte", accent orange, badge BETA.
 """
 
 from __future__ import annotations
@@ -272,7 +276,7 @@ class TranslationManager:
             "tab_general": "Générale", "tab_personalization": "Personnalisation",
             "tab_data_security": "Gestion de donnée et sécurité", "tab_optimization": "Optimisation et Performances",
             "general_language": "Langue", "general_version": "Version", "general_theme": "Thème",
-            "general_text_size": "Taille du texte", "general_app_scale": "Taille du logiciel", "general_app_scale_hint": "Agrandit ou réduit toute l'interface.", "tab_appearance": "Apparence", "appearance_color": "Couleur de l'interface", "appearance_wallpaper": "Fond d'écran", "appearance_wallpaper_normal": "Fond d'écran du mode normal", "appearance_wallpaper_coworking": "Fond d'écran de Goat Code", "appearance_change": "Changer", "appearance_remove": "Retirer", "appearance_modal_title": "Fond d'écran", "appearance_import_image": "Importer une image", "appearance_import_video": "Importer une vidéo", "appearance_video_volume": "Volume de la vidéo", "appearance_video_help": "Vidéo en boucle pour l’arrière-plan.", "appearance_video_import_warning": "Plus la vidéo est longue et de bonne qualité, plus l’import prendra du temps et risque de faire laguer le logiciel.", "appearance_preview": "Aperçu", "color_blue": "Bleu", "color_red": "Rouge", "color_green": "Vert", "color_yellow": "Jaune", "color_pink": "Rose", "color_purple": "Violet", "general_keyboard_sounds": "Son du clavier",
+            "general_text_size": "Taille du texte", "general_app_scale": "Taille du logiciel", "general_app_scale_hint": "Agrandit ou réduit toute l'interface.", "tab_appearance": "Apparence", "appearance_color": "Couleur de l'interface", "appearance_wallpaper": "Fond d'écran", "appearance_wallpaper_normal": "Fond d'écran du mode normal", "appearance_wallpaper_coworking": "Fond d'écran de Goat Code", "appearance_change": "Changer", "appearance_remove": "Retirer", "appearance_modal_title": "Fond d'écran", "appearance_import_image": "Importer une image", "appearance_import_video": "Importer une vidéo", "appearance_video_volume": "Volume de la vidéo", "appearance_video_help": "Vidéo en boucle pour l’arrière-plan.", "appearance_video_import_warning": "Plus la vidéo est longue et de bonne qualité, plus l’import prendra du temps et risque de faire laguer le logiciel.", "appearance_preview": "Aperçu", "color_blue": "Bleu", "color_red": "Rouge", "color_green": "Vert", "color_yellow": "Jaune", "color_pink": "Rose", "color_purple": "Violet", "color_orange": "Orange", "general_keyboard_sounds": "Son du clavier",
             "general_keyboard_sound_style": "Style du son clavier", "general_click_sounds": "Son des boutons",
             "general_click_sound_style": "Style du son boutons", "general_ai_reply_sounds": "Son réponse IA",
             "language_fr": "Français", "language_en": "Anglais", "language_es": "Espagnol",
@@ -290,6 +294,12 @@ class TranslationManager:
             "appearance_pixel_buttons_hint": "Activé : conserve les boutons pixelisés. Désactivé : tous les boutons sont arrondis et propres.",
             "optimization_typing_effect": "Effet d'écriture de l'IA",
             "optimization_typing_effect_hint": "Affiche la réponse de l'IA caractère par caractère. Plus esthétique mais ralentit légèrement l'apparition du texte. Le désactiver affiche la réponse instantanément.",
+            "optimization_typing_style": "Style de l'effet d'écriture",
+            "optimization_typing_style_hint": "Par défaut : caractère par caractère. Découverte : les mots se révèlent progressivement en fondu.",
+            "typing_style_default": "Par défaut",
+            "typing_style_discovery": "Découverte",
+            "optimization_send_effects": "Effets d'envoi",
+            "optimization_send_effects_hint": "Petit effet sur la bulle et le bouton Envoyer à l'envoi d'un message (Liquid Glass). Désactivez pour retirer les effets d'envoi.",
             "text_size_default": "Par défaut", "text_size_large": "Grand",
             "sound_on": "Activer", "sound_off": "Désactiver",
             "sound_style_bulle": "Bulle", "sound_style_aurela": "Aurela",
@@ -536,7 +546,7 @@ class TranslationManager:
             "tab_general": "General", "tab_personalization": "Personalization",
             "tab_data_security": "Data & Security", "tab_optimization": "Optimization & Performance",
             "general_language": "Language", "general_version": "Version", "general_theme": "Theme",
-            "general_text_size": "Text size", "general_app_scale": "Software size", "general_app_scale_hint": "Enlarge or reduce the whole interface.", "tab_appearance": "Appearance", "appearance_color": "Interface color", "appearance_wallpaper": "Wallpaper", "appearance_wallpaper_normal": "Wallpaper for normal mode", "appearance_wallpaper_coworking": "Wallpaper for Goat Code", "appearance_change": "Change", "appearance_remove": "Remove", "appearance_modal_title": "Wallpaper", "appearance_import_image": "Import an image", "appearance_import_video": "Import a video", "appearance_video_volume": "Video volume", "appearance_video_help": "Looping video for the background.", "appearance_video_import_warning": "The longer and higher-quality the video is, the longer the import will take and it may cause the software to lag.", "appearance_preview": "Preview", "color_blue": "Blue", "color_red": "Red", "color_green": "Green", "color_yellow": "Yellow", "color_pink": "Pink", "color_purple": "Purple", "general_keyboard_sounds": "Keyboard sound",
+            "general_text_size": "Text size", "general_app_scale": "Software size", "general_app_scale_hint": "Enlarge or reduce the whole interface.", "tab_appearance": "Appearance", "appearance_color": "Interface color", "appearance_wallpaper": "Wallpaper", "appearance_wallpaper_normal": "Wallpaper for normal mode", "appearance_wallpaper_coworking": "Wallpaper for Goat Code", "appearance_change": "Change", "appearance_remove": "Remove", "appearance_modal_title": "Wallpaper", "appearance_import_image": "Import an image", "appearance_import_video": "Import a video", "appearance_video_volume": "Video volume", "appearance_video_help": "Looping video for the background.", "appearance_video_import_warning": "The longer and higher-quality the video is, the longer the import will take and it may cause the software to lag.", "appearance_preview": "Preview", "color_blue": "Blue", "color_red": "Red", "color_green": "Green", "color_yellow": "Yellow", "color_pink": "Pink", "color_purple": "Purple", "color_orange": "Orange", "general_keyboard_sounds": "Keyboard sound",
             "general_keyboard_sound_style": "Keyboard sound style", "general_click_sounds": "Button sounds",
             "general_click_sound_style": "Button sound style", "general_ai_reply_sounds": "AI reply sound",
             "language_fr": "French", "language_en": "English", "language_es": "Spanish",
@@ -554,6 +564,12 @@ class TranslationManager:
             "appearance_pixel_buttons_hint": "On: keeps the pixel-art buttons. Off: every button uses clean rounded corners.",
             "optimization_typing_effect": "AI typing effect",
             "optimization_typing_effect_hint": "Reveals the AI response character by character. Prettier, but slightly slower. When off, replies appear instantly.",
+            "optimization_typing_style": "Typing effect style",
+            "optimization_typing_style_hint": "Default: character by character. Discovery: words fade in gradually.",
+            "typing_style_default": "Default",
+            "typing_style_discovery": "Discovery",
+            "optimization_send_effects": "Send effects",
+            "optimization_send_effects_hint": "Small bubble and Send button effect when sending a message (Liquid Glass). Turn off to remove send effects.",
             "text_size_default": "Default", "text_size_large": "Large",
             "sound_on": "Enable", "sound_off": "Disable",
             "sound_style_bulle": "Bubble", "sound_style_aurela": "Aurela",
@@ -799,7 +815,7 @@ class TranslationManager:
             "tab_general": "General", "tab_personalization": "Personalización",
             "tab_data_security": "Datos y seguridad", "tab_optimization": "Optimización y rendimiento",
             "general_language": "Idioma", "general_version": "Versión", "general_theme": "Tema",
-            "general_text_size": "Tamaño del texto", "general_app_scale": "Tamaño del software", "general_app_scale_hint": "Amplía o reduce toda la interfaz.", "tab_appearance": "Apariencia", "appearance_color": "Color de la interfaz", "appearance_wallpaper": "Fondo de pantalla", "appearance_wallpaper_normal": "Fondo del modo normal", "appearance_wallpaper_coworking": "Fondo de Goat Code", "appearance_change": "Cambiar", "appearance_remove": "Quitar", "appearance_modal_title": "Fondo de pantalla", "appearance_import_image": "Importar una imagen", "appearance_import_video": "Importar un vídeo", "appearance_video_volume": "Volumen del vídeo", "appearance_video_help": "Vídeo en bucle para el fondo.", "appearance_video_import_warning": "Cuanto más largo y de mayor calidad sea el vídeo, más tardará la importación y podría hacer que el software vaya lento.", "appearance_preview": "Vista previa", "color_blue": "Azul", "color_red": "Rojo", "color_green": "Verde", "color_yellow": "Amarillo", "color_pink": "Rosa", "color_purple": "Violeta", "general_keyboard_sounds": "Sonido del teclado",
+            "general_text_size": "Tamaño del texto", "general_app_scale": "Tamaño del software", "general_app_scale_hint": "Amplía o reduce toda la interfaz.", "tab_appearance": "Apariencia", "appearance_color": "Color de la interfaz", "appearance_wallpaper": "Fondo de pantalla", "appearance_wallpaper_normal": "Fondo del modo normal", "appearance_wallpaper_coworking": "Fondo de Goat Code", "appearance_change": "Cambiar", "appearance_remove": "Quitar", "appearance_modal_title": "Fondo de pantalla", "appearance_import_image": "Importar una imagen", "appearance_import_video": "Importar un vídeo", "appearance_video_volume": "Volumen del vídeo", "appearance_video_help": "Vídeo en bucle para el fondo.", "appearance_video_import_warning": "Cuanto más largo y de mayor calidad sea el vídeo, más tardará la importación y podría hacer que el software vaya lento.", "appearance_preview": "Vista previa", "color_blue": "Azul", "color_red": "Rojo", "color_green": "Verde", "color_yellow": "Amarillo", "color_pink": "Rosa", "color_purple": "Violeta", "color_orange": "Naranja", "general_keyboard_sounds": "Sonido del teclado",
             "general_keyboard_sound_style": "Estilo de sonido del teclado", "general_click_sounds": "Sonido de botones",
             "general_click_sound_style": "Estilo de sonido de botones", "general_ai_reply_sounds": "Sonido de respuesta IA",
             "language_fr": "Francés", "language_en": "Inglés", "language_es": "Español",
@@ -817,6 +833,12 @@ class TranslationManager:
             "appearance_pixel_buttons_hint": "Activado: mantiene los botones pixelados. Desactivado: todos los botones se redondean de forma limpia.",
             "optimization_typing_effect": "Efecto de escritura de la IA",
             "optimization_typing_effect_hint": "Muestra la respuesta de la IA letra a letra. Más estético, pero ralentiza ligeramente la aparición. Al desactivarlo, la respuesta aparece de inmediato.",
+            "optimization_typing_style": "Estilo del efecto de escritura",
+            "optimization_typing_style_hint": "Por defecto: letra a letra. Descubrimiento: las palabras aparecen progresivamente en fundido.",
+            "typing_style_default": "Por defecto",
+            "typing_style_discovery": "Descubrimiento",
+            "optimization_send_effects": "Efectos de envío",
+            "optimization_send_effects_hint": "Pequeño efecto en la burbuja y el botón Enviar al mandar un mensaje (Liquid Glass). Desactívelo para quitar los efectos de envío.",
             "text_size_default": "Por defecto", "text_size_large": "Grande",
             "sound_on": "Activar", "sound_off": "Desactivar",
             "sound_style_bulle": "Burbuja", "sound_style_aurela": "Aurela",
@@ -1913,6 +1935,7 @@ body[data-accent="green"]{--accent:#22c55e;--accent-rgb:34,197,94}
 body[data-accent="yellow"]{--accent:#eab308;--accent-rgb:234,179,8}
 body[data-accent="pink"]{--accent:#ec4899;--accent-rgb:236,72,153}
 body[data-accent="purple"]{--accent:#8b5cf6;--accent-rgb:139,92,246}
+body[data-accent="orange"]{--accent:#f97316;--accent-rgb:249,115,22}
 .settings-tab-active-fallback,.settings-tab:hover{background:rgba(var(--accent-rgb),.08)}
 .settings-tab.active{background:rgba(var(--accent-rgb),.14)}
 .profile-social-link:hover{background:rgba(var(--accent-rgb),.08)}
@@ -1928,6 +1951,9 @@ body[data-accent="purple"]{--accent:#8b5cf6;--accent-rgb:139,92,246}
 /* ── Badge BÊTA ── */
 .beta-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#ca8a04;font-size:.65rem;font-weight:700;letter-spacing:.06em;margin-left:8px;vertical-align:middle;user-select:none}
 body[data-theme="dark"] .beta-badge{background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.32);color:#fbbf24}
+/* Variante bleue "certifiée" — utilisée pour la version de prévisualisation */
+.beta-badge.blue{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.42);color:#3b82f6}
+body[data-theme="dark"] .beta-badge.blue{background:rgba(59,130,246,.20);border-color:rgba(96,165,250,.45);color:#60a5fa}
 
 /* ── Modal contact développeur ── */
 .aide-contact-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:95;display:none;align-items:center;justify-content:center;padding:20px}
@@ -2203,7 +2229,7 @@ body[data-ui-style="glass"] .top-tab-btn.active,
 body[data-ui-style="glass"] .model-dd-menu,
 body[data-ui-style="glass"] .plus-menu,
 body[data-ui-style="glass"] .dropdown-menu,
-body[data-ui-style="glass"] .menubar-menu,
+body[data-ui-style="glass"] .app-menubar-dropdown,
 body[data-ui-style="glass"] .aide-contact-modal,
 body[data-ui-style="glass"] .profile-card,
 body[data-ui-style="glass"] .profile-editor,
@@ -2227,7 +2253,7 @@ body[data-ui-style="glass"][data-theme="dark"] .settings-modal,
 body[data-ui-style="glass"][data-theme="dark"] .settings-ghost-button,
 body[data-ui-style="glass"][data-theme="dark"] .settings-choice,
 body[data-ui-style="glass"][data-theme="dark"] .top-tab-bar,
-body[data-ui-style="glass"][data-theme="dark"] .menubar-menu,
+body[data-ui-style="glass"][data-theme="dark"] .app-menubar-dropdown,
 body[data-ui-style="glass"][data-theme="dark"] .settings-sidebar{
   border-color:rgba(255,255,255,calc(var(--glass-border-a) * .55))!important;
 }
@@ -2241,6 +2267,7 @@ body[data-ui-style="glass"][data-glass-tint="on"][data-accent="green"]{--glass-t
 body[data-ui-style="glass"][data-glass-tint="on"][data-accent="yellow"]{--glass-tint-r:234;--glass-tint-g:179;--glass-tint-b:8}
 body[data-ui-style="glass"][data-glass-tint="on"][data-accent="pink"]{--glass-tint-r:236;--glass-tint-g:72;--glass-tint-b:153}
 body[data-ui-style="glass"][data-glass-tint="on"][data-accent="purple"]{--glass-tint-r:139;--glass-tint-g:92;--glass-tint-b:246}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="orange"]{--glass-tint-r:249;--glass-tint-g:115;--glass-tint-b:22}
 
 /* Bulles — animation d'entrée + halo discret */
 body[data-ui-style="glass"] .bubble{
@@ -2260,11 +2287,13 @@ body[data-ui-style="glass"] .composer:focus-within{
   box-shadow:var(--glass-shadow),0 0 0 4px rgba(var(--accent-rgb),.14)!important;
 }
 
-/* Boutons "ghost" et "choice" — overlay brillant au hover */
+/* Boutons "ghost" et "choice" — overlay brillant au hover.
+   NB : .private-chat-btn est volontairement exclu de ce groupe : il est
+   positionné en fixed (haut droite) et "position:relative" le faisait
+   retomber dans le flux du document (bouton affiché en haut à gauche). */
 body[data-ui-style="glass"] .settings-ghost-button,
 body[data-ui-style="glass"] .settings-choice,
 body[data-ui-style="glass"] .bubble-action,
-body[data-ui-style="glass"] .private-chat-btn,
 body[data-ui-style="glass"] .settings-button,
 body[data-ui-style="glass"] .newchat-button{
   position:relative;
@@ -2273,7 +2302,6 @@ body[data-ui-style="glass"] .newchat-button{
 body[data-ui-style="glass"] .settings-ghost-button::after,
 body[data-ui-style="glass"] .settings-choice::after,
 body[data-ui-style="glass"] .bubble-action::after,
-body[data-ui-style="glass"] .private-chat-btn::after,
 body[data-ui-style="glass"] .settings-button::after,
 body[data-ui-style="glass"] .newchat-button::after{
   content:"";
@@ -2286,11 +2314,18 @@ body[data-ui-style="glass"] .newchat-button::after{
 body[data-ui-style="glass"] .settings-ghost-button:hover::after,
 body[data-ui-style="glass"] .settings-choice:hover::after,
 body[data-ui-style="glass"] .bubble-action:hover::after,
-body[data-ui-style="glass"] .private-chat-btn:hover::after,
 body[data-ui-style="glass"] .settings-button:hover::after,
 body[data-ui-style="glass"] .newchat-button:hover::after{
   opacity:.8;
   animation:glassShine .9s cubic-bezier(.2,.8,.2,1) forwards;
+}
+/* Chat Privé — le backdrop-filter du verre fait du bouton le containing block
+   de ses descendants positionnés : l'infobulle (position:fixed) se calait au
+   mauvais endroit. On la repositionne par rapport au bouton lui-même. */
+body[data-ui-style="glass"] .private-chat-btn .pc-tooltip{
+  position:absolute;
+  top:calc(100% + 10px);
+  right:0;
 }
 body[data-ui-style="glass"] .settings-ghost-button:hover,
 body[data-ui-style="glass"] .settings-choice:hover,
@@ -2336,16 +2371,35 @@ body[data-ui-style="glass"][data-theme="dark"] .settings-backdrop{
    apparaître la modale dans le coin bas-droit. */
 @keyframes glassFadeCentered{from{opacity:0}to{opacity:1}}
 body[data-ui-style="glass"] .settings-modal{
-  animation:glassFadeCentered .28s ease both;
   border-radius:28px!important;
 }
+body[data-ui-style="glass"] .settings-modal.open{
+  animation:glassFadeCentered .28s ease both;
+}
 
-/* Menus déroulants — verre + halo accent */
+/* Menus déroulants — verre + halo accent.
+   IMPORTANT : l'animation d'entrée n'est appliquée qu'aux menus ".open".
+   Ces menus se masquent via opacity:0 ; une animation avec fill-mode "both"
+   appliquée en permanence forçait opacity:1 et affichait tous les menus
+   fermés en même temps (bug visuel du mode Liquid Glass). */
 body[data-ui-style="glass"] .model-dd-menu,
 body[data-ui-style="glass"] .plus-menu,
 body[data-ui-style="glass"] .dropdown-menu,
-body[data-ui-style="glass"] .menubar-menu{
+body[data-ui-style="glass"] .app-menubar-dropdown{
   border-radius:18px!important;
+}
+/* Variante centrée : .model-dd-menu se centre via translateX(-50%) — une
+   animation générique écraserait ce transform et décalerait le menu. */
+@keyframes glassMenuInCentered{
+  from{opacity:0;transform:translateX(-50%) translateY(6px)}
+  to{opacity:1;transform:translateX(-50%) translateY(0)}
+}
+body[data-ui-style="glass"] .model-dd-menu.open{
+  animation:glassMenuInCentered .22s cubic-bezier(.2,.8,.2,1) both;
+}
+body[data-ui-style="glass"] .plus-menu.open,
+body[data-ui-style="glass"] .dropdown-menu.open,
+body[data-ui-style="glass"] .app-menubar-item.open>.app-menubar-dropdown{
   animation:glassFloatIn .22s cubic-bezier(.2,.8,.2,1) both;
 }
 
@@ -2551,20 +2605,21 @@ body[data-ui-style="glass"][data-theme="dark"] .profile-crop-backdrop{
 body[data-ui-style="glass"] .model-dd-menu,
 body[data-ui-style="glass"] .plus-menu,
 body[data-ui-style="glass"] .dropdown-menu,
-body[data-ui-style="glass"] .menubar-menu{
+body[data-ui-style="glass"] .app-menubar-dropdown{
   background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.55))!important;
   border:1px solid rgba(255,255,255,max(var(--glass-border-a),0.30))!important;
 }
 body[data-ui-style="glass"][data-theme="dark"] .model-dd-menu,
 body[data-ui-style="glass"][data-theme="dark"] .plus-menu,
 body[data-ui-style="glass"][data-theme="dark"] .dropdown-menu,
-body[data-ui-style="glass"][data-theme="dark"] .menubar-menu{
+body[data-ui-style="glass"][data-theme="dark"] .app-menubar-dropdown{
   background:rgba(20,20,24,max(var(--glass-alpha),0.68))!important;
 }
-/* Lignes des dropdowns : entrée animée séquentielle */
-body[data-ui-style="glass"] .model-dd-menu .model-dd-item,
-body[data-ui-style="glass"] .plus-menu .plus-menu-item,
-body[data-ui-style="glass"] .dropdown-menu .dropdown-menu-item{
+/* Lignes des dropdowns : entrée animée séquentielle — uniquement quand le
+   menu est ouvert, pour rejouer l'effet à chaque ouverture. */
+body[data-ui-style="glass"] .model-dd-menu.open .model-dd-item,
+body[data-ui-style="glass"] .plus-menu.open .plus-menu-item,
+body[data-ui-style="glass"] .dropdown-menu.open .dropdown-menu-item{
   animation:glassFadeUp .25s ease both;
   animation-delay:calc(var(--idx,0) * 40ms);
 }
@@ -2658,6 +2713,88 @@ body[data-ui-style="glass"] .top-tab-btn.active{
   background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.45))!important;
   box-shadow:0 2px 10px rgba(var(--accent-rgb),.15),inset 0 1px 0 rgba(255,255,255,.30);
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Liquid Glass — effets d'interaction (envoi / micro / bulle)
+   Les éléments .glass-press-fx sont créés par JS au clic, positionnés
+   au centre du bouton cliqué, puis supprimés en fin d'animation.
+   ────────────────────────────────────────────────────────────── */
+.glass-press-fx{
+  position:fixed;
+  width:16px;height:16px;
+  margin:-8px 0 0 -8px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:200;
+}
+/* Envoyer : onde pleine couleur accent qui éclate vers l'extérieur */
+.glass-press-fx.send{
+  background:radial-gradient(circle,rgba(var(--accent-rgb),.85) 0%,rgba(var(--accent-rgb),.35) 60%,transparent 100%);
+  animation:glassSendBurstFx .55s cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes glassSendBurstFx{
+  0%{transform:scale(.4);opacity:.95;box-shadow:0 0 0 0 rgba(var(--accent-rgb),.45)}
+  100%{transform:scale(2.6);opacity:0;box-shadow:0 0 0 30px rgba(var(--accent-rgb),0)}
+}
+/* Micro : double anneau sonar (effet distinct de l'envoi) */
+.glass-press-fx.mic{
+  background:transparent;
+  border:2px solid rgba(var(--accent-rgb),.70);
+  animation:glassMicSonarFx .7s ease-out forwards;
+}
+.glass-press-fx.mic::after{
+  content:"";
+  position:absolute;inset:-6px;
+  border-radius:50%;
+  border:1px solid rgba(var(--accent-rgb),.40);
+  animation:glassMicSonarFxOuter .7s ease-out .12s forwards;
+  opacity:0;
+}
+@keyframes glassMicSonarFx{
+  0%{transform:scale(.5);opacity:.95}
+  100%{transform:scale(3.4);opacity:0}
+}
+@keyframes glassMicSonarFxOuter{
+  0%{transform:scale(.6);opacity:.8}
+  100%{transform:scale(2.2);opacity:0}
+}
+/* Pression physique du bouton micro (le bouton Envoyer est masqué dès la
+   soumission : son retour visuel passe par l'onde .glass-press-fx.send) */
+body[data-ui-style="glass"] .voice-input-button.glass-mic-press{
+  animation:glassMicSquish .35s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes glassMicSquish{
+  0%{transform:scale(1)}
+  40%{transform:scale(.86)}
+  70%{transform:scale(1.06)}
+  100%{transform:scale(1)}
+}
+
+/* Effet "bulle envoyée" : pop élastique + halo accent sur la dernière bulle
+   utilisateur. Actif uniquement en Liquid Glass et si les effets d'envoi
+   sont activés (Paramètres → Optimisation → Effets d'envoi). */
+body[data-ui-style="glass"][data-send-effects="on"] .message-row.user .bubble.glass-sent{
+  animation:glassBubblePop .55s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes glassBubblePop{
+  0%{transform:scale(.90) translateY(10px);opacity:0;box-shadow:var(--glass-shadow),0 0 0 0 rgba(var(--accent-rgb),.40)}
+  55%{transform:scale(1.035) translateY(-2px);opacity:1}
+  100%{transform:scale(1) translateY(0);opacity:1;box-shadow:var(--glass-shadow),0 0 0 12px rgba(var(--accent-rgb),0)}
+}
+
+/* Effet d'écriture "Découverte" : les mots apparaissent progressivement */
+.discover-word{
+  opacity:0;
+  animation:discoverFadeIn .5s ease forwards;
+}
+@keyframes discoverFadeIn{
+  from{opacity:0;filter:blur(5px);transform:translateY(2px)}
+  to{opacity:1;filter:blur(0);transform:translateY(0)}
+}
+
+/* Effets visuels désactivés : on neutralise aussi les effets d'interaction */
+body[data-effects="off"] .glass-press-fx{display:none!important}
+body[data-effects="off"] .bubble.glass-sent{animation:none!important}
 
 /* Respect strict de l'option Effets visuels OFF : on tue les animations
    gourmandes mais on garde le verre statique pour ne pas casser le rendu. */
@@ -2943,7 +3080,7 @@ body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-sli
         <div class="settings-block">
           <div class="settings-row">
             <div class="settings-row-stack">
-              <div class="settings-row-title" data-i18n="preview_toggle_label">Accéder à la version de prévisualisation</div>
+              <div class="settings-row-title"><span data-i18n="preview_toggle_label">Accéder à la version de prévisualisation</span><span class="beta-badge blue" data-i18n="aide_beta_label">BÊTA</span></div>
               <div class="settings-row-subtitle" data-i18n="preview_toggle_hint"></div>
             </div>
             <label class="preview-switch" aria-label="Version de prévisualisation">
@@ -2956,7 +3093,7 @@ body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-sli
       </section>
 
       <section class="settings-section" data-settings-content="appearance">
-        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_color">Couleur de l'interface</div></div><div class="appearance-swatch-group"><button type="button" class="appearance-swatch" data-accent-value="blue" style="--swatch:#3b82f6" title="Bleu"></button><button type="button" class="appearance-swatch" data-accent-value="red" style="--swatch:#ef4444" title="Rouge"></button><button type="button" class="appearance-swatch" data-accent-value="green" style="--swatch:#22c55e" title="Vert"></button><button type="button" class="appearance-swatch" data-accent-value="yellow" style="--swatch:#eab308" title="Jaune"></button><button type="button" class="appearance-swatch" data-accent-value="pink" style="--swatch:#ec4899" title="Rose"></button><button type="button" class="appearance-swatch" data-accent-value="purple" style="--swatch:#8b5cf6" title="Violet"></button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_color">Couleur de l'interface</div></div><div class="appearance-swatch-group"><button type="button" class="appearance-swatch" data-accent-value="blue" style="--swatch:#3b82f6" title="Bleu"></button><button type="button" class="appearance-swatch" data-accent-value="red" style="--swatch:#ef4444" title="Rouge"></button><button type="button" class="appearance-swatch" data-accent-value="green" style="--swatch:#22c55e" title="Vert"></button><button type="button" class="appearance-swatch" data-accent-value="yellow" style="--swatch:#eab308" title="Jaune"></button><button type="button" class="appearance-swatch" data-accent-value="pink" style="--swatch:#ec4899" title="Rose"></button><button type="button" class="appearance-swatch" data-accent-value="purple" style="--swatch:#8b5cf6" title="Violet"></button><button type="button" class="appearance-swatch" data-accent-value="orange" style="--swatch:#f97316" title="Orange"></button></div></div></div>
         <!-- ── Style d'interface (Par défaut / Liquid Glass) ── -->
         <div class="settings-block">
           <div class="settings-row">
@@ -3043,7 +3180,7 @@ body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-sli
       <section class="settings-section" data-settings-content="optimization">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
-        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_calc_target">Ciblage des calculs<span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
+        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title"><span data-i18n="optimization_calc_target">Ciblage des calculs</span><span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
         <div class="calc-target-notification" id="calc-target-notification" hidden></div>
         <!-- Option masquée temporairement : libération de la mémoire vive de l'IA
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
@@ -3058,6 +3195,30 @@ body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-sli
             </div>
             <label class="profile-switch" aria-label="Effet d'écriture IA">
               <input type="checkbox" id="ai-typing-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+          <!-- Style de l'effet d'écriture (visible si l'effet est activé) -->
+          <div class="settings-row" id="typing-style-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_typing_style">Style de l'effet d'écriture</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_typing_style_hint"></div>
+            </div>
+            <div class="settings-choice-group">
+              <button type="button" class="settings-choice" data-typing-style-value="default" data-i18n="typing_style_default">Par défaut</button>
+              <button type="button" class="settings-choice" data-typing-style-value="discovery" data-i18n="typing_style_discovery">Découverte</button>
+            </div>
+          </div>
+        </div>
+        <!-- ── Effets d'envoi (Liquid Glass uniquement) ── -->
+        <div class="settings-block" data-only-glass="1">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_send_effects">Effets d'envoi</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_send_effects_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Effets d'envoi">
+              <input type="checkbox" id="send-effects-toggle">
               <span class="profile-switch-track"></span>
             </label>
           </div>
@@ -3367,7 +3528,7 @@ body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-sli
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
 const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%,localProfilePresets=%%PROFILE_PRESETS_JSON%%;
-const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p',otherModelsOn:%%DEFAULT_OTHER_MODELS_JSON%%,uiStyle:%%DEFAULT_UI_STYLE_JSON%%,glassTransparency:%%DEFAULT_GLASS_TRANSPARENCY_JSON%%,glassTint:%%DEFAULT_GLASS_TINT_JSON%%,pixelButtons:%%DEFAULT_PIXEL_BUTTONS_JSON%%,aiTyping:%%DEFAULT_AI_TYPING_EFFECT_JSON%%};
+const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p',otherModelsOn:%%DEFAULT_OTHER_MODELS_JSON%%,uiStyle:%%DEFAULT_UI_STYLE_JSON%%,glassTransparency:%%DEFAULT_GLASS_TRANSPARENCY_JSON%%,glassTint:%%DEFAULT_GLASS_TINT_JSON%%,pixelButtons:%%DEFAULT_PIXEL_BUTTONS_JSON%%,aiTyping:%%DEFAULT_AI_TYPING_EFFECT_JSON%%,aiTypingStyle:'default',sendEffects:'on'};
 const CUSTOM_MODEL_SENTINEL=%%CUSTOM_MODEL_SENTINEL_JSON%%;
 const ls=(k,v)=>{try{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)}catch(err){console.warn('Local storage unavailable for',k,err);return v!==undefined?v:null}};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
@@ -3409,7 +3570,7 @@ const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBa
 const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||'',otherModelsOn:ls('other-models-on')||defs.otherModelsOn,activeCustomModel:ls('active-custom-model')||'',customModels:(function(){try{const raw=ls('custom-models');return raw?JSON.parse(raw):[]}catch(e){return[]}})(),uiStyle:ls('ui-style')||defs.uiStyle,glassTransparency:(function(){const v=ls('glass-transparency');const n=parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):defs.glassTransparency})(),glassTint:ls('glass-tint')||defs.glassTint,pixelButtons:ls('pixel-buttons')||defs.pixelButtons,aiTyping:ls('ai-typing')||defs.aiTyping};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||'',otherModelsOn:ls('other-models-on')||defs.otherModelsOn,activeCustomModel:ls('active-custom-model')||'',customModels:(function(){try{const raw=ls('custom-models');return raw?JSON.parse(raw):[]}catch(e){return[]}})(),uiStyle:ls('ui-style')||defs.uiStyle,glassTransparency:(function(){const v=ls('glass-transparency');const n=parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):defs.glassTransparency})(),glassTint:ls('glass-tint')||defs.glassTint,pixelButtons:ls('pixel-buttons')||defs.pixelButtons,aiTyping:ls('ai-typing')||defs.aiTyping,aiTypingStyle:ls('ai-typing-style')==='discovery'?'discovery':defs.aiTypingStyle,sendEffects:ls('send-effects')==='off'?'off':defs.sendEffects};
 // ── Variables runtime (non persistées) ───────────────────────────
 let messages=%%MESSAGES_JSON%%,messagesMeta=%%MESSAGES_META_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
 // Stocke quels panneaux « Spécificité » sont ouverts (clé = index du message
@@ -4042,21 +4203,24 @@ function applyTextSize(v,snd){apply('textSize',v==='large'?'large':'default','te
 function normalizeUIScale(v){const n=parseInt(v,10)||100;return Math.max(70,Math.min(130,n))}
 function updateUIScaleUI(){S.uiScale=normalizeUIScale(S.uiScale);if(uiScaleValue)uiScaleValue.textContent=S.uiScale+'%';const scale=S.uiScale/100;document.documentElement.style.setProperty('--ui-scale-factor',String(scale));document.documentElement.style.fontSize='';document.body.style.zoom=String(scale);document.body.style.transformOrigin='top center';window.requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))}
 function applyUIScale(v,snd){S.uiScale=normalizeUIScale(v);ls('ui-scale',String(S.uiScale));if(snd)playClick();updateUIScaleUI();window.dispatchEvent(new Event('resize'))}
-function normalizeAccent(v){return['blue','red','green','yellow','pink','purple'].includes(v)?v:'blue'}
+function normalizeAccent(v){return['blue','red','green','yellow','pink','purple','orange'].includes(v)?v:'blue'}
 function applyAccent(v,snd){S.accent=normalizeAccent(v);ls('accent',S.accent);if(snd)playClick();document.body.dataset.accent=S.accent;$$('[data-accent-value]').forEach(b=>b.classList.toggle('active',b.dataset.accentValue===S.accent));updateThemedLogos();updateWallpaperPreviews()}
 // ── Style d'interface (default / Liquid Glass) ─────────────────────
 function normalizeUiStyle(v){return v==='glass'?'glass':'default'}
 function applyGlassTransparencyVar(){
   // Mappe 0..100 sur des plages cohérentes pour --glass-alpha, --glass-blur,
-  // --glass-border-a. 0 = très opaque/compact, 100 = très transparent/aérien.
+  // --glass-border-a. 0 = quasi opaque/compact, 100 = verre très transparent.
   const n=Math.max(0,Math.min(100,parseInt(S.glassTransparency,10)||0));
   const t=n/100;
-  // alpha : 0 → 0.32 (compact), 100 → 0.05 (très transparent)
-  const alpha=(0.32-(0.27*t)).toFixed(3);
-  // blur : 0 → 12px (compact), 100 → 30px (aérien)
-  const blur=(12+(18*t)).toFixed(1)+'px';
-  // border : 0 → 0.35 (visible), 100 → 0.12 (discret)
-  const border=(0.35-(0.23*t)).toFixed(3);
+  // alpha : 0 → 0.94 (surface pleine, compacte), 100 → 0.05 (très transparent).
+  // Courbe ease-out (1-(1-t)^2) : la transparence se creuse vite au début du
+  // curseur puis s'affine, ce qui rend toute la course perceptible.
+  const ease=1-Math.pow(1-t,2);
+  const alpha=(0.94-(0.89*ease)).toFixed(3);
+  // blur : 0 → 4px (fond opaque, flou inutile), 100 → 28px (verre profond)
+  const blur=(4+(24*t)).toFixed(1)+'px';
+  // border : 0 → 0.42 (cadre net), 100 → 0.10 (liseré discret)
+  const border=(0.42-(0.32*t)).toFixed(3);
   document.documentElement.style.setProperty('--glass-alpha',alpha);
   document.documentElement.style.setProperty('--glass-blur',blur);
   document.documentElement.style.setProperty('--glass-border-a',border);
@@ -4103,6 +4267,48 @@ function applyAiTyping(v,snd){
   document.body.dataset.aiTyping=S.aiTyping;
   const tog=$('ai-typing-toggle');
   if(tog)tog.checked=S.aiTyping==='on';
+  // Le choix du style d'écriture n'a de sens que si l'effet est activé.
+  const styleRow=$('typing-style-row');
+  if(styleRow)styleRow.hidden=S.aiTyping!=='on';
+}
+// ── Style de l'effet d'écriture : "default" (caractère par caractère)
+//    ou "discovery" (les mots se révèlent progressivement en fondu) ──
+function applyTypingStyle(v,snd){
+  S.aiTypingStyle=v==='discovery'?'discovery':'default';
+  ls('ai-typing-style',S.aiTypingStyle);
+  if(snd)playClick();
+  $$('[data-typing-style-value]').forEach(b=>b.classList.toggle('active',b.dataset.typingStyleValue===S.aiTypingStyle));
+}
+// ── Effets d'envoi (pop de bulle + onde du bouton Envoyer en Liquid Glass) ──
+function applySendEffects(v,snd){
+  S.sendEffects=v==='off'?'off':'on';
+  ls('send-effects',S.sendEffects);
+  if(snd)playClick();
+  document.body.dataset.sendEffects=S.sendEffects;
+  const tog=$('send-effects-toggle');
+  if(tog)tog.checked=S.sendEffects==='on';
+}
+// ── Effets d'interaction Liquid Glass ───────────────────────────────
+// Onde transitoire au centre d'un bouton (survit au masquage du bouton :
+// l'élément est attaché à <body>, utile pour Envoyer qui disparaît aussitôt).
+function spawnGlassPressFx(el,kind){
+  if(S.uiStyle!=='glass'||S.effects==='off'||!el)return;
+  const r=el.getBoundingClientRect();
+  if(!r.width&&!r.height)return;
+  const fx=document.createElement('div');
+  fx.className='glass-press-fx '+kind;
+  fx.style.left=(r.left+r.width/2)+'px';
+  fx.style.top=(r.top+r.height/2)+'px';
+  document.body.appendChild(fx);
+  fx.addEventListener('animationend',()=>fx.remove(),{once:true});
+  setTimeout(()=>{if(fx.parentNode)fx.remove()},1200);
+}
+// Pop élastique de la dernière bulle utilisateur après un envoi.
+function markLastUserBubbleSent(){
+  if(S.uiStyle!=='glass'||S.sendEffects!=='on'||S.effects==='off')return;
+  const bubbles=msgBox.querySelectorAll('.message-row.user .bubble');
+  const last=bubbles.length?bubbles[bubbles.length-1]:null;
+  if(last)last.classList.add('glass-sent');
 }
 // Effet d'écriture caractère par caractère sur le dernier message assistant.
 // Non bloquant : si une autre génération démarre, l'effet en cours s'arrête
@@ -4124,8 +4330,24 @@ function runAiTypingEffect(){
   // mais le rendu utilise simplement la chaîne échappée). On garde une copie
   // pour restaurer en cas d'annulation.
   const originalHTML=bubble.innerHTML;
-  bubble.textContent='';
   const token=++_typingTokenSeq;
+  // ── Style "Découverte" : les mots se révèlent en fondu, petit à petit. ──
+  // Tout le texte est injecté immédiatement (spans), le CSS gère la cadence :
+  // non bloquant et annulé naturellement au prochain renderMessages().
+  if(S.aiTypingStyle==='discovery'){
+    const words=fullText.split(/(\s+)/);
+    let wordIdx=0;
+    bubble.innerHTML=words.map(w=>{
+      if(!w.trim())return esc(w);
+      const delayMs=Math.min(wordIdx++*55,6000);
+      return '<span class="discover-word" style="animation-delay:'+delayMs+'ms">'+esc(w)+'</span>';
+    }).join('');
+    const total=Math.min(wordIdx*55,6000)+600;
+    setTimeout(()=>{if(token===_typingTokenSeq)bubble.innerHTML=originalHTML},total);
+    return;
+  }
+  // ── Style "Par défaut" : caractère par caractère. ──
+  bubble.textContent='';
   // Vitesse : ~16ms par caractère (≈60 chars/s) — fluide sans bloquer la lecture.
   // On groupe par 2 caractères pour rester rapide sur les longs textes.
   const step=Math.max(1,Math.ceil(fullText.length/600));
@@ -4322,7 +4544,19 @@ async function apiExportProfilePdf(includeScore){const payload={includeScore,cha
 async function apiProfileScreenshot(){const r=await fetch('/api/profile_screenshot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Profile screenshot unavailable');return p}
 async function shareProfile(includeScore){playClick();if(includeScore){try{const p=await apiProfileScreenshot();if(p.triggered)return}catch(e){}window.open('https://screenrec.com/fr/','_blank','noopener');return}alert(t('profile_share_dev'))}
 async function apiVoiceShortcut(){const r=await fetch('/api/voice_shortcut',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Voice shortcut unavailable');return p}
-async function triggerVoiceInput(){playClick();try{const p=await apiVoiceShortcut();if(p.triggered)return}catch(e){}window.open('https://wisprflow.ai/','_blank','noopener')}
+async function triggerVoiceInput(){
+  playClick();
+  // Effet micro (Liquid Glass) : sonar + pression physique — distinct de l'envoi.
+  spawnGlassPressFx(voiceInputBtn,'mic');
+  if(S.uiStyle==='glass'&&S.effects!=='off'&&voiceInputBtn){
+    voiceInputBtn.classList.remove('glass-mic-press');
+    void voiceInputBtn.offsetWidth;
+    voiceInputBtn.classList.add('glass-mic-press');
+    voiceInputBtn.addEventListener('animationend',()=>voiceInputBtn.classList.remove('glass-mic-press'),{once:true});
+  }
+  try{const p=await apiVoiceShortcut();if(p.triggered)return}catch(e){}
+  window.open('https://wisprflow.ai/','_blank','noopener')
+}
 // ── API HTTP — communication avec le backend Python ──────────────
 // Toutes les requêtes sont en POST JSON vers localhost.
 // Les endpoints sont définis dans GoatRequestHandler (Python).
@@ -4350,7 +4584,7 @@ async function apiRegen(signal){const ctx=buildRequestContext();const r=await fe
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 
 // ── Soumission du formulaire (envoi message + gestion erreurs) ────
-form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);messagesMeta.push(null,null);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…'){messages.pop();messagesMeta.pop()}renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
+form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();if(S.sendEffects==='on')spawnGlassPressFx(sendBtn,'send');statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);messagesMeta.push(null,null);renderMessages();markLastUserBubbleSent();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…'){messages.pop();messagesMeta.pop()}renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
 // ── Liaisons événements contrôles UI ─────────────────────────────
 modeTrigger.addEventListener('click',()=>{playClick();modeMenu.classList.contains('open')?closeMM():openMM()});
 styleTrigger.addEventListener('click',()=>{playClick();styleMenu.classList.contains('open')?closeSM():openSM()});
@@ -4377,6 +4611,8 @@ $$('[data-ui-style-value]').forEach(b=>b.addEventListener('click',()=>applyUiSty
 (function(){const tog=$('glass-tint-toggle');if(tog)tog.addEventListener('change',()=>applyGlassTint(tog.checked?'on':'off',true))})();
 (function(){const tog=$('pixel-buttons-toggle');if(tog)tog.addEventListener('change',()=>applyPixelButtons(tog.checked?'on':'off',true))})();
 (function(){const tog=$('ai-typing-toggle');if(tog)tog.addEventListener('change',()=>applyAiTyping(tog.checked?'on':'off',true))})();
+$$('[data-typing-style-value]').forEach(b=>b.addEventListener('click',()=>applyTypingStyle(b.dataset.typingStyleValue,true)));
+(function(){const tog=$('send-effects-toggle');if(tog)tog.addEventListener('change',()=>applySendEffects(tog.checked?'on':'off',true))})();
 $('change-normal-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('normal')});
 $('change-coworking-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('coworking')});
 $('remove-normal-wallpaper').addEventListener('click',()=>{playClick();setWallpaperState('normal','none','')});
@@ -4677,7 +4913,7 @@ applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);
 applyOptResp(S.optResp,false);applyCalcTarget(S.calcTarget,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
 // ── Style d'interface, transparence, teinte, boutons 8 bits, effet IA ────
-applyUiStyle(S.uiStyle,false);applyGlassTransparency(S.glassTransparency,false);applyGlassTint(S.glassTint,false);applyPixelButtons(S.pixelButtons,false);applyAiTyping(S.aiTyping,false);
+applyUiStyle(S.uiStyle,false);applyGlassTransparency(S.glassTransparency,false);applyGlassTint(S.glassTint,false);applyPixelButtons(S.pixelButtons,false);applyAiTyping(S.aiTyping,false);applyTypingStyle(S.aiTypingStyle,false);applySendEffects(S.sendEffects,false);
 // ── Modèles personnalisés : normalisation de l'état au démarrage ──
 // Si l'option globale est désactivée, on purge l'éventuel modèle actif.
 // Si l'id actif ne correspond plus à aucun modèle (storage corrompu),
