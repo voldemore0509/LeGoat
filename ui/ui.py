@@ -123,6 +123,18 @@ class AppConfig:
     DEFAULT_CLICK_STYLE = "bulle"   # Style son boutons : "bulle" | "nebrise"
     DEFAULT_AI_SOUND    = "on"      # Son réponse IA
     DEFAULT_CALC_TARGET = "default" # Ciblage des calcules : "cpu" | "gpu" | "default"
+    # ── Style d'interface (Paramètres → Apparence) ─────────────
+    # "default" : style classique (sans Liquid Glass).
+    # "glass"   : style Liquid Glass — verre dépoli, animations et finitions soignées.
+    DEFAULT_UI_STYLE          = "default"
+    # Transparence du Liquid Glass : 0 = très compact / opaque, 100 = très transparent.
+    DEFAULT_GLASS_TRANSPARENCY = 55
+    # Si "on", le verre dépoli est teinté par la couleur d'accent choisie.
+    DEFAULT_GLASS_TINT        = "off"
+    # Boutons pixelisés (clip-path 8 bits) : "on" garde le style pixel, "off" arrondit les boutons.
+    DEFAULT_PIXEL_BUTTONS     = "on"
+    # Effet d'écriture caractère par caractère pour les réponses IA.
+    DEFAULT_AI_TYPING_EFFECT  = "on"
 
     # ── Préfixe localStorage (évite les collisions entre apps) ─
     STORAGE_PREFIX = "goat"
@@ -266,6 +278,18 @@ class TranslationManager:
             "language_fr": "Français", "language_en": "Anglais", "language_es": "Espagnol",
             "theme_light": "Claire", "theme_dark": "Sombre",
             "theme_description": "Choisissez l'apparence globale de l'interface.",
+            "appearance_ui_style": "Style d'interface",
+            "appearance_ui_style_hint": "Sélectionnez l'esthétique générale du logiciel.",
+            "ui_style_default": "Par défaut",
+            "ui_style_glass": "Liquid Glass",
+            "appearance_glass_transparency": "Transparence du Liquid Glass",
+            "appearance_glass_transparency_hint": "Plus le curseur est à droite, plus le verre est transparent ; à gauche il devient compact.",
+            "appearance_glass_tint": "La couleur de l'interface influence le Liquid Glass",
+            "appearance_glass_tint_hint": "Si activé, la teinte du verre suit la couleur d'accent sélectionnée.",
+            "appearance_pixel_buttons": "Boutons 8 bits",
+            "appearance_pixel_buttons_hint": "Activé : conserve les boutons pixelisés. Désactivé : tous les boutons sont arrondis et propres.",
+            "optimization_typing_effect": "Effet d'écriture de l'IA",
+            "optimization_typing_effect_hint": "Affiche la réponse de l'IA caractère par caractère. Plus esthétique mais ralentit légèrement l'apparition du texte. Le désactiver affiche la réponse instantanément.",
             "text_size_default": "Par défaut", "text_size_large": "Grand",
             "sound_on": "Activer", "sound_off": "Désactiver",
             "sound_style_bulle": "Bulle", "sound_style_aurela": "Aurela",
@@ -518,6 +542,18 @@ class TranslationManager:
             "language_fr": "French", "language_en": "English", "language_es": "Spanish",
             "theme_light": "Light", "theme_dark": "Dark",
             "theme_description": "Choose the global interface appearance.",
+            "appearance_ui_style": "Interface style",
+            "appearance_ui_style_hint": "Pick the overall look and feel of the software.",
+            "ui_style_default": "Default",
+            "ui_style_glass": "Liquid Glass",
+            "appearance_glass_transparency": "Liquid Glass transparency",
+            "appearance_glass_transparency_hint": "Slide right for a very transparent glass; slide left for a more solid, compact glass.",
+            "appearance_glass_tint": "Interface color influences Liquid Glass",
+            "appearance_glass_tint_hint": "When enabled, the glass tint follows the selected accent color.",
+            "appearance_pixel_buttons": "8-bit buttons",
+            "appearance_pixel_buttons_hint": "On: keeps the pixel-art buttons. Off: every button uses clean rounded corners.",
+            "optimization_typing_effect": "AI typing effect",
+            "optimization_typing_effect_hint": "Reveals the AI response character by character. Prettier, but slightly slower. When off, replies appear instantly.",
             "text_size_default": "Default", "text_size_large": "Large",
             "sound_on": "Enable", "sound_off": "Disable",
             "sound_style_bulle": "Bubble", "sound_style_aurela": "Aurela",
@@ -769,6 +805,18 @@ class TranslationManager:
             "language_fr": "Francés", "language_en": "Inglés", "language_es": "Español",
             "theme_light": "Claro", "theme_dark": "Oscuro",
             "theme_description": "Elija la apariencia global de la interfaz.",
+            "appearance_ui_style": "Estilo de interfaz",
+            "appearance_ui_style_hint": "Elija la estética general del software.",
+            "ui_style_default": "Por defecto",
+            "ui_style_glass": "Liquid Glass",
+            "appearance_glass_transparency": "Transparencia del Liquid Glass",
+            "appearance_glass_transparency_hint": "Hacia la derecha el vidrio es muy transparente; hacia la izquierda se vuelve más sólido y compacto.",
+            "appearance_glass_tint": "El color de la interfaz influye en el Liquid Glass",
+            "appearance_glass_tint_hint": "Si está activado, el tinte del vidrio sigue el color de acento elegido.",
+            "appearance_pixel_buttons": "Botones de 8 bits",
+            "appearance_pixel_buttons_hint": "Activado: mantiene los botones pixelados. Desactivado: todos los botones se redondean de forma limpia.",
+            "optimization_typing_effect": "Efecto de escritura de la IA",
+            "optimization_typing_effect_hint": "Muestra la respuesta de la IA letra a letra. Más estético, pero ralentiza ligeramente la aparición. Al desactivarlo, la respuesta aparece de inmediato.",
             "text_size_default": "Por defecto", "text_size_large": "Grande",
             "sound_on": "Activar", "sound_off": "Desactivar",
             "sound_style_bulle": "Burbuja", "sound_style_aurela": "Aurela",
@@ -2075,6 +2123,273 @@ body[data-preview="off"] [data-settings-content="connectors"],
 body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 
 /* ──────────────────────────────────────────────────────────────
+   Boutons 8 bits (Paramètres → Apparence)
+   "on"  : conserve les boutons pixelisés (clip-path polygon).
+   "off" : tous les boutons sont arrondis et propres.
+   ────────────────────────────────────────────────────────────── */
+body[data-pixel-buttons="off"] .composer-plus,
+body[data-pixel-buttons="off"] .send-button,
+body[data-pixel-buttons="off"] .voice-input-button,
+body[data-pixel-buttons="off"] .sheet-modal-actions button,
+body[data-pixel-buttons="off"] .migrate-actions button,
+body[data-pixel-buttons="off"] .migrate-copy-btn,
+body[data-pixel-buttons="off"] .overclock-modal .oc-actions button,
+body[data-pixel-buttons="off"] .brand-add-button{
+  clip-path:none!important;
+  border-radius:14px!important;
+  box-shadow:0 6px 18px rgba(15,23,42,.16)!important;
+  transition:transform .16s,box-shadow .18s,background .18s;
+}
+body[data-pixel-buttons="off"] .composer-plus,
+body[data-pixel-buttons="off"] .send-button,
+body[data-pixel-buttons="off"] .voice-input-button{border-radius:14px!important}
+body[data-pixel-buttons="off"] .composer-plus:hover,
+body[data-pixel-buttons="off"] .send-button:hover,
+body[data-pixel-buttons="off"] .voice-input-button:hover,
+body[data-pixel-buttons="off"] .sheet-modal-actions button:hover,
+body[data-pixel-buttons="off"] .migrate-actions button:hover,
+body[data-pixel-buttons="off"] .migrate-copy-btn:hover,
+body[data-pixel-buttons="off"] .overclock-modal .oc-actions button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 26px rgba(15,23,42,.20)!important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Liquid Glass — esthétique verre dépoli + animations fluides
+   Activé uniquement quand body[data-ui-style="glass"].
+   Les variables suivantes sont pilotées par JS :
+     --glass-alpha       (0.05 → 0.35) opacité de fond du verre
+     --glass-blur        (10px → 28px) intensité du flou
+     --glass-border-a    (0.10 → 0.35) opacité de la bordure
+     --glass-tint-r/g/b  composant couleur si "tint" actif
+   ────────────────────────────────────────────────────────────── */
+:root{
+  --glass-alpha:0.18;
+  --glass-blur:20px;
+  --glass-border-a:0.22;
+  --glass-tint-r:255;
+  --glass-tint-g:255;
+  --glass-tint-b:255;
+  --glass-highlight:rgba(255,255,255,.45);
+  --glass-shadow:0 18px 50px rgba(15,23,42,.22),0 2px 6px rgba(15,23,42,.06),inset 0 1px 0 rgba(255,255,255,.45);
+}
+body[data-theme="dark"]{
+  --glass-tint-r:24;
+  --glass-tint-g:24;
+  --glass-tint-b:28;
+  --glass-highlight:rgba(255,255,255,.10);
+  --glass-shadow:0 22px 60px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* Animations réutilisables */
+@keyframes glassFloatIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes glassPulse{0%,100%{box-shadow:var(--glass-shadow)}50%{box-shadow:var(--glass-shadow),0 0 0 4px rgba(var(--accent-rgb),.10)}}
+@keyframes glassShine{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(220%) skewX(-18deg)}}
+
+/* — Couche de fond commune pour les surfaces "verre" — */
+body[data-ui-style="glass"] .bubble,
+body[data-ui-style="glass"] .composer,
+body[data-ui-style="glass"] .settings-modal,
+body[data-ui-style="glass"] .settings-ghost-button,
+body[data-ui-style="glass"] .settings-choice,
+body[data-ui-style="glass"] .bubble-action,
+body[data-ui-style="glass"] .settings-button,
+body[data-ui-style="glass"] .newchat-button,
+body[data-ui-style="glass"] .settings-button-label,
+body[data-ui-style="glass"] .newchat-button-label,
+body[data-ui-style="glass"] .private-chat-btn,
+body[data-ui-style="glass"] .top-tab-bar,
+body[data-ui-style="glass"] .top-tab-btn.active,
+body[data-ui-style="glass"] .model-dd-menu,
+body[data-ui-style="glass"] .plus-menu,
+body[data-ui-style="glass"] .dropdown-menu,
+body[data-ui-style="glass"] .menubar-menu,
+body[data-ui-style="glass"] .aide-contact-modal,
+body[data-ui-style="glass"] .profile-card,
+body[data-ui-style="glass"] .profile-editor,
+body[data-ui-style="glass"] .profile-picker-modal,
+body[data-ui-style="glass"] .profile-crop-modal,
+body[data-ui-style="glass"] .wallpaper-modal,
+body[data-ui-style="glass"] .sheet-modal,
+body[data-ui-style="glass"] .migrate-modal,
+body[data-ui-style="glass"] .overclock-modal,
+body[data-ui-style="glass"] .settings-sidebar{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),var(--glass-alpha))!important;
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(170%);
+  backdrop-filter:blur(var(--glass-blur)) saturate(170%);
+  border:1px solid rgba(255,255,255,var(--glass-border-a))!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:background .25s ease,backdrop-filter .25s ease,box-shadow .25s ease,transform .22s cubic-bezier(.2,.8,.2,1),border-color .25s ease;
+}
+body[data-ui-style="glass"][data-theme="dark"] .bubble,
+body[data-ui-style="glass"][data-theme="dark"] .composer,
+body[data-ui-style="glass"][data-theme="dark"] .settings-modal,
+body[data-ui-style="glass"][data-theme="dark"] .settings-ghost-button,
+body[data-ui-style="glass"][data-theme="dark"] .settings-choice,
+body[data-ui-style="glass"][data-theme="dark"] .top-tab-bar,
+body[data-ui-style="glass"][data-theme="dark"] .menubar-menu,
+body[data-ui-style="glass"][data-theme="dark"] .settings-sidebar{
+  border-color:rgba(255,255,255,calc(var(--glass-border-a) * .55))!important;
+}
+
+/* Quand la teinte d'accent est active : on remplace les composantes RGB.
+   On définit les composantes par couleur d'accent (CSS ne permet pas de splitter
+   un --accent-rgb stocké en "r,g,b"). */
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="blue"]{--glass-tint-r:59;--glass-tint-g:130;--glass-tint-b:246}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="red"]{--glass-tint-r:239;--glass-tint-g:68;--glass-tint-b:68}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="green"]{--glass-tint-r:34;--glass-tint-g:197;--glass-tint-b:94}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="yellow"]{--glass-tint-r:234;--glass-tint-g:179;--glass-tint-b:8}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="pink"]{--glass-tint-r:236;--glass-tint-g:72;--glass-tint-b:153}
+body[data-ui-style="glass"][data-glass-tint="on"][data-accent="purple"]{--glass-tint-r:139;--glass-tint-g:92;--glass-tint-b:246}
+
+/* Bulles — animation d'entrée + halo discret */
+body[data-ui-style="glass"] .bubble{
+  animation:glassFloatIn .32s cubic-bezier(.2,.8,.2,1) both;
+  border-radius:22px!important;
+}
+body[data-ui-style="glass"] .message-row.user .bubble{border-top-right-radius:10px!important}
+body[data-ui-style="glass"] .message-row.assistant .bubble{border-top-left-radius:10px!important}
+
+/* Composer — verre dépoli marqué + transition de focus douce */
+body[data-ui-style="glass"] .composer{
+  border-radius:28px!important;
+  padding:16px 18px!important;
+}
+body[data-ui-style="glass"] .composer:focus-within{
+  border-color:rgba(var(--accent-rgb),.55)!important;
+  box-shadow:var(--glass-shadow),0 0 0 4px rgba(var(--accent-rgb),.14)!important;
+}
+
+/* Boutons "ghost" et "choice" — overlay brillant au hover */
+body[data-ui-style="glass"] .settings-ghost-button,
+body[data-ui-style="glass"] .settings-choice,
+body[data-ui-style="glass"] .bubble-action,
+body[data-ui-style="glass"] .private-chat-btn,
+body[data-ui-style="glass"] .settings-button,
+body[data-ui-style="glass"] .newchat-button{
+  position:relative;
+  overflow:hidden;
+}
+body[data-ui-style="glass"] .settings-ghost-button::after,
+body[data-ui-style="glass"] .settings-choice::after,
+body[data-ui-style="glass"] .bubble-action::after,
+body[data-ui-style="glass"] .private-chat-btn::after,
+body[data-ui-style="glass"] .settings-button::after,
+body[data-ui-style="glass"] .newchat-button::after{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 0%,var(--glass-highlight) 50%,transparent 100%);
+  transform:translateX(-120%) skewX(-18deg);
+  pointer-events:none;
+  opacity:0;
+}
+body[data-ui-style="glass"] .settings-ghost-button:hover::after,
+body[data-ui-style="glass"] .settings-choice:hover::after,
+body[data-ui-style="glass"] .bubble-action:hover::after,
+body[data-ui-style="glass"] .private-chat-btn:hover::after,
+body[data-ui-style="glass"] .settings-button:hover::after,
+body[data-ui-style="glass"] .newchat-button:hover::after{
+  opacity:.8;
+  animation:glassShine .9s cubic-bezier(.2,.8,.2,1) forwards;
+}
+body[data-ui-style="glass"] .settings-ghost-button:hover,
+body[data-ui-style="glass"] .settings-choice:hover,
+body[data-ui-style="glass"] .bubble-action:hover,
+body[data-ui-style="glass"] .private-chat-btn:hover,
+body[data-ui-style="glass"] .settings-button:hover,
+body[data-ui-style="glass"] .newchat-button:hover{
+  transform:translateY(-1px) scale(1.015);
+  border-color:rgba(var(--accent-rgb),.45)!important;
+}
+body[data-ui-style="glass"] .settings-choice.active{
+  background:rgba(var(--accent-rgb),.22)!important;
+  border-color:rgba(var(--accent-rgb),.55)!important;
+  color:var(--accent)!important;
+}
+
+/* Onglets de paramètres — surbrillance fluide */
+body[data-ui-style="glass"] .settings-tab{
+  transition:background .2s ease,transform .18s ease,color .2s ease;
+  border-radius:14px;
+}
+body[data-ui-style="glass"] .settings-tab:hover{
+  background:rgba(var(--accent-rgb),.10)!important;
+  transform:translateX(2px);
+}
+body[data-ui-style="glass"] .settings-tab.active{
+  background:rgba(var(--accent-rgb),.18)!important;
+  color:var(--accent);
+}
+
+/* Backdrop des paramètres — flou marqué et fade en douceur */
+body[data-ui-style="glass"] .settings-backdrop{
+  background:rgba(15,23,42,.22)!important;
+  -webkit-backdrop-filter:blur(calc(var(--glass-blur) * .6)) saturate(140%);
+  backdrop-filter:blur(calc(var(--glass-blur) * .6)) saturate(140%);
+}
+body[data-ui-style="glass"][data-theme="dark"] .settings-backdrop{
+  background:rgba(0,0,0,.42)!important;
+}
+
+/* Modal des paramètres — entrée animée (fade only pour préserver translate(-50%,-50%)).
+   L'ancienne animation glassFloatIn écrasait le transform de centrage et faisait
+   apparaître la modale dans le coin bas-droit. */
+@keyframes glassFadeCentered{from{opacity:0}to{opacity:1}}
+body[data-ui-style="glass"] .settings-modal{
+  animation:glassFadeCentered .28s ease both;
+  border-radius:28px!important;
+}
+
+/* Menus déroulants — verre + halo accent */
+body[data-ui-style="glass"] .model-dd-menu,
+body[data-ui-style="glass"] .plus-menu,
+body[data-ui-style="glass"] .dropdown-menu,
+body[data-ui-style="glass"] .menubar-menu{
+  border-radius:18px!important;
+  animation:glassFloatIn .22s cubic-bezier(.2,.8,.2,1) both;
+}
+
+/* Anchor buttons (paramètres / nouvelle discussion) — léger flottement */
+body[data-ui-style="glass"] .settings-button:hover,
+body[data-ui-style="glass"] .newchat-button:hover{
+  animation:glassPulse 1.4s ease-in-out infinite;
+}
+
+/* Indicateur dots IA — accent sur le glass */
+body[data-ui-style="glass"] .typing-dots span{
+  background:var(--accent);
+  box-shadow:0 0 8px rgba(var(--accent-rgb),.45);
+}
+
+/* Sélecteur de style d'interface (Apparence) */
+.ui-style-choice-group{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.ui-style-choice{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--bubble-assistant);color:var(--text-primary);cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .12s}
+.ui-style-choice:hover{transform:translateY(-1px)}
+.ui-style-choice.active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+
+/* Slider générique pour la transparence du verre */
+.glass-slider-row{display:inline-flex;align-items:center;gap:12px;justify-content:flex-end}
+.glass-slider{appearance:none;width:200px;height:6px;border-radius:999px;background:linear-gradient(90deg,rgba(var(--accent-rgb),.55),rgba(var(--accent-rgb),.15));outline:none;cursor:pointer}
+.glass-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer;transition:transform .12s}
+.glass-slider::-webkit-slider-thumb:hover{transform:scale(1.08)}
+.glass-slider::-moz-range-thumb{width:18px;height:18px;border:2px solid var(--bg);border-radius:50%;background:var(--accent);cursor:pointer}
+.glass-slider-value{min-width:46px;text-align:right;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums}
+
+/* Lignes de réglage masquées si le Liquid Glass n'est pas actif */
+body:not([data-ui-style="glass"]) [data-only-glass="1"]{display:none!important}
+
+/* Respect strict du mode "effets visuels désactivés" */
+body[data-effects="off"][data-ui-style="glass"] .bubble,
+body[data-effects="off"][data-ui-style="glass"] .composer,
+body[data-effects="off"][data-ui-style="glass"] .settings-modal,
+body[data-effects="off"][data-ui-style="glass"] .settings-ghost-button,
+body[data-effects="off"][data-ui-style="glass"] .settings-choice{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  animation:none!important;
+}
+
+/* ──────────────────────────────────────────────────────────────
    Modale d'avertissement (activation prévisualisation)
    ────────────────────────────────────────────────────────────── */
 .preview-warning-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:130;display:none;align-items:center;justify-content:center;padding:20px}
@@ -2098,9 +2413,263 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 .connectors-empty-card span{font-size:.85rem}
 .connectors-modal-footer{display:flex;justify-content:flex-end;gap:10px}
 
+/* ──────────────────────────────────────────────────────────────
+   Liquid Glass — extensions (couverture surfaces + finitions)
+   Ce bloc est additif : il complète le bloc « Liquid Glass — esthétique »
+   sans remplacer ses règles, pour ne toucher qu'aux points signalés.
+   ────────────────────────────────────────────────────────────── */
+
+/* — Ombres adoucies sur l'ensemble du mode verre — */
+body[data-ui-style="glass"]{
+  --shadow-soft:0 12px 36px rgba(15,23,42,.10),0 1px 2px rgba(15,23,42,.04);
+}
+body[data-ui-style="glass"][data-theme="dark"]{
+  --shadow-soft:0 18px 48px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.30);
+}
+/* On neutralise les ombres « pixel » des bulles et du composer pour qu'elles
+   se fondent dans la lumière du verre au lieu de produire un cadre sec. */
+body[data-ui-style="glass"] .bubble{
+  box-shadow:var(--glass-shadow),0 0 30px rgba(var(--accent-rgb),.05)!important;
+}
+body[data-ui-style="glass"] .composer{
+  box-shadow:var(--glass-shadow),0 0 40px rgba(var(--accent-rgb),.06)!important;
+}
+
+/* — Surfaces additionnelles à transformer en verre — */
+body[data-ui-style="glass"] .profile-inline-toggle,
+body[data-ui-style="glass"] .sidebar-panel,
+body[data-ui-style="glass"] .send-button,
+body[data-ui-style="glass"] .voice-input-button,
+body[data-ui-style="glass"] .composer-plus,
+body[data-ui-style="glass"] .calc-target-panel,
+body[data-ui-style="glass"] .calc-target-notification,
+body[data-ui-style="glass"] .connectors-modal,
+body[data-ui-style="glass"] .connectors-empty-card,
+body[data-ui-style="glass"] .preview-warning,
+body[data-ui-style="glass"] .preview-switch-track,
+body[data-ui-style="glass"] .specificity-panel,
+body[data-ui-style="glass"] .sf-popover,
+body[data-ui-style="glass"] .sf-modal,
+body[data-ui-style="glass"] .sheets-row .sheet-chip,
+body[data-ui-style="glass"] .custom-models-modal{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),var(--glass-alpha))!important;
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(170%);
+  backdrop-filter:blur(var(--glass-blur)) saturate(170%);
+  border:1px solid rgba(255,255,255,var(--glass-border-a))!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:background .25s ease,backdrop-filter .25s ease,box-shadow .25s ease,transform .22s cubic-bezier(.2,.8,.2,1),border-color .25s ease;
+}
+
+/* — Send + micro : rendu verre tout en gardant la couleur d'accent — */
+body[data-ui-style="glass"] .send-button{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.85),rgba(var(--accent-rgb),.55))!important;
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.18);
+}
+body[data-ui-style="glass"] .voice-input-button{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.30),rgba(var(--accent-rgb),.10))!important;
+  color:var(--accent)!important;
+}
+body[data-ui-style="glass"] .send-button:hover,
+body[data-ui-style="glass"] .voice-input-button:hover{
+  transform:translateY(-1px) scale(1.03);
+  box-shadow:var(--glass-shadow),0 0 28px rgba(var(--accent-rgb),.40)!important;
+}
+
+/* — Onglets de la sidebar (Fichiers / Historique) en verre — */
+body[data-ui-style="glass"] .sidebar-tabs{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),calc(var(--glass-alpha) * .6))!important;
+  border-bottom:1px solid rgba(255,255,255,calc(var(--glass-border-a) * .6))!important;
+  border-radius:14px;
+  padding:4px;
+  margin:8px 14px 0;
+}
+body[data-ui-style="glass"] .sidebar-tab{
+  border-radius:10px;
+  border-bottom:none!important;
+  transition:background .2s,color .2s,transform .14s;
+}
+body[data-ui-style="glass"] .sidebar-tab.active{
+  background:rgba(var(--accent-rgb),.22)!important;
+  color:var(--accent)!important;
+  border-bottom:none!important;
+}
+body[data-ui-style="glass"] .sidebar-tab:hover:not(.active){
+  background:rgba(var(--accent-rgb),.10);
+  transform:translateY(-1px);
+}
+
+/* — Profile toggle (« Afficher ma photo à côté de mes messages ») — */
+body[data-ui-style="glass"] .profile-inline-toggle{
+  border-radius:18px!important;
+}
+body[data-ui-style="glass"] .profile-switch-track{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),calc(var(--glass-alpha) * 1.4))!important;
+  border:1px solid rgba(255,255,255,var(--glass-border-a))!important;
+  backdrop-filter:blur(calc(var(--glass-blur) * .6));
+  -webkit-backdrop-filter:blur(calc(var(--glass-blur) * .6));
+}
+body[data-ui-style="glass"] .profile-switch-track::after{
+  background:linear-gradient(135deg,#fff,#e8edf6)!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.20),0 0 8px rgba(var(--accent-rgb),.15)!important;
+}
+body[data-ui-style="glass"] .profile-switch input:checked + .profile-switch-track{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.85),rgba(var(--accent-rgb),.55))!important;
+  border-color:rgba(var(--accent-rgb),.55)!important;
+  box-shadow:0 0 14px rgba(var(--accent-rgb),.35);
+}
+
+/* — Backdrops modales (wallpaper, profile-picker, profile-crop, aide, sheet,
+     migrate, connectors) — flou marqué + fond plus profond en glass — */
+body[data-ui-style="glass"] .wallpaper-backdrop,
+body[data-ui-style="glass"] .aide-contact-backdrop,
+body[data-ui-style="glass"] .sf-modal-backdrop,
+body[data-ui-style="glass"] .sheet-backdrop,
+body[data-ui-style="glass"] .migrate-backdrop,
+body[data-ui-style="glass"] .connectors-modal-backdrop,
+body[data-ui-style="glass"] .overclock-backdrop,
+body[data-ui-style="glass"] .profile-picker-backdrop,
+body[data-ui-style="glass"] .profile-crop-backdrop{
+  background:rgba(15,23,42,.26)!important;
+  -webkit-backdrop-filter:blur(calc(var(--glass-blur) * .65)) saturate(140%);
+  backdrop-filter:blur(calc(var(--glass-blur) * .65)) saturate(140%);
+}
+body[data-ui-style="glass"][data-theme="dark"] .wallpaper-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .aide-contact-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .sf-modal-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .sheet-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .migrate-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .connectors-modal-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .overclock-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .profile-picker-backdrop,
+body[data-ui-style="glass"][data-theme="dark"] .profile-crop-backdrop{
+  background:rgba(0,0,0,.46)!important;
+}
+
+/* — Menus déroulants : on remonte la lisibilité (alpha minimal garanti)
+     pour éviter le texte fantôme sur fond chargé. — */
+body[data-ui-style="glass"] .model-dd-menu,
+body[data-ui-style="glass"] .plus-menu,
+body[data-ui-style="glass"] .dropdown-menu,
+body[data-ui-style="glass"] .menubar-menu{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.55))!important;
+  border:1px solid rgba(255,255,255,max(var(--glass-border-a),0.30))!important;
+}
+body[data-ui-style="glass"][data-theme="dark"] .model-dd-menu,
+body[data-ui-style="glass"][data-theme="dark"] .plus-menu,
+body[data-ui-style="glass"][data-theme="dark"] .dropdown-menu,
+body[data-ui-style="glass"][data-theme="dark"] .menubar-menu{
+  background:rgba(20,20,24,max(var(--glass-alpha),0.68))!important;
+}
+/* Lignes des dropdowns : entrée animée séquentielle */
+body[data-ui-style="glass"] .model-dd-menu .model-dd-item,
+body[data-ui-style="glass"] .plus-menu .plus-menu-item,
+body[data-ui-style="glass"] .dropdown-menu .dropdown-menu-item{
+  animation:glassFadeUp .25s ease both;
+  animation-delay:calc(var(--idx,0) * 40ms);
+}
+@keyframes glassFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* — Mode prévisualisation : bugs visuels sur onglets / listes / sidebar.
+     On force un fond opaque cohérent pour les sections qui restent visibles. */
+body[data-ui-style="glass"][data-preview="off"] .sidebar-tabs,
+body[data-ui-style="glass"][data-preview="off"] .sidebar-content,
+body[data-ui-style="glass"][data-preview="off"] .sidebar-footer{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.6))!important;
+}
+body[data-ui-style="glass"][data-preview="off"] .top-tab-bar{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.55))!important;
+}
+/* Quand on est en mode prévisualisation OFF, certains éléments masqués
+   laissaient un vide visible. On rabote tout reste de bord/padding. */
+body[data-preview="off"] [data-preview-only="1"]{margin:0!important;padding:0!important;border:none!important}
+
+/* — Nouveaux effets et lumière — */
+
+/* Lumière radiale d'accent : halo léger derrière la modale paramètres */
+body[data-ui-style="glass"] .settings-modal::before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:radial-gradient(circle at 20% 0%,rgba(var(--accent-rgb),.18),transparent 55%),
+             radial-gradient(circle at 100% 100%,rgba(var(--accent-rgb),.10),transparent 60%);
+  pointer-events:none;
+  z-index:-1;
+  filter:blur(20px);
+  opacity:0;
+  animation:glassHaloIn .6s ease .15s forwards;
+}
+@keyframes glassHaloIn{to{opacity:1}}
+
+/* Long-hover glow : après ~1.2s sans bouger, le bouton irradie l'accent */
+@keyframes glassLongHoverGlow{
+  0%{box-shadow:var(--glass-shadow)}
+  100%{box-shadow:var(--glass-shadow),0 0 0 3px rgba(var(--accent-rgb),.18),0 0 28px rgba(var(--accent-rgb),.30)}
+}
+body[data-ui-style="glass"] .settings-ghost-button:hover,
+body[data-ui-style="glass"] .settings-choice:hover,
+body[data-ui-style="glass"] .bubble-action:hover,
+body[data-ui-style="glass"] .private-chat-btn:hover,
+body[data-ui-style="glass"] .top-tab-btn:hover,
+body[data-ui-style="glass"] .ui-style-choice:hover,
+body[data-ui-style="glass"] .send-button:hover,
+body[data-ui-style="glass"] .voice-input-button:hover{
+  animation:glassLongHoverGlow 1.6s ease-in-out 1.0s forwards;
+}
+
+/* Slider transparence : poignée pulsante quand on focus/manipule */
+body[data-ui-style="glass"] .glass-slider{
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),.75),rgba(var(--accent-rgb),.18))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.30),0 0 14px rgba(var(--accent-rgb),.18);
+}
+body[data-ui-style="glass"] .glass-slider::-webkit-slider-thumb{
+  box-shadow:0 0 0 3px rgba(255,255,255,.35),0 4px 14px rgba(var(--accent-rgb),.45);
+}
+body[data-ui-style="glass"] .glass-slider:focus::-webkit-slider-thumb,
+body[data-ui-style="glass"] .glass-slider:active::-webkit-slider-thumb{
+  animation:glassThumbPulse 1.2s ease-in-out infinite;
+}
+@keyframes glassThumbPulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,.35),0 4px 14px rgba(var(--accent-rgb),.45)}
+  50%{box-shadow:0 0 0 6px rgba(var(--accent-rgb),.20),0 4px 20px rgba(var(--accent-rgb),.55)}
+}
+
+/* Apparition séquencée des sections de réglages quand on ouvre un onglet */
+body[data-ui-style="glass"] .settings-section.active .settings-block{
+  animation:glassSlideIn .35s cubic-bezier(.2,.8,.2,1) both;
+}
+body[data-ui-style="glass"] .settings-section.active .settings-block:nth-child(1){animation-delay:.05s}
+body[data-ui-style="glass"] .settings-section.active .settings-block:nth-child(2){animation-delay:.10s}
+body[data-ui-style="glass"] .settings-section.active .settings-block:nth-child(3){animation-delay:.15s}
+body[data-ui-style="glass"] .settings-section.active .settings-block:nth-child(4){animation-delay:.20s}
+body[data-ui-style="glass"] .settings-section.active .settings-block:nth-child(5){animation-delay:.25s}
+@keyframes glassSlideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+/* Lumière de profondeur dans les bulles (assistant) — léger gradient diagonal */
+body[data-ui-style="glass"] .message-row.assistant .bubble{
+  background-image:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 55%);
+}
+body[data-ui-style="glass"][data-theme="dark"] .message-row.assistant .bubble{
+  background-image:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 55%);
+}
+
+/* Onglet supérieur (Chat / Goat Coworking) : surbrillance verre cohérente */
+body[data-ui-style="glass"] .top-tab-btn.active{
+  background:rgba(var(--glass-tint-r),var(--glass-tint-g),var(--glass-tint-b),max(var(--glass-alpha),0.45))!important;
+  box-shadow:0 2px 10px rgba(var(--accent-rgb),.15),inset 0 1px 0 rgba(255,255,255,.30);
+}
+
+/* Respect strict de l'option Effets visuels OFF : on tue les animations
+   gourmandes mais on garde le verre statique pour ne pas casser le rendu. */
+body[data-effects="off"][data-ui-style="glass"] .settings-modal::before,
+body[data-effects="off"][data-ui-style="glass"] .settings-section.active .settings-block,
+body[data-effects="off"][data-ui-style="glass"] .glass-slider:focus::-webkit-slider-thumb{
+  animation:none!important;
+}
+
 </style>
 </head>
-<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off" data-preview="on">
+<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off" data-preview="on" data-ui-style="default" data-glass-tint="off" data-pixel-buttons="on" data-ai-typing="on">
 <div class="wallpaper-layer" id="wallpaper-layer" aria-hidden="true"><img class="wallpaper-media" id="wallpaper-image" alt=""><video class="wallpaper-media" id="wallpaper-video" autoplay muted loop playsinline></video><div class="wallpaper-tint"></div></div>
 
 <!-- ──────────────────────────────────────────────────────────────
@@ -2388,6 +2957,53 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 
       <section class="settings-section" data-settings-content="appearance">
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_color">Couleur de l'interface</div></div><div class="appearance-swatch-group"><button type="button" class="appearance-swatch" data-accent-value="blue" style="--swatch:#3b82f6" title="Bleu"></button><button type="button" class="appearance-swatch" data-accent-value="red" style="--swatch:#ef4444" title="Rouge"></button><button type="button" class="appearance-swatch" data-accent-value="green" style="--swatch:#22c55e" title="Vert"></button><button type="button" class="appearance-swatch" data-accent-value="yellow" style="--swatch:#eab308" title="Jaune"></button><button type="button" class="appearance-swatch" data-accent-value="pink" style="--swatch:#ec4899" title="Rose"></button><button type="button" class="appearance-swatch" data-accent-value="purple" style="--swatch:#8b5cf6" title="Violet"></button></div></div></div>
+        <!-- ── Style d'interface (Par défaut / Liquid Glass) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_ui_style">Style d'interface</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_ui_style_hint"></div>
+            </div>
+            <div class="ui-style-choice-group">
+              <button type="button" class="ui-style-choice" data-ui-style-value="default" data-i18n="ui_style_default">Par défaut</button>
+              <button type="button" class="ui-style-choice" data-ui-style-value="glass" data-i18n="ui_style_glass">Liquid Glass</button>
+            </div>
+          </div>
+          <!-- Réglages affichés uniquement si Liquid Glass est actif -->
+          <div class="settings-row" data-only-glass="1">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_glass_transparency">Transparence du Liquid Glass</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_glass_transparency_hint"></div>
+            </div>
+            <div class="glass-slider-row">
+              <input type="range" id="glass-transparency-input" class="glass-slider" min="0" max="100" step="1">
+              <span class="glass-slider-value" id="glass-transparency-value">55%</span>
+            </div>
+          </div>
+          <div class="settings-row" data-only-glass="1">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_glass_tint">La couleur de l'interface influence le Liquid Glass</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_glass_tint_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Glass tint">
+              <input type="checkbox" id="glass-tint-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
+        <!-- ── Boutons 8 bits (Pixel / Arrondi) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_pixel_buttons">Boutons 8 bits</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_pixel_buttons_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Boutons 8 bits">
+              <input type="checkbox" id="pixel-buttons-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
         <div class="wallpaper-preview-card">
           <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_wallpaper_normal">Fond d'écran du mode normal</div></div><div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="change-normal-wallpaper" data-i18n="appearance_change">Changer</button><button type="button" class="settings-ghost-button" id="remove-normal-wallpaper" data-i18n="appearance_remove">Retirer</button></div></div>
           <div class="wallpaper-preview-box" id="normal-wallpaper-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
@@ -2433,6 +3049,19 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
         <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
         -->
         <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
+        <!-- ── Effet d'écriture de l'IA (caractère par caractère) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_typing_effect">Effet d'écriture de l'IA</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_typing_effect_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Effet d'écriture IA">
+              <input type="checkbox" id="ai-typing-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
       </section>
       <!-- ── Section Connecteurs ── -->
       <section class="settings-section" data-settings-content="connectors">
@@ -2738,7 +3367,7 @@ body[data-preview="off"] [data-preview-only="1"]{display:none!important}
 !function(){"use strict";
 const $=i=>document.getElementById(i),$$=s=>Array.from(document.querySelectorAll(s));
 const T=%%TRANSLATIONS_JSON%%,WP=%%WELCOME_JSON%%,ST=%%STATUS_JSON%%,MO=%%MODES_JSON%%,DM=%%DISABLED_MODES_JSON%%,titleByLang=%%TITLE_BY_LANG_JSON%%,models=%%MODELS_JSON%%,wStyles=%%WSTYLES_JSON%%,gadgets=%%GADGETS_JSON%%,SP=%%STORAGE_PREFIX_JSON%%,appVersion=%%VERSION_JSON%%,sheetLimits=%%SHEET_LIMITS_JSON%%,migrationPrompt=%%MIGRATION_PROMPT_JSON%%,localProfilePresets=%%PROFILE_PRESETS_JSON%%;
-const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p',otherModelsOn:%%DEFAULT_OTHER_MODELS_JSON%%};
+const defs={lang:%%DEFAULT_LANG_JSON%%,theme:%%DEFAULT_THEME_JSON%%,effects:%%DEFAULT_EFFECTS_JSON%%,textSize:%%DEFAULT_TEXTSIZE_JSON%%,uiScale:100,accent:'blue',wallpaperNormalType:'none',wallpaperNormalSrc:'',wallpaperNormalVolume:35,wallpaperCoworkingType:'none',wallpaperCoworkingSrc:'',wallpaperCoworkingVolume:35,optResp:%%DEFAULT_OPTRESP_JSON%%,uiOpt:%%DEFAULT_UIOPT_JSON%%,kbSound:%%DEFAULT_KB_SOUND_JSON%%,kbStyle:%%DEFAULT_KB_STYLE_JSON%%,clickSound:%%DEFAULT_CLICK_SOUND_JSON%%,clickStyle:%%DEFAULT_CLICK_STYLE_JSON%%,aiSound:%%DEFAULT_AI_SOUND_JSON%%,mode:%%DEFAULT_MODE_JSON%%,model:%%DEFAULT_MODEL_JSON%%,wstyle:%%DEFAULT_WSTYLE_JSON%%,gadget:%%DEFAULT_GADGET_JSON%%,calcTarget:%%DEFAULT_CALC_TARGET_JSON%%,aifont:'default',userfont:'default',overclock:'off',videoFps:'30',videoQuality:'1080p',otherModelsOn:%%DEFAULT_OTHER_MODELS_JSON%%,uiStyle:%%DEFAULT_UI_STYLE_JSON%%,glassTransparency:%%DEFAULT_GLASS_TRANSPARENCY_JSON%%,glassTint:%%DEFAULT_GLASS_TINT_JSON%%,pixelButtons:%%DEFAULT_PIXEL_BUTTONS_JSON%%,aiTyping:%%DEFAULT_AI_TYPING_EFFECT_JSON%%};
 const CUSTOM_MODEL_SENTINEL=%%CUSTOM_MODEL_SENTINEL_JSON%%;
 const ls=(k,v)=>{try{if(v!==undefined){localStorage.setItem(SP+'-'+k,v);return v}return localStorage.getItem(SP+'-'+k)}catch(err){console.warn('Local storage unavailable for',k,err);return v!==undefined?v:null}};
 const shell=$('shell'),msgBox=$('messages'),form=$('chat-form'),ta=$('message-input'),sendBtn=$('send-button'),statusEl=$('status'),welcomeEl=$('welcome-copy'),welcomeDesc=$('welcome-desc'),brandText=$('brand-text');
@@ -2780,7 +3409,7 @@ const profileAvatarHoverCard=$('profile-avatar-hover-card'),profileAvatarHoverBa
 const profilePickerBackdrop=$('profile-picker-backdrop'),profilePickerTitle=$('profile-picker-title'),profilePickerSectionTitle=$('profile-picker-section-title'),profilePickerGrid=$('profile-picker-grid'),profilePickerCloseBtn=$('profile-picker-close');
 // ── État global — tout l'état UI persisté en localStorage ────────
 // Chaque clé correspond à un réglage sauvegardé entre les sessions.
-let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||'',otherModelsOn:ls('other-models-on')||defs.otherModelsOn,activeCustomModel:ls('active-custom-model')||'',customModels:(function(){try{const raw=ls('custom-models');return raw?JSON.parse(raw):[]}catch(e){return[]}})()};
+let S={lang:ls('lang')||defs.lang,theme:ls('theme')||defs.theme,effects:ls('effects')||defs.effects,textSize:ls('textsize')||defs.textSize,uiScale:parseInt(ls('ui-scale')||String(defs.uiScale),10)||defs.uiScale,accent:ls('accent')||defs.accent,wallpaperNormalType:ls('wallpaper-normal-type')||defs.wallpaperNormalType,wallpaperNormalSrc:ls('wallpaper-normal-src')||defs.wallpaperNormalSrc,wallpaperNormalVolume:parseInt(ls('wallpaper-normal-volume')||String(defs.wallpaperNormalVolume),10)||defs.wallpaperNormalVolume,wallpaperCoworkingType:ls('wallpaper-coworking-type')||defs.wallpaperCoworkingType,wallpaperCoworkingSrc:ls('wallpaper-coworking-src')||defs.wallpaperCoworkingSrc,wallpaperCoworkingVolume:parseInt(ls('wallpaper-coworking-volume')||String(defs.wallpaperCoworkingVolume),10)||defs.wallpaperCoworkingVolume,optResp:ls('optresp')||defs.optResp,uiOpt:ls('uiopt')||defs.uiOpt,kbSound:ls('kb-sound')||defs.kbSound,kbStyle:ls('kb-style')||defs.kbStyle,clickSound:ls('click-sound')||defs.clickSound,clickStyle:ls('click-style')||defs.clickStyle,aiSound:ls('ai-sound')||defs.aiSound,mode:ls('mode')||defs.mode,model:ls('model')||defs.model,wstyle:ls('wstyle')||defs.wstyle,gadget:ls('gadget')||defs.gadget,calcTarget:ls('calc-target')||defs.calcTarget,privateChat:false,aifont:ls('aifont')||defs.aifont,userfont:ls('userfont')||defs.userfont,overclock:ls('overclock')||defs.overclock,videoFps:ls('video-fps')||defs.videoFps,videoQuality:ls('video-quality')||defs.videoQuality,aiName:ls('ai-name')||'',aiLogo:ls('ai-logo')||'',otherModelsOn:ls('other-models-on')||defs.otherModelsOn,activeCustomModel:ls('active-custom-model')||'',customModels:(function(){try{const raw=ls('custom-models');return raw?JSON.parse(raw):[]}catch(e){return[]}})(),uiStyle:ls('ui-style')||defs.uiStyle,glassTransparency:(function(){const v=ls('glass-transparency');const n=parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):defs.glassTransparency})(),glassTint:ls('glass-tint')||defs.glassTint,pixelButtons:ls('pixel-buttons')||defs.pixelButtons,aiTyping:ls('ai-typing')||defs.aiTyping};
 // ── Variables runtime (non persistées) ───────────────────────────
 let messages=%%MESSAGES_JSON%%,messagesMeta=%%MESSAGES_META_JSON%%,settingsOpen=false,dragging=false,dragSX=0,dragSY=0,mSL=0,mST=0,audioCtx=null,ttTimer=null,avatarHoverTimer=null,profilePickerMode='avatar';
 // Stocke quels panneaux « Spécificité » sont ouverts (clé = index du message
@@ -3391,7 +4020,7 @@ function renderMessages(){const last=messages.length-1;const dotsHtml='<div clas
       b.setAttribute('aria-expanded',openSpecificityPanels.has(idx)?'true':'false');
     });
   });
-  msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiSend(t('regenerate_command'),abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
+  msgBox.querySelectorAll('[data-action="regenerate"]').forEach(b=>{bindTip(b,'tooltip_regenerate');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';showStopBtn();abortController=new AbortController();try{const p=await apiSend(t('regenerate_command'),abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){if(e.name!=='AbortError')statusEl.textContent=e.message}finally{hideStopBtn()}})});msgBox.querySelectorAll('[data-action="review"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Relis et vérifie le code que tu viens de générer.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="analyze"]').forEach(b=>b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Analyse en détail le code que tu viens de générer : structure, complexité, points forts et points faibles.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}}));msgBox.querySelectorAll('[data-action="execute"]').forEach(b=>{bindTip(b,'tooltip_execute_code');b.addEventListener('click',async()=>{playClick();statusEl.textContent='...';try{const p=await apiSend('Exécute en simulation le code que tu viens de générer et dis-moi si il devrait fonctionner correctement.');messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(e){statusEl.textContent=e.message}})})}
 let resizeRAF=null;function autoResize(){if(resizeRAF)cancelAnimationFrame(resizeRAF);resizeRAF=requestAnimationFrame(()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,180)+'px'})}
 
 // ── Settings ──
@@ -3415,6 +4044,102 @@ function updateUIScaleUI(){S.uiScale=normalizeUIScale(S.uiScale);if(uiScaleValue
 function applyUIScale(v,snd){S.uiScale=normalizeUIScale(v);ls('ui-scale',String(S.uiScale));if(snd)playClick();updateUIScaleUI();window.dispatchEvent(new Event('resize'))}
 function normalizeAccent(v){return['blue','red','green','yellow','pink','purple'].includes(v)?v:'blue'}
 function applyAccent(v,snd){S.accent=normalizeAccent(v);ls('accent',S.accent);if(snd)playClick();document.body.dataset.accent=S.accent;$$('[data-accent-value]').forEach(b=>b.classList.toggle('active',b.dataset.accentValue===S.accent));updateThemedLogos();updateWallpaperPreviews()}
+// ── Style d'interface (default / Liquid Glass) ─────────────────────
+function normalizeUiStyle(v){return v==='glass'?'glass':'default'}
+function applyGlassTransparencyVar(){
+  // Mappe 0..100 sur des plages cohérentes pour --glass-alpha, --glass-blur,
+  // --glass-border-a. 0 = très opaque/compact, 100 = très transparent/aérien.
+  const n=Math.max(0,Math.min(100,parseInt(S.glassTransparency,10)||0));
+  const t=n/100;
+  // alpha : 0 → 0.32 (compact), 100 → 0.05 (très transparent)
+  const alpha=(0.32-(0.27*t)).toFixed(3);
+  // blur : 0 → 12px (compact), 100 → 30px (aérien)
+  const blur=(12+(18*t)).toFixed(1)+'px';
+  // border : 0 → 0.35 (visible), 100 → 0.12 (discret)
+  const border=(0.35-(0.23*t)).toFixed(3);
+  document.documentElement.style.setProperty('--glass-alpha',alpha);
+  document.documentElement.style.setProperty('--glass-blur',blur);
+  document.documentElement.style.setProperty('--glass-border-a',border);
+}
+function applyUiStyle(v,snd){
+  S.uiStyle=normalizeUiStyle(v);
+  ls('ui-style',S.uiStyle);
+  if(snd)playClick();
+  document.body.dataset.uiStyle=S.uiStyle;
+  $$('[data-ui-style-value]').forEach(b=>b.classList.toggle('active',b.dataset.uiStyleValue===S.uiStyle));
+  applyGlassTransparencyVar();
+}
+function applyGlassTransparency(v,snd){
+  const n=Math.max(0,Math.min(100,parseInt(v,10)||0));
+  S.glassTransparency=n;
+  ls('glass-transparency',String(n));
+  if(snd)playClick();
+  const input=$('glass-transparency-input');
+  const valueEl=$('glass-transparency-value');
+  if(input&&input.value!==String(n))input.value=String(n);
+  if(valueEl)valueEl.textContent=n+'%';
+  applyGlassTransparencyVar();
+}
+function applyGlassTint(v,snd){
+  S.glassTint=v==='on'?'on':'off';
+  ls('glass-tint',S.glassTint);
+  if(snd)playClick();
+  document.body.dataset.glassTint=S.glassTint;
+  const tog=$('glass-tint-toggle');
+  if(tog)tog.checked=S.glassTint==='on';
+}
+function applyPixelButtons(v,snd){
+  S.pixelButtons=v==='off'?'off':'on';
+  ls('pixel-buttons',S.pixelButtons);
+  if(snd)playClick();
+  document.body.dataset.pixelButtons=S.pixelButtons;
+  const tog=$('pixel-buttons-toggle');
+  if(tog)tog.checked=S.pixelButtons==='on';
+}
+function applyAiTyping(v,snd){
+  S.aiTyping=v==='off'?'off':'on';
+  ls('ai-typing',S.aiTyping);
+  if(snd)playClick();
+  document.body.dataset.aiTyping=S.aiTyping;
+  const tog=$('ai-typing-toggle');
+  if(tog)tog.checked=S.aiTyping==='on';
+}
+// Effet d'écriture caractère par caractère sur le dernier message assistant.
+// Non bloquant : si une autre génération démarre, l'effet en cours s'arrête
+// naturellement au prochain renderMessages().
+let _typingTokenSeq=0;
+function runAiTypingEffect(){
+  if(S.aiTyping!=='on')return;
+  if(!messages||!messages.length)return;
+  const lastIdx=messages.length-1;
+  const last=messages[lastIdx];
+  if(!last||last[0]==='Vous'||last[1]==='…')return;
+  const fullText=String(last[1]||'');
+  if(!fullText)return;
+  const row=msgBox.querySelectorAll('.message-row.assistant');
+  const bubbleHost=row.length?row[row.length-1]:null;
+  const bubble=bubbleHost?bubbleHost.querySelector('.bubble'):null;
+  if(!bubble)return;
+  // Sauvegarde le contenu actuel (le HTML peut contenir des éléments enfants,
+  // mais le rendu utilise simplement la chaîne échappée). On garde une copie
+  // pour restaurer en cas d'annulation.
+  const originalHTML=bubble.innerHTML;
+  bubble.textContent='';
+  const token=++_typingTokenSeq;
+  // Vitesse : ~16ms par caractère (≈60 chars/s) — fluide sans bloquer la lecture.
+  // On groupe par 2 caractères pour rester rapide sur les longs textes.
+  const step=Math.max(1,Math.ceil(fullText.length/600));
+  const delay=16;
+  let i=0;
+  function tick(){
+    if(token!==_typingTokenSeq){bubble.innerHTML=originalHTML;return}
+    i=Math.min(fullText.length,i+step);
+    bubble.textContent=fullText.slice(0,i);
+    if(i<fullText.length){setTimeout(tick,delay)}
+    else{bubble.innerHTML=originalHTML}
+  }
+  tick();
+}
 function normalizeWallpaperVolume(v){const n=parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):35}
 function wallpaperStateFor(target){return target==='coworking'?{type:S.wallpaperCoworkingType,src:S.wallpaperCoworkingSrc,volume:normalizeWallpaperVolume(S.wallpaperCoworkingVolume)}:{type:S.wallpaperNormalType,src:S.wallpaperNormalSrc,volume:normalizeWallpaperVolume(S.wallpaperNormalVolume)}}
 function setWallpaperVolume(target,volume){const safeVolume=normalizeWallpaperVolume(volume);if(target==='coworking'){S.wallpaperCoworkingVolume=safeVolume;ls('wallpaper-coworking-volume',String(safeVolume))}else{S.wallpaperNormalVolume=safeVolume;ls('wallpaper-normal-volume',String(safeVolume))}if(activeTab===target){wallpaperVideo.volume=safeVolume/100;wallpaperVideo.muted=safeVolume<=0}if(wallpaperVolumeValue)wallpaperVolumeValue.textContent=safeVolume+'%'}
@@ -3625,7 +4350,7 @@ async function apiRegen(signal){const ctx=buildRequestContext();const r=await fe
 async function apiNewChat(){const r=await fetch('/api/new_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'Erreur');return p}
 
 // ── Soumission du formulaire (envoi message + gestion erreurs) ────
-form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);messagesMeta.push(null,null);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…'){messages.pop();messagesMeta.pop()}renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
+form.addEventListener('submit',async e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;playSend();statusEl.textContent='...';showStopBtn();abortController=new AbortController();messages.push(['Vous',v],[appTitle(),'…']);messagesMeta.push(null,null);renderMessages();ta.value='';autoResize();updateCharCounter();try{const p=await apiSend(v,abortController.signal);messages=p.messages;messagesMeta=p.metas||[];renderMessages();runAiTypingEffect();statusEl.textContent=ST[S.lang]||ST[defs.lang];playAiReply()}catch(err){if(err.name==='AbortError'){if(messages.length&&messages[messages.length-1][1]==='…'){messages.pop();messagesMeta.pop()}renderMessages()}else{if(messages.length&&messages[messages.length-1][0]!=='Vous')messages[messages.length-1]=[appTitle(),'Erreur : '+err.message];renderMessages();statusEl.textContent=err.message}}finally{hideStopBtn();ta.focus()}});
 // ── Liaisons événements contrôles UI ─────────────────────────────
 modeTrigger.addEventListener('click',()=>{playClick();modeMenu.classList.contains('open')?closeMM():openMM()});
 styleTrigger.addEventListener('click',()=>{playClick();styleMenu.classList.contains('open')?closeSM():openSM()});
@@ -3646,6 +4371,12 @@ $$('[data-ai-sound]').forEach(b=>b.addEventListener('click',()=>applyAiSound(b.d
 $$('[data-aifont-value]').forEach(b=>b.addEventListener('click',()=>applyAiFont(b.dataset.aifontValue)));
 $$('[data-userfont-value]').forEach(b=>b.addEventListener('click',()=>applyUserFont(b.dataset.userfontValue)));
 $$('[data-accent-value]').forEach(b=>b.addEventListener('click',()=>applyAccent(b.dataset.accentValue,true)));
+// ── Liaisons : style d'interface / Liquid Glass / boutons 8 bits / effet IA ──
+$$('[data-ui-style-value]').forEach(b=>b.addEventListener('click',()=>applyUiStyle(b.dataset.uiStyleValue,true)));
+(function(){const inp=$('glass-transparency-input');if(inp)inp.addEventListener('input',()=>applyGlassTransparency(inp.value,false))})();
+(function(){const tog=$('glass-tint-toggle');if(tog)tog.addEventListener('change',()=>applyGlassTint(tog.checked?'on':'off',true))})();
+(function(){const tog=$('pixel-buttons-toggle');if(tog)tog.addEventListener('change',()=>applyPixelButtons(tog.checked?'on':'off',true))})();
+(function(){const tog=$('ai-typing-toggle');if(tog)tog.addEventListener('change',()=>applyAiTyping(tog.checked?'on':'off',true))})();
 $('change-normal-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('normal')});
 $('change-coworking-wallpaper').addEventListener('click',()=>{playClick();openWallpaperModal('coworking')});
 $('remove-normal-wallpaper').addEventListener('click',()=>{playClick();setWallpaperState('normal','none','')});
@@ -3945,6 +4676,8 @@ document.body.dataset.theme=S.theme;document.body.dataset.effects=S.effects;docu
 applyLang(S.lang,false);applyTheme(S.theme,false);applyEffects(S.effects,false);applyTextSize(S.textSize,false);applyUIScale(S.uiScale,false);applyAccent(S.accent,false);
 applyOptResp(S.optResp,false);applyCalcTarget(S.calcTarget,false);applyUiOpt(S.uiOpt,false);
 applyKbSound(S.kbSound,false);applyKbStyle(S.kbStyle,false);applyClickSound(S.clickSound,false);applyClickStyle(S.clickStyle,false);applyAiSound(S.aiSound,false);
+// ── Style d'interface, transparence, teinte, boutons 8 bits, effet IA ────
+applyUiStyle(S.uiStyle,false);applyGlassTransparency(S.glassTransparency,false);applyGlassTint(S.glassTint,false);applyPixelButtons(S.pixelButtons,false);applyAiTyping(S.aiTyping,false);
 // ── Modèles personnalisés : normalisation de l'état au démarrage ──
 // Si l'option globale est désactivée, on purge l'éventuel modèle actif.
 // Si l'id actif ne correspond plus à aucun modèle (storage corrompu),
@@ -4181,6 +4914,11 @@ def build_index_html(logo_uri: str, messages: Iterable[Message], themed_logos: O
         "%%GADGETS_JSON%%": json.dumps(cfg.GADGETS, ensure_ascii=False),
         "%%DEFAULT_GADGET_JSON%%": json.dumps(cfg.DEFAULT_GADGET),
         "%%DEFAULT_OTHER_MODELS_JSON%%": json.dumps(cfg.DEFAULT_OTHER_MODELS_ENABLED),
+        "%%DEFAULT_UI_STYLE_JSON%%": json.dumps(cfg.DEFAULT_UI_STYLE),
+        "%%DEFAULT_GLASS_TRANSPARENCY_JSON%%": json.dumps(cfg.DEFAULT_GLASS_TRANSPARENCY),
+        "%%DEFAULT_GLASS_TINT_JSON%%": json.dumps(cfg.DEFAULT_GLASS_TINT),
+        "%%DEFAULT_PIXEL_BUTTONS_JSON%%": json.dumps(cfg.DEFAULT_PIXEL_BUTTONS),
+        "%%DEFAULT_AI_TYPING_EFFECT_JSON%%": json.dumps(cfg.DEFAULT_AI_TYPING_EFFECT),
         "%%CUSTOM_MODEL_SENTINEL_JSON%%": json.dumps(cfg.CUSTOM_MODEL_SENTINEL),
         "%%MIGRATION_PROMPT_JSON%%": json.dumps(cfg.MIGRATION_PROMPT, ensure_ascii=False),
         "%%SHEET_LIMITS_JSON%%": json.dumps(cfg.SHEET_LIMITS, ensure_ascii=False),
@@ -4271,6 +5009,11 @@ def build_index_html(
         "%%DEFAULT_GADGET_JSON%%":     json.dumps(cfg.DEFAULT_GADGET),
         "%%DEFAULT_CALC_TARGET_JSON%%":json.dumps(cfg.DEFAULT_CALC_TARGET),
         "%%DEFAULT_OTHER_MODELS_JSON%%": json.dumps(cfg.DEFAULT_OTHER_MODELS_ENABLED),
+        "%%DEFAULT_UI_STYLE_JSON%%":         json.dumps(cfg.DEFAULT_UI_STYLE),
+        "%%DEFAULT_GLASS_TRANSPARENCY_JSON%%": json.dumps(cfg.DEFAULT_GLASS_TRANSPARENCY),
+        "%%DEFAULT_GLASS_TINT_JSON%%":       json.dumps(cfg.DEFAULT_GLASS_TINT),
+        "%%DEFAULT_PIXEL_BUTTONS_JSON%%":    json.dumps(cfg.DEFAULT_PIXEL_BUTTONS),
+        "%%DEFAULT_AI_TYPING_EFFECT_JSON%%": json.dumps(cfg.DEFAULT_AI_TYPING_EFFECT),
         "%%CUSTOM_MODEL_SENTINEL_JSON%%": json.dumps(cfg.CUSTOM_MODEL_SENTINEL),
 
         # ── Divers ────────────────────────────────────────────────
