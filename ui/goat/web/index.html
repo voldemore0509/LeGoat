@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>%%APP_TITLE%%</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/open-dyslexic" rel="stylesheet">
+<style>
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Regular"),local("OpenDyslexic Regular"),local("OpenDyslexic"),local("Open Dyslexic"),local("Open-Dyslexic");font-weight:400;font-style:normal;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Italic"),local("OpenDyslexic Italic"),local("Open Dyslexic Italic"),local("OpenDyslexic");font-weight:400;font-style:italic;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-Bold"),local("OpenDyslexic Bold"),local("Open Dyslexic Bold"),local("OpenDyslexic");font-weight:700;font-style:normal;}
+@font-face{font-family:"OpenDyslexicCustom";src:local("OpenDyslexic-BoldItalic"),local("OpenDyslexic Bold Italic"),local("Open Dyslexic Bold Italic"),local("OpenDyslexic");font-weight:700;font-style:italic;}
+</style>
+<style>
+%%STYLES%%</style>
+</head>
+<body data-theme="light" data-effects="on" data-textsize="default" data-active-tab="chat" data-accent="blue" data-wallpaper-active="off" data-cw-wallpaper="off" data-preview="on" data-ui-style="default" data-glass-tint="off" data-pixel-buttons="on" data-ai-typing="on" data-reflex-boost="off">
+<div class="wallpaper-layer" id="wallpaper-layer" aria-hidden="true"><img class="wallpaper-media" id="wallpaper-image" alt=""><video class="wallpaper-media" id="wallpaper-video" autoplay muted loop playsinline></video><div class="wallpaper-tint"></div></div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     Barre de menu façon logiciel (Fichier / Édition / Aide)
+     IMPORTANT : on utilise <div> pour le déclencheur, car un <button>
+     ne peut pas contenir d'autres <button> (le navigateur les déplie).
+     ────────────────────────────────────────────────────────────── -->
+<nav class="app-menubar" id="app-menubar" aria-label="Menu principal">
+  <div class="app-menubar-item" id="menu-file-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_file">Fichier</span>
+    <div class="app-menubar-dropdown" id="menu-file-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-location" role="menuitem"><span data-i18n="menu_open_location">Emplacement du/des programmes</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-settings" role="menuitem"><span data-i18n="menu_settings">Paramètres</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="new-chat" role="menuitem"><span data-i18n="menu_new_chat">Nouvelle conversation</span></button>
+    </div>
+  </div>
+  <div class="app-menubar-item" id="menu-edit-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_edit">Édition</span>
+    <div class="app-menubar-dropdown" id="menu-edit-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="undo" role="menuitem"><span data-i18n="shortcut_undo">Annuler</span><span class="app-menubar-dd-shortcut">Ctrl+Z</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="redo" role="menuitem"><span data-i18n="shortcut_redo">Rétablir</span><span class="app-menubar-dd-shortcut">Ctrl+Maj+Z</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="cut" role="menuitem"><span data-i18n="shortcut_cut">Couper</span><span class="app-menubar-dd-shortcut">Ctrl+X</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="copy" role="menuitem"><span data-i18n="shortcut_copy">Copier</span><span class="app-menubar-dd-shortcut">Ctrl+C</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="paste" role="menuitem"><span data-i18n="shortcut_paste">Coller</span><span class="app-menubar-dd-shortcut">Ctrl+V</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="select-all" role="menuitem"><span data-i18n="shortcut_select_all">Tout sélectionner</span><span class="app-menubar-dd-shortcut">Ctrl+A</span></button>
+      <div class="app-menubar-dd-sep"></div>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="find" role="menuitem"><span data-i18n="shortcut_find">Rechercher</span><span class="app-menubar-dd-shortcut">Ctrl+F</span></button>
+    </div>
+  </div>
+  <div class="app-menubar-item" id="menu-help-btn" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="app-menubar-label" data-i18n="menu_help">Aide</span>
+    <div class="app-menubar-dropdown" id="menu-help-dd" role="menu">
+      <button type="button" class="app-menubar-dd-item" data-menu-action="contact-dev" role="menuitem"><span data-i18n="menu_contact_dev">Contacter le développeur</span></button>
+      <button type="button" class="app-menubar-dd-item" data-menu-action="open-doc" role="menuitem"><span data-i18n="menu_doc">Documentation du projet</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Top Tab Bar -->
+<div class="top-tab-bar">
+  <div class="top-tab-bar-inner">
+    <div class="tab-chat-wrap">
+      <button type="button" class="top-tab-btn active" id="tab-chat" aria-expanded="false"><span id="model-current-label">Chat</span><span class="chevron">▾</span></button>
+      <div class="model-dd-menu" id="model-dd-menu" role="menu"></div>
+    </div>
+    <button type="button" class="top-tab-btn" id="tab-coworking" data-tab="coworking">Goat Code</button>
+  </div>
+</div>
+
+<!-- Model dropdown ancien (caché, dummy pour JS) -->
+<div class="model-dropdown" id="model-dropdown" hidden>
+  <button type="button" class="model-trigger-btn" id="model-trigger-btn" aria-expanded="false"></button>
+</div>
+
+<button type="button" class="private-chat-btn" id="private-chat-btn">🔒<span id="pc-label">Chat Privé</span><div class="pc-tooltip"><div class="pc-title" id="pc-title"></div><div class="pc-desc" id="pc-desc"></div></div></button>
+
+<main class="shell" id="shell">
+  <section class="brand-stack"><div class="logo-card"><img id="main-logo" src="%%LEGOAT_LIGHT_URI%%" data-light="%%LEGOAT_LIGHT_URI%%" data-dark="%%LEGOAT_DARK_URI%%" data-pixel-light="%%LEGOAT_PIXEL_LIGHT_URI%%" data-pixel-dark="%%LEGOAT_PIXEL_DARK_URI%%" alt="Logo"></div><div class="brand-text" id="brand-text">%%APP_TITLE%%</div><div class="welcome-copy" id="welcome-copy"></div><div class="welcome-desc" id="welcome-desc"></div><div class="brand-actions"><button type="button" class="composer-plus brand-add-button" id="composer-plus" data-tooltip-key="tooltip_plus_btn"><span class="brand-add-icon">＋</span><span class="brand-add-label" data-i18n="sheet_add">Ajouter</span></button><div class="plus-menu brand-plus-menu" id="plus-menu"><button type="button" class="plus-menu-item" id="plus-add-sheet"></button></div></div></section>
+  <section class="messages" id="messages" aria-live="polite"></section>
+  <section class="composer-wrap">
+    <div class="sheets-row" id="sheets-row"></div>
+    <div class="attachments-row" id="attachments-row" hidden></div>
+    <form class="composer" id="chat-form">
+      <!-- Bouton + : ouvre le menu Image / Fichier -->
+      <div class="attach-wrap" style="position:relative;align-self:center">
+        <button type="button" class="attach-btn" id="attach-btn" aria-haspopup="true" aria-expanded="false" aria-label="Joindre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="attach-menu" id="attach-menu" role="menu">
+          <button type="button" class="attach-menu-item" id="attach-image-btn" role="menuitem">
+            <span class="attach-menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 16l-5-5L5 21"/></svg>
+            </span>
+            <span class="attach-menu-text">
+              <span class="attach-menu-title" data-i18n="attach_image">Image</span>
+              <span class="attach-menu-hint" data-i18n="attach_image_hint">Joindre une image</span>
+            </span>
+          </button>
+          <button type="button" class="attach-menu-item" id="attach-file-btn" role="menuitem">
+            <span class="attach-menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <span class="attach-menu-text">
+              <span class="attach-menu-title" data-i18n="attach_file">Fichier</span>
+              <span class="attach-menu-hint" data-i18n="attach_file_hint">Joindre un fichier</span>
+            </span>
+          </button>
+        </div>
+        <input type="file" id="attach-image-input" accept="image/*" multiple hidden>
+        <input type="file" id="attach-file-input" multiple hidden>
+      </div>
+      <textarea id="message-input" rows="1"></textarea>
+      <button type="button" class="voice-input-button" id="voice-input-btn" aria-label="Voice input">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 4a2 2 0 0 1 2 2v5a2 2 0 1 1-4 0V6a2 2 0 0 1 2-2Z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><path d="M12 16v4"/><path d="M9 20h6"/></svg>
+      </button>
+      <button type="submit" class="send-button" id="send-button" data-tooltip-key="tooltip_send">↑</button>
+      <button type="button" class="stop-button" id="stop-button" hidden>■</button>
+
+    </form>
+    <div style="display:flex;justify-content:flex-end;width:100%;padding:0 4px;position:relative">
+      <div class="char-counter" id="char-counter"><span id="char-counter-text">0 / 10 000</span><div class="char-counter-tip" id="char-counter-tip"></div></div>
+    </div>
+    <div class="controls-row" id="controls-row">
+      <!-- Modes -->
+      <div class="mode-panel" id="mode-panel"><button type="button" class="mode-trigger" id="mode-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_mode_trigger"><span class="trigger-icon" id="mode-icon">○</span><span id="selected-mode-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="mode-menu" role="menu"></div></div>
+      <!-- Writing Styles -->
+      <div class="style-panel"><button type="button" class="style-trigger" id="style-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_style_trigger"><span class="trigger-icon" id="style-icon">✎</span><span id="selected-style-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="style-menu" role="menu"></div></div>
+      <!-- ── Modèles personnalisés (visible si interrupteur "Autres modèles" actif) ── -->
+      <div class="style-panel custom-models-panel" id="custom-models-panel" hidden>
+        <button type="button" class="style-trigger" id="custom-models-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_models_trigger">
+          <span class="trigger-icon" id="custom-models-icon">⚙</span>
+          <span id="custom-models-label" data-i18n="models_btn_label">Modèles</span>
+          <span class="trigger-chevron">⌄</span>
+        </button>
+        <div class="dropdown-menu custom-models-menu" id="custom-models-menu" role="menu"></div>
+      </div>
+      <!-- Gadgets (desactive pour le moment)
+      <div class="style-panel"><button type="button" class="style-trigger" id="gadget-trigger" aria-haspopup="true" aria-expanded="false" data-tooltip-key="tooltip_gadget_trigger"><span class="trigger-icon" id="gadget-icon">⚙</span><span id="selected-gadget-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="gadget-menu" role="menu"></div></div>
+      -->
+      <!-- Contraction Of Chat -->
+      <div class="contraction-tag" id="contraction-tag" hidden>⚠ Contraction Of Chat<div class="contraction-tip" id="contraction-tip"></div></div>
+    </div>
+    <div class="mode-announcement" id="mode-announcement"></div>
+  </section>
+  <div class="status" id="status"></div>
+</main>
+<!-- Boutons gauche — style Apple quasi-transparent -->
+<div class="left-buttons-anchor">
+  <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Ouvrir le panneau latéral" data-tooltip-key="tooltip_sidebar">☰</button>
+  <button type="button" class="newchat-button" id="newchat-button" data-tooltip-key="tooltip_new_chat">＋</button>
+</div>
+<div id="newchat-button-label" hidden></div>
+<div class="settings-anchor"><button type="button" class="settings-button" id="settings-button" data-tooltip-key="tooltip_settings">⚙</button><div class="settings-button-label" id="settings-button-label"></div></div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     Barre latérale (sidebar)
+     ────────────────────────────────────────────────────────────── -->
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+<aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" role="complementary">
+
+  <!-- Topbar : marque + bouton fermer -->
+  <div class="sidebar-topbar">
+    <div class="sidebar-brand-wrap">
+      <span class="sidebar-brand-mark" id="sidebar-brand-mark" aria-hidden="true">
+        <img id="sidebar-brand-mark-img" alt="">
+      </span>
+      <span class="sidebar-brand" id="sidebar-brand">Le Goat</span>
+    </div>
+    <button type="button" class="sidebar-icon-btn" id="sidebar-close-btn" aria-label="Fermer le panneau">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <!-- Action principale : nouvelle discussion -->
+  <div class="sidebar-section">
+    <button type="button" class="sidebar-primary-btn" id="sidebar-new-chat-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span id="sidebar-new-chat-label">Nouvelle discussion</span>
+    </button>
+  </div>
+
+  <!-- Recherche -->
+  <div class="sidebar-section">
+    <div class="sidebar-search-inner">
+      <span class="sidebar-search-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input type="search" class="sidebar-search" id="sidebar-search" placeholder="Rechercher une discussion…" data-placeholder-key="sidebar_search_placeholder">
+    </div>
+  </div>
+
+  <!-- Section "Épinglés" -->
+  <div class="sidebar-pinned-wrap">
+    <div class="sidebar-section-title" data-i18n="sidebar_pinned">Épinglés</div>
+    <div class="sidebar-pinned-empty" id="sidebar-pinned-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.39 4.84 5.34.78-3.86 3.77.91 5.32L12 14.27l-4.78 2.51.91-5.32-3.86-3.77 5.34-.78L12 2z" transform="scale(.85) translate(2.1 1.6)"/></svg>
+      <span data-i18n="sidebar_pinned_empty">Glissez pour épingler</span>
+    </div>
+  </div>
+
+  <!-- Onglets : Fichiers / Historique -->
+  <div class="sidebar-tabs">
+    <button type="button" class="sidebar-tab active" data-sidebar-tab="files" data-i18n="sidebar_tab_files">Fichiers</button>
+    <button type="button" class="sidebar-tab" data-sidebar-tab="history" data-i18n="sidebar_tab_history">Historique</button>
+  </div>
+
+  <!-- Contenu : Fichiers -->
+  <div class="sidebar-content" data-sidebar-content="files">
+    <button type="button" class="sidebar-action-item" id="sidebar-create-file-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15h6"/></svg>
+      <span data-i18n="sidebar_create_file">Créer un fichier</span>
+    </button>
+  </div>
+
+  <!-- Contenu : Historique -->
+  <div class="sidebar-content" data-sidebar-content="history" hidden>
+    <div class="sidebar-empty" id="sidebar-history-empty" data-i18n="sidebar_history_empty">Aucune discussion pour l'instant.</div>
+  </div>
+
+  <!-- Footer : profil + paramètres -->
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-profile" id="sidebar-profile-btn" aria-label="Ouvrir le profil">
+      <span class="sidebar-profile-avatar" id="sidebar-profile-avatar" aria-hidden="true">G</span>
+      <span class="sidebar-profile-name" id="sidebar-profile-name">Le Goat</span>
+    </button>
+    <button type="button" class="sidebar-settings-icon-btn" id="sidebar-settings-btn" aria-label="Paramètres" data-tooltip-key="tooltip_settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09c0 .66.39 1.26 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.25.61.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</aside>
+<!-- Modale "Créer / Renommer un fichier" -->
+<div class="sf-modal-backdrop" id="sf-modal-backdrop" aria-hidden="true">
+  <div class="sf-modal" role="dialog" aria-modal="true" aria-labelledby="sf-modal-title">
+    <div class="sf-modal-title" id="sf-modal-title">Nouveau fichier</div>
+    <input type="text" class="sf-modal-input" id="sf-modal-input" placeholder="Nom du fichier" autocomplete="off" spellcheck="false" maxlength="120">
+    <div class="sf-modal-actions">
+      <button type="button" class="sf-modal-btn" id="sf-modal-cancel">Annuler</button>
+      <button type="button" class="sf-modal-btn primary" id="sf-modal-confirm">Créer</button>
+    </div>
+  </div>
+</div>
+<!-- Popover : actions sur un fichier (renommer / supprimer) -->
+<div class="sf-popover" id="sf-popover" role="menu" aria-hidden="true">
+  <button type="button" class="sf-popover-item" id="sf-popover-rename" role="menuitem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <span id="sf-popover-rename-label">Renommer</span>
+  </button>
+  <button type="button" class="sf-popover-item danger" id="sf-popover-delete" role="menuitem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    <span id="sf-popover-delete-label">Supprimer</span>
+  </button>
+</div>
+<div class="settings-backdrop" id="settings-backdrop" hidden></div>
+<section class="settings-modal" id="settings-modal" hidden aria-modal="true" role="dialog">
+  <aside class="settings-sidebar">
+    <div class="settings-close-row"><strong data-i18n="settings_label">Paramètres</strong><button type="button" class="settings-close" id="settings-close">×</button></div>
+    <button type="button" class="settings-tab active" data-settings-tab="general"><span class="settings-tab-icon">⚙</span><span data-i18n="tab_general">Générale</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="appearance"><span class="settings-tab-icon">🎨</span><span data-i18n="tab_appearance">Apparence</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="personalization"><span class="settings-tab-icon">✦</span><span data-i18n="tab_personalization">Personnalisation</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="data_security"><span class="settings-tab-icon">☑</span><span data-i18n="tab_data_security">Données</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="optimization"><span class="settings-tab-icon">⚡</span><span data-i18n="tab_optimization">Optimisation</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="connectors"><span class="settings-tab-icon">🔌</span><span data-i18n="tab_connectors">Connecteurs</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="goat_dev"><span class="settings-tab-icon">🐐</span><span data-i18n="tab_goat_dev">Goat Developer</span></button>
+    <button type="button" class="settings-tab" data-settings-tab="aide"><span class="settings-tab-icon">💬</span><span data-i18n="tab_aide">Aide</span></button>
+    <button type="button" class="settings-tab settings-tab-profile-footer" data-settings-tab="profile">
+      <img class="settings-profile-tab-avatar" id="settings-profile-tab-avatar" alt="Avatar profil">
+      <div class="settings-profile-tab-copy">
+        <span class="settings-profile-tab-label" data-i18n="tab_profile">Profil</span>
+        <span class="settings-profile-tab-name" id="settings-profile-tab-name">Profil local</span>
+      </div>
+    </button>
+  </aside>
+  <div class="settings-main">
+    <div class="settings-header" id="settings-drag-handle"><div><h2 data-i18n="settings_title">Paramètres</h2><p data-i18n="settings_subtitle"></p></div><div class="settings-hint" data-i18n="settings_hint"></div></div>
+    <div class="settings-content" id="settings-content">
+      <section class="settings-section active" data-settings-content="general">
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_version">Version</div></div><div class="settings-version-value" id="settings-version-value">%%APP_VERSION%%</div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="update_info">Mises à jour</div></div><button type="button" class="settings-ghost-button" id="update-info-button" data-i18n="update_info"></button></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_language">Langue</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-language-value="fr" data-i18n="language_fr">Français</button><button type="button" class="settings-choice" data-language-value="en" data-i18n="language_en">Anglais</button><button type="button" class="settings-choice" data-language-value="es" data-i18n="language_es">Espagnol</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_theme">Thème</div><div class="settings-row-subtitle" data-i18n="theme_description"></div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-theme-value="light" data-i18n="theme_light">Claire</button><button type="button" class="settings-choice" data-theme-value="dark" data-i18n="theme_dark">Sombre</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_text_size">Taille</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-textsize-value="default" data-i18n="text_size_default">Par défaut</button><button type="button" class="settings-choice" data-textsize-value="large" data-i18n="text_size_large">Grand</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_app_scale">Taille du logiciel</div><div class="settings-row-subtitle" data-i18n="general_app_scale_hint"></div></div><div class="settings-stepper"><button type="button" class="settings-ghost-button" id="scale-down-button">−</button><span class="settings-stepper-value" id="ui-scale-value">100%</span><button type="button" class="settings-ghost-button" id="scale-up-button">+</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_keyboard_sounds">Son clavier</div></div><div class="settings-choice-group" id="keyboard-sound-toggle"><button type="button" class="settings-choice" data-kb-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-kb-sound="off" data-i18n="sound_off">Désactiver</button></div></div><div class="settings-row" id="keyboard-style-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_keyboard_sound_style">Style</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-kb-style="bulle" data-i18n="sound_style_bulle">Bulle</button><button type="button" class="settings-choice" data-kb-style="aurela" data-i18n="sound_style_aurela">Aurela</button><button type="button" class="settings-choice" data-kb-style="verdrock" data-i18n="sound_style_verdrock">Verdrock</button><button type="button" class="settings-choice" data-kb-style="feryn" data-i18n="sound_style_feryn">Feryn</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sounds">Son boutons</div></div><div class="settings-choice-group" id="click-sound-toggle"><button type="button" class="settings-choice" data-click-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-click-sound="off" data-i18n="sound_off">Désactiver</button></div></div><div class="settings-row" id="click-style-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_click_sound_style">Style</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-click-style="bulle" data-i18n="sound_style_bulle">Bulle</button><button type="button" class="settings-choice" data-click-style="nebrise" data-i18n="sound_style_nebrise">Nebrise</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="general_ai_reply_sounds">Son IA</div></div><div class="settings-choice-group" id="ai-sound-toggle"><button type="button" class="settings-choice" data-ai-sound="on" data-i18n="sound_on">Activer</button><button type="button" class="settings-choice" data-ai-sound="off" data-i18n="sound_off">Désactiver</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_label">Police IA</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-aifont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-aifont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-aifont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="font_user_label">Police utilisateur</div></div><div class="settings-choice-group"><button type="button" class="settings-choice" data-userfont-value="default" data-i18n="font_default">Par défaut</button><button type="button" class="settings-choice" data-userfont-value="arial" data-i18n="font_arial">Arial</button><button type="button" class="settings-choice" data-userfont-value="opendyslexic" data-i18n="font_opendyslexic">Open Dyslexic</button></div></div></div>
+        <!-- Toggle "Version de prévisualisation" — active/désactive les fonctions expérimentales -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title"><span data-i18n="preview_toggle_label">Accéder à la version de prévisualisation</span><span class="beta-badge blue" data-i18n="aide_beta_label">BÊTA</span></div>
+              <div class="settings-row-subtitle" data-i18n="preview_toggle_hint"></div>
+            </div>
+            <label class="preview-switch" aria-label="Version de prévisualisation">
+              <input type="checkbox" id="preview-toggle-input" checked>
+              <span class="preview-switch-track"></span>
+            </label>
+          </div>
+        </div>
+        <div class="thanks-text" id="thanks-text" data-i18n="thanks_message">Designed and coded in France</div>
+      </section>
+
+      <section class="settings-section" data-settings-content="appearance">
+        <!-- ════════ Rubrique : Visual Lumen ════════ -->
+        <div class="settings-section-title">Visual Lumen</div>
+        <!-- ── Lumen Reflex Boost — mode performance maximale ── -->
+        <div class="settings-block reflex-boost-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title"><span data-i18n="appearance_reflex_boost">Lumen Reflex Boost</span><span class="reflex-boost-badge" data-i18n="appearance_reflex_boost_badge">PERF</span></div>
+              <div class="settings-row-subtitle" data-i18n="appearance_reflex_boost_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Lumen Reflex Boost">
+              <input type="checkbox" id="reflex-boost-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
+        <!-- ── Style d'interface (Par défaut / Lumen Mirror) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_ui_style">Style d'interface</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_ui_style_hint"></div>
+            </div>
+            <div class="ui-style-choice-group">
+              <button type="button" class="ui-style-choice" data-ui-style-value="default" data-i18n="ui_style_default">Par défaut</button>
+              <button type="button" class="ui-style-choice" data-ui-style-value="glass" data-i18n="ui_style_glass">Lumen Mirror</button>
+            </div>
+          </div>
+          <!-- Réglages affichés uniquement si Lumen Mirror est actif -->
+          <div class="settings-row" data-only-glass="1">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_glass_transparency">Transparence du Lumen Mirror</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_glass_transparency_hint"></div>
+            </div>
+            <div class="glass-slider-row">
+              <input type="range" id="glass-transparency-input" class="glass-slider" min="0" max="100" step="1">
+              <span class="glass-slider-value" id="glass-transparency-value">55%</span>
+            </div>
+          </div>
+          <div class="settings-row" data-only-glass="1">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_glass_tint">La couleur de l'interface influence le Lumen Mirror</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_glass_tint_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Glass tint">
+              <input type="checkbox" id="glass-tint-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
+        <!-- ════════ Rubrique : Interface ════════ -->
+        <div class="settings-section-title">Interface</div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_color">Couleur de l'interface</div></div><div class="appearance-swatch-group"><button type="button" class="appearance-swatch" data-accent-value="blue" style="--swatch:#3b82f6" title="Bleu"></button><button type="button" class="appearance-swatch" data-accent-value="red" style="--swatch:#ef4444" title="Rouge"></button><button type="button" class="appearance-swatch" data-accent-value="green" style="--swatch:#22c55e" title="Vert"></button><button type="button" class="appearance-swatch" data-accent-value="yellow" style="--swatch:#eab308" title="Jaune"></button><button type="button" class="appearance-swatch" data-accent-value="pink" style="--swatch:#ec4899" title="Rose"></button><button type="button" class="appearance-swatch" data-accent-value="purple" style="--swatch:#8b5cf6" title="Violet"></button><button type="button" class="appearance-swatch" data-accent-value="orange" style="--swatch:#f97316" title="Orange"></button></div></div></div>
+        <!-- ── Boutons 8 bits (Pixel / Arrondi) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="appearance_pixel_buttons">Boutons 8 bits</div>
+              <div class="settings-row-subtitle" data-i18n="appearance_pixel_buttons_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Boutons 8 bits">
+              <input type="checkbox" id="pixel-buttons-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
+        <div class="wallpaper-preview-card">
+          <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_wallpaper_normal">Fond d'écran du mode normal</div></div><div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="change-normal-wallpaper" data-i18n="appearance_change">Changer</button><button type="button" class="settings-ghost-button" id="remove-normal-wallpaper" data-i18n="appearance_remove">Retirer</button></div></div>
+          <div class="wallpaper-preview-box" id="normal-wallpaper-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+        </div>
+        <div class="wallpaper-preview-card">
+          <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_wallpaper_coworking">Fond d'écran de Goat Code</div></div><div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="change-coworking-wallpaper" data-i18n="appearance_change">Changer</button><button type="button" class="settings-ghost-button" id="remove-coworking-wallpaper" data-i18n="appearance_remove">Retirer</button></div></div>
+          <div class="wallpaper-preview-box" id="coworking-wallpaper-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+        </div>
+      </section>
+      <section class="settings-section" data-settings-content="personalization"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title">Logo de l'IA</div><div class="settings-row-subtitle">Remplace le logo affiché dans l'interface. PNG ou JPG recommandé.</div></div><div style="display:flex;gap:8px;align-items:center"><img id="ai-logo-preview" alt="Logo aperçu" style="width:40px;height:40px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:var(--surface-soft)"><button type="button" class="settings-ghost-button" id="ai-logo-change-btn">Changer</button><button type="button" class="settings-ghost-button" id="ai-logo-reset-btn">Réinitialiser</button></div></div>
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title">Nom de l'IA</div><div class="settings-row-subtitle">Par défaut : "Le Goat". Ce nom s'affiche partout dans l'interface.</div></div><div style="display:flex;gap:8px;align-items:center"><input class="settings-input" id="ai-name-input" placeholder="Le Goat" style="width:150px"><button type="button" class="settings-ghost-button" id="ai-name-reset-btn">Réinitialiser</button></div></div>
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_how_address">Comment l'IA s'adresse à vous</div><div class="settings-row-subtitle" data-i18n="perso_how_address_help">Prénom, surnom, ou titre que l'IA utilisera.</div></div><input class="settings-input" id="user-tone" data-placeholder-key="placeholder_tone"></div>
+        <div class="settings-row" style="flex-direction:column;align-items:stretch"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="perso_ai_tone">Ton de l'IA</div><div class="settings-row-subtitle" data-i18n="perso_ai_tone_help">Décrivez comment vous voulez que l'IA vous parle.</div></div><textarea class="settings-textarea" id="user-info" data-placeholder-key="personalization_placeholder" style="width:100%;min-height:160px"></textarea></div>
+        <!-- ── Interrupteur "Autres modèles" ───────────────────────────────
+             Affiche/cache un bouton "Modèles" à côté du sélecteur de style
+             d'écriture, qui permet de gérer ses propres modèles. -->
+        <div class="settings-row" data-tooltip-key="tooltip_other_models_toggle">
+          <div class="settings-row-stack">
+            <div class="settings-row-title" data-i18n="perso_other_models">Autres modèles</div>
+            <div class="settings-row-subtitle" data-i18n="perso_other_models_help">Active la possibilité d'ajouter et de gérer vos propres modèles.</div>
+          </div>
+          <label class="profile-switch" aria-label="Autres modèles">
+            <input type="checkbox" id="other-models-toggle">
+            <span class="profile-switch-track"></span>
+          </label>
+        </div>
+        <input type="hidden" id="user-firstname"><input type="hidden" id="user-lastname">
+      </div></section>
+      <section class="settings-section" data-settings-content="data_security"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="data_security_memory">Mémoire</div></div><button type="button" class="settings-ghost-button" id="manage-memory-button" data-i18n="data_security_memory"></button></div>
+        <!-- Option masquée temporairement : historique des discussions
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="data_security_history">Historique</div></div><button type="button" class="settings-ghost-button" id="manage-history-button" data-i18n="data_security_history"></button></div>
+        -->
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="migrate_data">Migration</div></div><button type="button" class="settings-ghost-button" id="migrate-data-button" data-i18n="migrate_data"></button></div>
+      </div></section>
+      <section class="settings-section" data-settings-content="optimization">
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_effects">Effets visuels</div><div class="settings-row-subtitle">Désactive transitions + ombres + blur.</div></div><div class="settings-choice-group"><span class="settings-state" id="effects-state"></span><button type="button" class="settings-ghost-button" id="toggle-effects-button" data-i18n="optimization_effects"></button></div></div></div>
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_responses">Réponses</div><div class="settings-row-subtitle">Bloque Creativity / Reflection / Research In Memory.</div></div><div class="settings-choice-group"><span class="settings-state" id="responses-state"></span><button type="button" class="settings-ghost-button" id="toggle-responses-button" data-i18n="optimization_responses"></button></div></div></div>
+        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title"><span data-i18n="optimization_calc_target">Ciblage des calculs</span><span class="beta-badge" data-i18n="aide_beta_label">BÊTA</span></div><div class="settings-row-subtitle" data-i18n="optimization_calc_target_hint"></div></div><div class="calc-target-panel" id="calc-target-panel"><button type="button" class="mode-trigger" id="calc-target-trigger" aria-haspopup="true" aria-expanded="false"><span class="trigger-icon" id="calc-target-icon">⚙</span><span id="calc-target-label"></span><span class="trigger-chevron">⌄</span></button><div class="dropdown-menu" id="calc-target-menu" role="menu"></div></div></div></div>
+        <div class="calc-target-notification" id="calc-target-notification" hidden></div>
+        <!-- Option masquée temporairement : libération de la mémoire vive de l'IA
+        <div class="settings-block"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="optimization_ram">Libération de la mémoire vive de l'IA</div><div class="settings-row-subtitle" data-i18n="optimization_ram_hint"></div></div><button type="button" class="settings-ghost-button" id="release-ram-button" data-i18n="optimization_ram"></button></div></div>
+        -->
+        <div class="settings-block" data-preview-only="1"><div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="overclock_label">Overclocking IA</div><div class="settings-row-subtitle" data-i18n="overclock_subtitle"></div></div><div class="overclock-toggle" id="overclock-toggle"></div></div></div>
+        <!-- ── Effet d'écriture de l'IA (caractère par caractère) ── -->
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_typing_effect">Effet d'écriture de l'IA</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_typing_effect_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Effet d'écriture IA">
+              <input type="checkbox" id="ai-typing-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+          <!-- Style de l'effet d'écriture (visible si l'effet est activé) -->
+          <div class="settings-row" id="typing-style-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_typing_style">Style de l'effet d'écriture</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_typing_style_hint"></div>
+            </div>
+            <div class="settings-choice-group">
+              <button type="button" class="settings-choice" data-typing-style-value="default" data-i18n="typing_style_default">Par défaut</button>
+              <button type="button" class="settings-choice" data-typing-style-value="discovery" data-i18n="typing_style_discovery">Découverte</button>
+            </div>
+          </div>
+        </div>
+        <!-- ── Effets d'envoi (Lumen Mirror uniquement) ── -->
+        <div class="settings-block" data-only-glass="1">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="optimization_send_effects">Effets d'envoi</div>
+              <div class="settings-row-subtitle" data-i18n="optimization_send_effects_hint"></div>
+            </div>
+            <label class="profile-switch" aria-label="Effets d'envoi">
+              <input type="checkbox" id="send-effects-toggle">
+              <span class="profile-switch-track"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+      <!-- ── Section Connecteurs ── -->
+      <section class="settings-section" data-settings-content="connectors">
+        <div class="settings-block">
+          <div class="settings-row">
+            <div class="settings-row-stack">
+              <div class="settings-row-title" data-i18n="connectors_title">Connecteurs</div>
+              <div class="settings-row-subtitle" data-i18n="connectors_subtitle">Liez Le Goat à vos services et outils externes.</div>
+            </div>
+            <button type="button" class="settings-ghost-button" id="connectors-add-btn" data-i18n="connectors_add">Ajouter un connecteur</button>
+          </div>
+        </div>
+      </section>
+      <!-- ── Section Aide ── -->
+      <section class="settings-section" data-settings-content="aide"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="aide_contact_title">Contacter le développeur</div><div class="settings-row-subtitle" data-i18n="aide_contact_desc">Une question, un bug, une idée ? Écrivez-nous.</div></div><button type="button" class="settings-ghost-button" id="aide-contact-btn" data-i18n="aide_contact_btn">Contacter</button></div>
+      </div></section>
+
+      <!-- ── Modal contact développeur ── -->
+      <div class="aide-contact-backdrop" id="aide-contact-backdrop" role="dialog" aria-modal="true">
+        <div class="aide-contact-modal">
+          <h3 data-i18n="aide_contact_modal_title">Nous contacter</h3>
+          <p data-i18n="aide_contact_modal_desc">Choisissez votre moyen de contact préféré.</p>
+          <div class="aide-contact-cards">
+            <!-- Mail — ouvre Gmail ou l'application Mail Windows -->
+            <a class="aide-contact-card" id="aide-mail-card" href="mailto:contact@legoat.fr" title="Envoyer un e-mail">
+              <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="44" height="44" rx="12" fill="#EA4335"/>
+                <path d="M8 14h28v18H8V14z" fill="white" opacity=".15"/>
+                <path d="M8 14l14 11L36 14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="8" y="14" width="28" height="18" rx="2" stroke="white" stroke-width="2" fill="none"/>
+              </svg>
+              <span class="aide-contact-card-label">Mail</span>
+              <span class="aide-contact-card-sub">contact@legoat.fr</span>
+            </a>
+            <!-- Instagram — désactivé pour l'instant -->
+            <div class="aide-contact-card disabled" title="Instagram — bientôt disponible">
+              <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="ig-grad" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#f09433"/>
+                    <stop offset="25%" stop-color="#e6683c"/>
+                    <stop offset="50%" stop-color="#dc2743"/>
+                    <stop offset="75%" stop-color="#cc2366"/>
+                    <stop offset="100%" stop-color="#bc1888"/>
+                  </linearGradient>
+                </defs>
+                <rect width="44" height="44" rx="12" fill="url(#ig-grad)"/>
+                <rect x="11" y="11" width="22" height="22" rx="6" stroke="white" stroke-width="2.2" fill="none"/>
+                <circle cx="22" cy="22" r="5.5" stroke="white" stroke-width="2.2" fill="none"/>
+                <circle cx="29" cy="15" r="1.5" fill="white"/>
+              </svg>
+              <span class="aide-contact-card-label">Instagram</span>
+              <span class="aide-contact-card-sub">Bientôt disponible</span>
+            </div>
+          </div>
+          <button type="button" class="aide-contact-close" id="aide-contact-close" data-i18n="aide_close">Fermer</button>
+        </div>
+      </div>
+
+      <!-- ── Modale Connecteurs (liste vide + bouton custom) ── -->
+      <div class="connectors-modal-backdrop" id="connectors-modal-backdrop" role="dialog" aria-modal="true">
+        <div class="connectors-modal">
+          <div class="connectors-modal-header">
+            <h3 data-i18n="connectors_modal_title">Connecteurs disponibles</h3>
+            <button type="button" class="connectors-modal-close" id="connectors-modal-close">×</button>
+          </div>
+          <div class="connectors-empty-card">
+            <strong data-i18n="connectors_empty">Aucun connecteur</strong>
+            <span data-i18n="connectors_empty_hint">Aucun connecteur n'est disponible pour le moment.</span>
+          </div>
+          <div class="connectors-modal-footer">
+            <button type="button" class="settings-ghost-button" id="connectors-add-custom-btn" data-i18n="connectors_add_custom">Ajouter un connecteur personnalisé</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Modale Connecteur personnalisé (placeholder) ── -->
+      <div class="connectors-modal-backdrop" id="connectors-custom-backdrop" role="dialog" aria-modal="true">
+        <div class="connectors-modal">
+          <div class="connectors-modal-header">
+            <h3 data-i18n="connectors_custom_modal_title">Connecteur personnalisé</h3>
+            <button type="button" class="connectors-modal-close" id="connectors-custom-close">×</button>
+          </div>
+          <p style="margin:0;color:var(--text-secondary);font-size:.9rem;line-height:1.5" data-i18n="connectors_custom_modal_desc">Cette fonction est en cours de développement.</p>
+          <div class="connectors-modal-footer">
+            <button type="button" class="settings-ghost-button" id="connectors-custom-ok" data-i18n="aide_close">Fermer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Modale d'avertissement (activation prévisualisation) ── -->
+      <div class="preview-warning-backdrop" id="preview-warning-backdrop" role="dialog" aria-modal="true">
+        <div class="preview-warning-modal">
+          <h3 data-i18n="preview_warning_title">Activer les fonctions de prévisualisation</h3>
+          <p data-i18n="preview_warning_text">Plusieurs fonctions seront affichées, mais elles risquent d'être inutilisables ou en cours de test. Souhaitez-vous continuer ?</p>
+          <div class="preview-warning-actions">
+            <button type="button" class="settings-ghost-button" id="preview-warning-cancel" data-i18n="preview_warning_cancel">Annuler</button>
+            <button type="button" class="settings-ghost-button primary" id="preview-warning-confirm" data-i18n="preview_warning_confirm">Activer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goat Developer -->
+      <section class="settings-section" data-settings-content="goat_dev"><div class="settings-block">
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="goat_dev_news">Nouveautés</div><div class="settings-row-subtitle" data-i18n="goat_dev_news_desc"></div></div><button type="button" class="settings-ghost-button" id="goat-dev-news-btn" data-i18n="goat_dev_news"></button></div>
+        <div class="settings-row"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="goat_dev_about">À propos</div><div class="settings-row-subtitle" data-i18n="goat_dev_about_desc"></div></div><button type="button" class="settings-ghost-button" id="goat-dev-about-btn" data-i18n="goat_dev_about"></button></div>
+      </div></section>
+      <section class="settings-section" data-settings-content="profile">
+        <div class="profile-shell">
+          <div class="profile-stack">
+            <div class="profile-card">
+              <div class="profile-banner" id="profile-banner-preview"></div>
+              <div class="profile-card-body">
+                <div class="profile-avatar-wrap"><img class="profile-avatar" id="profile-avatar-preview" alt="Profile avatar"></div>
+                <div class="profile-headline">
+                  <div class="profile-name-block">
+                    <h3 class="profile-name" id="profile-name-preview"></h3>
+                    <div class="profile-subline" id="profile-share-hint" data-i18n="profile_share_hint"></div>
+                  </div>
+                  <button type="button" class="settings-ghost-button" id="profile-edit-toggle" data-i18n="profile_edit">Modifier</button>
+                </div>
+                <p class="profile-description" id="profile-description-preview"></p>
+                <div class="profile-metrics">
+                  <div class="profile-metric"><span data-i18n="profile_chats_sent">Chats envoyés à l'IA</span><strong id="profile-chat-count">0</strong></div>
+                  <!-- Option masquée temporairement : Goat Score
+                  <div class="profile-metric"><span data-i18n="profile_goat_score">Goat Score</span><strong id="profile-goat-score">0</strong></div>
+                  -->
+                </div>
+                <!-- Option masquée temporairement : réseaux sociaux
+                <div>
+                  <div class="profile-section-title" data-i18n="profile_social_links">Réseaux sociaux</div>
+                  <div class="profile-socials" id="profile-socials-preview"></div>
+                </div>
+                -->
+                <div class="profile-share-actions">
+                  <!-- Option masquée temporairement : partage du profil professionnel
+                  <button type="button" class="settings-ghost-button" id="profile-share-pro-btn" data-i18n="profile_share_pro">Envoyer le profil professionnel</button>
+                  -->
+                  <button type="button" class="settings-ghost-button primary" id="profile-share-full-btn" data-i18n="profile_share_full">Envoyer le profil complet</button>
+                </div>
+              </div>
+            </div>
+            <div class="profile-editor" id="profile-editor" hidden>
+              <div class="profile-editor-header">
+                <div class="profile-section-title">Profile Builder</div>
+                <div class="profile-helper" data-i18n="profile_auto_save">Sauvegarde automatique locale.</div>
+              </div>
+              <div class="profile-inline-toggle">
+                <div class="profile-inline-toggle-text">
+                  <strong>Afficher ma photo à côté de mes messages</strong>
+                  <span>Activé, vos messages s'affichent avec votre photo de profil. Par défaut : désactivé.</span>
+                </div>
+                <label class="profile-switch" aria-label="Afficher la photo dans le chat">
+                  <input type="checkbox" id="profile-avatar-messages-toggle">
+                  <span class="profile-switch-track"></span>
+                </label>
+              </div>
+              <div class="profile-upload-grid">
+                <div class="profile-upload-card">
+                  <div class="profile-upload-title" data-i18n="profile_avatar">Photo de profil</div>
+                  <div class="profile-upload-preview" id="profile-avatar-upload-preview"></div>
+                  <div class="profile-upload-actions">
+                    <button type="button" class="settings-ghost-button" id="profile-avatar-upload-btn" data-i18n="profile_choose_avatar">Choisir une image</button>
+                    <button type="button" class="settings-ghost-button" id="profile-avatar-remove-btn" data-i18n="profile_remove_avatar">Retirer</button>
+                  </div>
+                </div>
+                <div class="profile-upload-card">
+                  <div class="profile-upload-title" data-i18n="profile_banner">Bannière</div>
+                  <div class="profile-upload-preview" id="profile-banner-upload-preview"></div>
+                  <div class="profile-upload-actions">
+                    <button type="button" class="settings-ghost-button" id="profile-banner-upload-btn" data-i18n="profile_choose_banner">Choisir une bannière</button>
+                    <button type="button" class="settings-ghost-button" id="profile-banner-remove-btn" data-i18n="profile_remove_banner">Retirer</button>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-security-note">Les images passent par un filtre local de sécurité avant d'être acceptées. Ce filtre est volontairement conservateur.</div>
+              <div class="profile-editor-grid">
+                <div><div class="settings-row-title" data-i18n="profile_firstname">Prénom</div><input class="settings-input" id="profile-firstname-input" placeholder="Prénom"></div>
+                <div><div class="settings-row-title" data-i18n="profile_lastname">Nom</div><input class="settings-input" id="profile-lastname-input" placeholder="Nom"></div>
+                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bio">Bio</div><div class="settings-row-subtitle" data-i18n="profile_bio_help" style="margin-bottom:6px">Votre bio aide l'IA à mieux vous comprendre.</div><textarea class="settings-textarea" id="profile-bio-input" placeholder="Bio" maxlength="1000"></textarea><div class="char-counter" id="profile-bio-counter"><span id="profile-bio-count">0</span>/1000</div></div>
+                <!-- Option masquée temporairement : réseaux sociaux en édition
+                <div><div class="settings-row-title" data-i18n="profile_instagram">Instagram</div><input class="settings-input" id="profile-instagram-input" placeholder="https://instagram.com/... ou @pseudo"></div>
+                <div><div class="settings-row-title" data-i18n="profile_tiktok">TikTok</div><input class="settings-input" id="profile-tiktok-input" placeholder="https://tiktok.com/... ou @pseudo"></div>
+                <div><div class="settings-row-title" data-i18n="profile_youtube">YouTube</div><input class="settings-input" id="profile-youtube-input" placeholder="https://youtube.com/... ou @chaîne"></div>
+                <div><div class="settings-row-title" data-i18n="profile_github">GitHub</div><input class="settings-input" id="profile-github-input" placeholder="https://github.com/... ou pseudo"></div>
+                <div class="profile-span-2"><div class="settings-row-title" data-i18n="profile_bluesky">BleuSky</div><input class="settings-input" id="profile-bluesky-input" placeholder="https://bsky.app/... ou handle"></div>
+                -->
+              </div>
+              <input class="profile-hidden-input" type="file" id="profile-avatar-file" accept="image/*">
+              <input class="profile-hidden-input" type="file" id="profile-banner-file" accept="image/*">
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+<div class="migrate-backdrop" id="migrate-backdrop"><div class="migrate-modal"><h3><span id="migrate-title"></span><button type="button" id="migrate-close-x">×</button></h3><div class="migrate-step" id="migrate-step1"></div><div class="migrate-prompt-box" id="migrate-prompt-box"></div><button type="button" class="migrate-copy-btn" id="migrate-copy-btn"></button><div class="migrate-step" id="migrate-step2" style="margin-top:8px"></div><textarea class="migrate-textarea" id="migrate-textarea"></textarea><div class="migrate-actions"><button type="button" class="migrate-btn-cancel" id="migrate-cancel-btn"></button><button type="button" class="migrate-btn-add" id="migrate-add-btn" disabled></button></div></div></div>
+<div class="sheet-modal-backdrop" id="sheet-modal-backdrop"><div class="sheet-modal"><div class="sheet-modal-header"><h3 id="sheet-modal-title"></h3><span class="sheet-char-counter" id="sheet-char-counter">0 / 14 000</span></div><textarea id="sheet-textarea" placeholder=""></textarea><div class="sheet-modal-actions"><button type="button" class="sheet-btn-cancel" id="sheet-cancel"></button><button type="button" class="sheet-btn-add" id="sheet-add-btn"></button></div></div></div>
+<!-- ── Modale "NAME Models" : ajout / renommage d'un modèle personnalisé ──
+     Réutilisée pour les deux opérations (le titre est ajusté dynamiquement). -->
+<div class="sheet-modal-backdrop" id="custom-model-backdrop" role="dialog" aria-modal="true">
+  <div class="sheet-modal" style="max-width:480px;min-height:0">
+    <div class="sheet-modal-header">
+      <h3 id="custom-model-modal-title" data-i18n="models_modal_title">NAME Models</h3>
+    </div>
+    <input type="text" class="settings-input" id="custom-model-name-input" maxlength="64" autocomplete="off" data-placeholder-key="models_modal_placeholder">
+    <div class="custom-model-error" id="custom-model-error" hidden></div>
+    <div class="sheet-modal-actions">
+      <button type="button" class="sheet-btn-cancel" id="custom-model-cancel-btn" data-i18n="models_modal_cancel">Annuler</button>
+      <button type="button" class="sheet-btn-add" id="custom-model-enter-btn" data-i18n="models_modal_enter">Entrer</button>
+    </div>
+  </div>
+</div>
+<div class="profile-crop-backdrop" id="profile-crop-backdrop">
+  <div class="profile-crop-modal">
+    <div class="profile-crop-header"><strong id="profile-crop-title">Recadrer l'image</strong><button type="button" id="profile-crop-close">×</button></div>
+    <div class="profile-crop-body">
+      <div class="profile-crop-canvas-wrap"><canvas id="profile-crop-canvas"></canvas></div>
+      <div class="profile-crop-controls">
+        <span>Zoom</span>
+        <input type="range" id="profile-crop-zoom" min="100" max="260" step="1" value="100">
+      </div>
+    </div>
+    <div class="profile-crop-actions">
+      <button type="button" class="settings-ghost-button" id="profile-crop-cancel">Annuler</button>
+      <button type="button" class="settings-ghost-button primary" id="profile-crop-apply">Appliquer</button>
+    </div>
+  </div>
+</div>
+<div class="profile-picker-backdrop" id="profile-picker-backdrop">
+  <div class="profile-picker-modal">
+    <div class="profile-picker-header"><strong id="profile-picker-title">Choisir une image</strong><button type="button" id="profile-picker-close">×</button></div>
+    <div class="profile-picker-body">
+      <div class="profile-picker-section-title" id="profile-picker-section-title">Goat</div>
+      <div class="profile-picker-grid" id="profile-picker-grid"></div>
+    </div>
+  </div>
+</div>
+<!-- Badge Goatistique retiré -->
+<div class="overclock-backdrop" id="overclock-backdrop"><div class="overclock-modal"><h3>⚠ Overclocking IA</h3><div class="oc-warning-text" id="oc-warning-text"></div><div class="oc-actions"><button type="button" class="oc-btn-cancel" id="oc-cancel-btn"></button><button type="button" class="oc-btn-confirm" id="oc-confirm-btn"></button></div></div></div>
+<div class="tooltip" id="tooltip" hidden></div>
+<div class="profile-avatar-hover-card" id="profile-avatar-hover-card" hidden>
+  <div class="profile-avatar-hover-banner" id="profile-avatar-hover-banner"></div>
+  <div class="profile-avatar-hover-body">
+    <div class="profile-avatar-hover-head">
+      <img id="profile-avatar-hover-image" alt="Aperçu profil">
+      <div class="profile-avatar-hover-copy">
+        <strong id="profile-avatar-hover-name"></strong>
+        <span id="profile-avatar-hover-bio"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wallpaper-backdrop" id="wallpaper-backdrop">
+  <div class="wallpaper-modal" role="dialog" aria-modal="true">
+    <div class="wallpaper-modal-header"><strong id="wallpaper-modal-title">Fond d'écran</strong><button type="button" id="wallpaper-close-btn">×</button></div>
+    <div class="wallpaper-modal-body">
+      <div class="wallpaper-modal-target" id="wallpaper-modal-target"></div>
+      <div class="wallpaper-preview-box" id="wallpaper-modal-preview"><span class="label" data-i18n="appearance_preview">Aperçu</span></div>
+      <div class="wallpaper-actions"><button type="button" class="settings-ghost-button" id="wallpaper-import-image-btn" data-i18n="appearance_import_image">Importer une image</button><button type="button" class="settings-ghost-button" id="wallpaper-import-video-btn" data-i18n="appearance_import_video">Importer une vidéo</button><button type="button" class="settings-ghost-button" id="wallpaper-remove-btn" data-i18n="appearance_remove">Retirer</button></div>
+      <input type="file" id="wallpaper-file-input" class="profile-hidden-input" accept="image/*">
+      <input type="file" id="wallpaper-video-file-input" class="profile-hidden-input" accept="video/*">
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title" data-i18n="appearance_video_volume">Volume de la vidéo</div><div class="settings-row-subtitle" data-i18n="appearance_video_help">Vidéo en boucle pour l’arrière-plan.</div></div><div class="settings-stepper"><input type="range" id="wallpaper-volume-input" min="0" max="100" step="1" value="35" style="width:180px"><span class="settings-stepper-value" id="wallpaper-volume-value">35%</span></div></div>
+      <!-- Option masquée temporairement : FPS et qualité vidéo
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">FPS</div><div class="settings-row-subtitle">Images par seconde de la vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-fps="30">30 fps</button><button type="button" class="settings-choice" data-video-fps="60">60 fps</button></div></div>
+      <div class="settings-row" style="padding-top:0"><div class="settings-row-stack"><div class="settings-row-title">Qualité</div><div class="settings-row-subtitle">Résolution de rendu vidéo.</div></div><div class="settings-choice-group"><button type="button" class="settings-choice active" data-video-quality="1080p">1080p</button><button type="button" class="settings-choice" data-video-quality="4k">4K</button></div></div>
+      -->
+    </div>
+  </div>
+</div>
+
+<!-- Éléments dummy cachés pour éléments désactivés (évite crash JS) -->
+<div hidden>
+  <button id="toggle-uiopt-button"></button><span id="uiopt-state"></span>
+  <div id="calc-target-panel"></div><button id="calc-target-trigger"></button><span id="calc-target-label"></span><span id="calc-target-icon"></span><div id="calc-target-menu"></div><div id="calc-target-notification"></div>
+  <div id="profile-socials-preview"></div>
+  <input id="profile-instagram-input"><input id="profile-tiktok-input"><input id="profile-youtube-input"><input id="profile-github-input"><input id="profile-bluesky-input">
+</div>
+<script>
+%%SCRIPT%%</script>
+</body>
+</html>
