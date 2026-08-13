@@ -16,7 +16,8 @@ int generation_prompt(const char *prompt, const char *model, char *output, size_
     if(curl == NULL)    //verifie si le Handle est nul ou pas 
     {
         printf("handle is NULL");
-        return -3 ; 
+        return 1 ; 
     }
+    
     return 0;
 }
