@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "im.h"
 
 int pdlc(char *writing)
 {
@@ -38,12 +39,4 @@ char *writing(int sizeofcaractermax)
 void clear_cache_memory(char *write)
 {
     free(write);
-}
-
-int main(void)
-{
-    char *write = writing(10000);
-    printf("%s\n",write);
-    clear_cache_memory(write);
-    return 0;
 }

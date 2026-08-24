@@ -4,11 +4,16 @@
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
 
-truct MemoryStruct {
+struct MemoryStruct 
+{
     char *memory;
     size_t size;
 };
 
+int callback()
+{
+
+}
 
 int generation_prompt(const char *prompt, const char *model, char *output, size_t output_size)
 {
