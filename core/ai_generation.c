@@ -10,10 +10,11 @@ struct MemoryStruct
     size_t size;
 };
 
-int callback()
+size_t callback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 
 }
+
 
 int generation_prompt(const char *prompt, const char *model, char *output, size_t output_size)
 {
